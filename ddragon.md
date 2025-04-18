@@ -4,9 +4,11 @@
 
 ## System information
 
+```
 $026 = demo mode
 $036 = level counter
 $E5E = time counter
+```
 
 ## Character's management
 
@@ -14,8 +16,10 @@ $E5E = time counter
 
 Player data is stored on the following addressess:
 
+```
 $3A2 - Player 1
 $400 - Player 2
+```
 
 ```
 O     = offset
