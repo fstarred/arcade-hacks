@@ -4,6 +4,16 @@
 
 ## System information
 
+**CPU**
+* Hitachi HD6309E
+* Hitachi HD63701Y0
+* Motorola MC6809
+
+**Specs**<br>
+[H 6309 reference](../specs/Motorola%206809%20and%20Hitachi%206309%20Programming%20Reference%20(Darren%20Atkinson).pdf)
+
+## General information
+
 ```
 $026 = demo mode
 $036 = level counter
