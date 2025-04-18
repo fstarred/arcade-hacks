@@ -14,7 +14,7 @@ $E5E = time counter
 
 ### Player data
 
-Player data is stored on the following addressess:
+Player data is stored on the following addresses:
 
 ```
 $3A2 - Player 1
@@ -100,14 +100,14 @@ The most often called routine is the following:
  6234  STB    $1,X                                         E7 01
 ```
 
-Basically, by taking the first 5 bits of the Y+4 address value you know which enemy is:
+Basically, by taking the first 5 bits of the Y+4 address value you know which enemy is by looking at the following address data:
 
 ```
 6345  02 03 04 05 06 07 08 09 0A 22 23
 ```
 
 The above is somehow a vector address for the enemy character. 
-For instance, if you replace $08 with $22 and you replace $22 with $08 as well,
+For instance, if you switch position of values $08 and $22,
 
 you'll basically see the black guy spawning in place of the white guy and viceversa.
 
@@ -116,6 +116,9 @@ The working rule is quite simple:
 Let's say at point $622C the A register contains value $06, then ($6345+$06) give $08, the white guy.
 
 At $6234 the instruction store the enemy character on the free enemy slot + 1 (i.e. $45f)
+
+![img4](https://github.com/user-attachments/assets/10f03698-fabb-4de0-902b-864cf61d196a)
+
 
 ### Routines for the enemy generation
 
@@ -165,23 +168,17 @@ These are routines for the enemy spawn on the map:
 
 **Routine F**
 ```
-A49D  LDA    #$16                                         86 16
-A49F  STA    $1,X                                         A7 01
-```
-
-**Routine G**
-```
 A4CF  LDA    $1D,X                                        A6 88 1D
 A4D2  STA    $1,X                                         A7 01
 ```
 
-**Routine H**
+**Routine G**
 ```
 55E1  LDA    ,Y+                                          A6 A0
 55E3  STA    $1,X                                         A7 01
 ```
 
-**Routine I**
+**Routine H**
 ```
 63B2  LDA    #$03                                         86 03
 63B4  STA    $1,X                                         A7 01
@@ -199,7 +196,6 @@ B6C9 (5b3) = 2
 
 *********** level 1 ***********
 
-![img2](https://github.com/user-attachments/assets/39f6b9a9-b0f2-4244-8822-472432945f60)=46
 6580=4A
 66FD=27
 6707=06
@@ -242,8 +238,7 @@ dynamic=0A -> Routine B
 663B=46
 6645=46
 673B=07
-Routine F
-Routine G
+047B=09 -> Routine F
 6649=46
 665A=42
 6664=42
@@ -256,7 +251,7 @@ Routine G
 6683=47
 668D=41
 05B6=46
-560D=07 (BOSS) -> Routine H
+560D=07 (BOSS) -> Routine G
 
 *********** level 5 ***********
 
@@ -269,9 +264,9 @@ Routine C
 66C1=49
 66CB=42
 654C=40 (boss)
-XXXX=03 -> Routine I
-XXXX=03 -> Routine I
-XXXX=03 -> Routine I
+XXXX=03 -> Routine H
+XXXX=03 -> Routine H
+XXXX=03 -> Routine H
 ```
 
 ![img2](https://github.com/user-attachments/assets/5e14afd5-6b53-4030-8e85-502be22b8fdd)
@@ -296,18 +291,20 @@ There are several routines for dealing with enemy's energy like the one below:
 
 If you remove the **STB** instruction, energy of the enemy won't be set,
 
-so basically you'll get rid of in one shoot.
+so basically you'll get rid of him in one shoot.
 
 On MAME, open a new memory window and point to Region :maincpu
 
-Then replace instruction **STB $1F,X** with 3 **NOP* (12,12,12)
+Then replace instruction **STB $1F,X** with 3 **NOP* (12,12,12) for all the following locations:
 
+```
 59D3+C000
 52CA+C000
 631C+C000
 64B6+C000
 5DDA+C000
 63BC+10000
+```
 
 ![img3](https://github.com/user-attachments/assets/6a49310f-e0f8-4f4a-9bf2-0250ce6258a5)
 
@@ -322,9 +319,9 @@ $01 = demo mode off
 
 When on demo mode on, players are controlled by CPU.
 
-Said so, I guessed that was somehow possible to make game playable on cooperative mode with both human and CPU.
+Said so, I guessed it was somehow possible to make game playable on cooperative mode with both human and CPU as main players.
 
-by placing a watchpoint on address $26 I discovered many routines that check for that address, but the one responsible
+By placing a watchpoint on address $26 I discovered a plenty of routines that check for that address, however the one responsible
 for the player's movement was located at address $4449:
 
 ```
@@ -344,7 +341,7 @@ FED1  JMP    $4804                                        7E 48 04
 FED4  JMP    $675D                                        7E 67 5D
 ```
 
-and this is beging the content of routine located at $4449:
+routine at $4449:
 
 ```
 4449  LDA    $26                                          96 26
@@ -359,19 +356,21 @@ and this is beging the content of routine located at $4449:
 445E  LDY    #$3800                                       10 8E 38 00
 ```
 
-You can see that at $4449 code read from address $26.
+You can see the first instruction is check $26 address content.
 
-If demo mode is off then branch to address $445e, otherwise continue.
+If demo mode is OFF then branch to address $445e, otherwise continue.
 
-By placing a breakpoint at address $4449, I noticed that register X value could be $3A2 or $400.
+But there's more:
+
+By placing a breakpoint on this routine, I noticed that register X value continuosly switch between $3A2 and $400.
 
 Do you recall that values? These are the vector base address for player 1 and player 2.
 
-It is easy to guess that pointing to a different address than $26 might do the job.
+It is easy to guess that pointing to a different location than $26 when X = $3a2 or $400 might do the job.
 
-The following code hack show how to achieve this;
+The following code hack show how to achieve this:
 
-open memory window on MAME and then edit the content as shown below:
+Open memory window on MAME and then edit the content as shown below:
 
 ```
 *4449+C000
@@ -385,3 +384,7 @@ open memory window on MAME and then edit the content as shown below:
  5003  LBEQ   $445E                                        10 27 F4 57
  5007  JMP    $4449                                        7E 44 49
 ```
+
+Notice on $FEB9 I changed location from $4449 to $5000, which is (I hope) a spare memory location.
+Our custom routine force player 1 to manual control, while player 2 play with CPU or manual according to $25 content value.
+
