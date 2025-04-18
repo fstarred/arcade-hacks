@@ -258,8 +258,8 @@ dynamic=0A -> Routine B
 66A2=46
 66AC=47
 6756=29
-Routine C
-Routine C
+59AB=07 -> Routine C
+59AB=07 -> Routine C
 66B7=47
 66C1=49
 66CB=42
