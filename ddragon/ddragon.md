@@ -216,7 +216,7 @@ dynamic=0A -> Routine B
 6596=46
 65A0=4A
 65AA=4A
-XXXX=07 -> Routine D
+64A9=07 -> Routine D
 
 *********** level 2 ***********
 
@@ -274,9 +274,9 @@ dynamic=0A -> Routine B
 66C1=49
 66CB=42
 654C=40 (boss)
-XXXX=03 -> Routine H
-XXXX=03 -> Routine H
-XXXX=03 -> Routine H
+63B3=03 -> Routine H
+63B3=03 -> Routine H
+63B3=03 -> Routine H
 ```
 
 ![img2](https://github.com/user-attachments/assets/5e14afd5-6b53-4030-8e85-502be22b8fdd)
