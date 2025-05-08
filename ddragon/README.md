@@ -75,20 +75,20 @@ O + 1F = energy
 This is the character's available value that I discovered so far:
 
 ```
-00 player 1
-01 player 2
-02 final boss
-03 2nd level boss
-04 giant white
-05 giant black
-06 giant white 2
-07 giant black 2
-08 white guy
-09 white guy 2
-0A woman 
-0B unknow
-22 black guy
-23 black guy 2
+00 Billy
+01 Jimmy
+02 Willy
+03 Jeff
+04 Abobo 
+05 Abobo (black)
+06 Jack 
+07 Jack (black)
+08 Williams
+09 Rowper
+0A Linda
+0B Unknow
+22 Williams (black)
+23 Rowper (black)
 ```
 
 For instance, by changing byte $45f content value to $04, you would change enemy character to giant white.
