@@ -118,12 +118,10 @@ The following routine is called when player 1 or player 2 take an action:
  9646  EORA   $E7                                          98 E7
 ```
 
-Let's say player is jumping, register A value = $04, PC at $963E will jump to the location set at content $9640+$04, which is $9759.
+Let's say player is jumping, register A value = $04 and Y = $9640, when PC is at $963E, then JMP instruction will make jump PC to the address stored at $9640+$04, which is $9759.
 <br>
-Since the routine at $9759 make the player jump, routine at $963E punch, and so on. 
-<br>
-We can so change the content location at $963E+A with another routine in order to change control's behavior:
-For instance, by swapping the word content of $9759 and $9759+$04, we could throw punch instead of reverse kick and viceversa.
+We can so change the content location at Y+A register with another routine in order to change control's behavior:
+For instance, by swapping the word size content at $9640 and $9640+$02, we could throw punch instead of kick and viceversa.
 <br>
 This actually make not sense at all, but whatever.. we might, for example, to forbid the enemy for a specific move.
 <br>
