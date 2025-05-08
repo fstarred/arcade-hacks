@@ -95,6 +95,41 @@ For instance, by changing byte $45f content value to $04, you would change enemy
 
 Notice that changing on runtime content slot value with $00 or $01 can cause player to be stuck on map.
 
+### Actions ###
+
+Every time player or enemy are involved in some actions like punching, kicking, jumping etc. , a JMP
+instruction orchestrate for which routine will be called, according to the action taken.
+
+The following routine is called when player 1 or player 2 take an action:
+
+```
+ 93F1  EXG    A,S                                          1E 84
+ 93F3  CLR    $4810                                        7F 48 10
+ 93F6  LDX    #$93FB                                       8E 93 FB
+ 93F9  JMP    [A,Y]                                        6E B6
+ 93FB  ANDA   $27                                          94 27
+ 93FD  ANDA   $CB                                          94 CB
+ 93FF  BITA   $0A                                          95 0A
+ 9401  BITA   $CB                                          95 CB
+```
+
+Let's say player is jumping, register A value = $04 and Y = $93FB, when PC is at $93F9, then JMP instruction will jump to the address stored at $93FB+$04, which is $950A.
+<br>
+We can so change the content location at Y+A register with another routine in order to change control's behavior:
+For instance, by swapping the word size content at $93FB and $93FB+$02, we could throw punch instead of kick and viceversa.
+<br>
+This actually make not sense at all, but whatever.. we might, for example, to forbid the enemy for a specific move.
+<br>
+Notice that, for enemy, a similar JMP statement can be found at address $A905.
+
+Therefore:
+
+```
+Action JMP routine:
+$93F9 player
+$A905 enemy
+```
+
 ### Enemy's spawn code
 
 There are some routines responsable for the enemy spawning during gameplay.
