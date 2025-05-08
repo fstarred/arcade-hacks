@@ -97,6 +97,14 @@ For instance, by changing byte $461 content value to $0B, you would change enemy
 
 Notice that changing on runtime content slot value with $00 or $01 can cause player to be stuck on map.
 
+#### Enemies intro
+```
+$79B5+$20000	$02	Willy
+$7AB7+$20000	$07	Chin Taimei
+$7ABB+$20000	$0B	Burnov
+```
+
+
 ### Actions ###
 
 Every time player or enemy are involved in some actions like punching, kicking, jumping etc. , a JMP
