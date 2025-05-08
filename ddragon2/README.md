@@ -1,4 +1,4 @@
-# Double dragon II
+# Double Dragon II
 
 ![intro](https://github.com/user-attachments/assets/fcf78f78-c200-42dd-b9b3-0784a8dd53e8)
 
@@ -16,8 +16,8 @@
 ```
 $026 = demo mode
 $036 = level counter
-$04B = game status ($04 = initial screen, $0B = intro)
-$E5E = time counter
+$04B = palette
+$F49 = time counter
 ```
 
 ## Character's management
@@ -97,5 +97,42 @@ For instance, by changing byte $461 content value to $0B, you would change enemy
 
 Notice that changing on runtime content slot value with $00 or $01 can cause player to be stuck on map.
 
+### Actions ###
 
+Every time player or enemy are involved in some actions like punching, kicking, jumping etc. , a JMP
+instruction orchestrate for which routine will be called, according to the action taken.
 
+The following routine is called when player 1 or player 2 take an action:
+
+```
+ 9630  LDA    $1E,X                                        A6 88 1E
+ 9633  ANDA   #$7F                                         84 7F
+ 9635  CMPA   #$16                                         81 16
+ 9637  BCC    $9637                                        24 FE
+ 9639  ASLA                                                48
+ 963A  LDY    #$9640                                       10 8E 96 40
+ 963E  JMP    [A,Y]                                        6E B6
+ 9640  LDA    $6C                                          96 6C
+ 9642  STA    $04                                          97 04
+ 9644  STA    $59                                          97 59
+ 9646  EORA   $E7                                          98 E7
+```
+
+Let's say player is jumping, register A value = $04, PC at $963E will jump to the location set at content $9640+$04, which is $9759.
+<br>
+Since the routine at $9759 make the player jump, routine at $963E punch, and so on. 
+<br>
+We can so change the content location at $963E+A with another routine in order to change control's behavior:
+For instance, by swapping the word content of $9759 and $9759+$04, we could throw punch instead of reverse kick and viceversa.
+<br>
+This actually make not sense at all, but whatever.. we might, for example, to forbid the enemy for a specific move.
+<br>
+Notice that, for enemy, a similar JMP statement can be found at address $ABB5.
+
+Therefore:
+
+```
+Action JMP routine:
+$963E player
+$ABB5 enemy
+```
