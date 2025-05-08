@@ -16,9 +16,16 @@
 ```
 $026 = demo mode
 $036 = level counter
-$04B = palette
+$04B = palette 
 $F49 = time counter
 ```
+
+Notice that, by changing $4B = $0B after the intro, will make show the intro scene again
+
+## Legacy
+
+A lot of data from the first episode is still present on the second.
+For example, by changing the content at address $3A4 (p1 animation) with $1A, $1B you can see the head butt animation; $1E,$1F for front kick.
 
 ## Character's management
 
@@ -103,7 +110,6 @@ $79B5+$20000	$02	Willy
 $7AB7+$20000	$07	Chin Taimei
 $7ABB+$20000	$0B	Burnov
 ```
-
 
 ### Actions ###
 
