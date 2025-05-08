@@ -51,7 +51,7 @@ O + 05 = pos x
 
 ### Enemy data
 
-Everytime an enemy spawn in the fight, a free **slot** ram of $55 bytes is booked for managing enemy's data, such as animation, position, etc.
+Everytime an enemy spawn in the fight, a free **slot** ram of $63 bytes is booked for managing enemy's data, such as animation, position, etc.
 
 First slot start offset starts from $460, then next slot will start from $460+$63:
 
