@@ -148,3 +148,70 @@ Action JMP routine:
 $963E player
 $ABB5 enemy
 ```
+
+## Play as Abore
+
+![Playing as Abore](https://github.com/user-attachments/assets/15edf352-0010-4e89-90ee-692879606aa6)
+
+The following script allow to play as Abore instead of Billy.
+<br/>
+Unfortunately when this cheat is enabled, gameplay will also affect 2nd player because of some enemy moves that results to be removed (i.e. enemy is not able to catch you anymore).
+<br/>
+Also, weapons cannot be taken no more.. I didn't want to write dedicated routines when playing Abore because I'm too lazy, that's the main reason.
+```
+<cheat desc="Character"> <comment></comment>
+	<parameter>            
+	  <item value="0x05">Abore</item>
+    </parameter>
+	<script state="on">
+ <script state="run">
+	  <action>maincpu.rb@03a3=(param)</action>	<!-- character -->
+	  <action condition="(maincpu.rb@3A9==0x41) and (maincpu.rb@3A7==0x28)">maincpu.rb@03a4=10</action>	<!-- couched at intro -->
+	  
+	  <action>maincpu.mw@985C=1212</action>	<!-- no hurricane kick -->	  	  	  
+	  <action>maincpu.mb@97F2=20</action>	<!-- no flying kick -->	  
+	  <action>maincpu.mw@AC56=B5A6</action>	<!-- no catch by burnov -->	  
+	  <action>maincpu.mw@8B4E=A775</action>	<!-- no catch by burnov -->	  
+	  <action>maincpu.mw@AC32=B3A8</action>	<!-- punch, prevent armlock by enemy-->
+	  <action>maincpu.mw@964C=966C</action>	<!-- punch, prevent flyng kick-->
+	  <action>maincpu.mw@8B50=9630</action>	<!-- punch, prevent taking weapon-->
+	  <action>maincpu.mw@8B62=9630</action>	<!-- punch, prevent taking weapon alt. -->
+	  <action>maincpu.mw@AC06=AC60</action> <!-- no catch by giant -->
+	  <action>maincpu.mw@AC16=AC60</action>	<!-- no catch by giant -->
+	  <action>maincpu.md@8E7B=03040504</action>	<!-- fix walk up animation -->
+	  <action>maincpu.mb@AB5B=0A</action>	<!-- replace not existing upside down animation -->
+	  <action>maincpu.mb@AB5F=0A</action>	<!-- replace not existing upside down animation -->	  
+    </script>
+	<script state="change">
+	  <action condition="(param==0x05)">maincpu.md@142DF=10100E0E</action> <!-- die -->
+	  <action condition="(param==0x05)">maincpu.mb@9747=20</action>	<!-- kick animation -->
+	  <action condition="(param==0x05)">maincpu.mb@9749=21</action>	<!-- kick animation -->
+	  <action condition="(param==0x05)">maincpu.mb@974B=21</action>	<!-- kick animation -->
+	  <action condition="(param==0x05)">maincpu.mb@9ACA=20</action>	<!-- kick animation -->
+	  <action condition="(param==0x05)">maincpu.mb@9ACC=21</action>	<!-- kick animation -->
+	  <action condition="(param==0x05)">maincpu.mb@9ACE=21</action>	<!-- kick animation -->	 	 
+	</script>
+	<script state="off">
+      <action>maincpu.mw@985C=2407</action> 
+	  <action>maincpu.mb@97F2=27</action> 
+	  <action>maincpu.mw@AC56=B61B</action> 
+	  <action>maincpu.mw@8B4E=A6B5</action> 
+	  <action>maincpu.mw@AC32=AE0F</action> 
+	  <action>maincpu.mw@964C=9973</action> 
+	  <action>maincpu.mw@8B50=A111</action> 
+	  <action>maincpu.mw@8B62=A717</action> 
+	  <action>maincpu.md@142DF=63646565</action> 
+	  <action>maincpu.mw@AC06=B31A</action> 	  
+	  <action>maincpu.mw@AC16=B31A</action> 	  
+	  <action>maincpu.md@8E7B=00000004</action>
+	  <action>maincpu.mb@AB5B=35</action>
+	  <action>maincpu.mb@AB5F=35</action>
+	  <action>maincpu.mb@9747=73</action>
+	  <action>maincpu.mb@9749=74</action>
+	  <action>maincpu.mb@974B=73</action>
+	  <action>maincpu.mb@9ACA=6E</action>
+	  <action>maincpu.mb@9ACC=6F</action>
+	  <action>maincpu.mb@9ACE=70</action>	 
+	</script>
+</cheat>
+```
