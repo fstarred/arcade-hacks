@@ -9,15 +9,7 @@
 * Zilog Z80 3.5 MHz
 
 **Specs**<br>
-[H 6309 reference](../specs/Motorola%206809%20and%20Hitachi%206309%20Programming%20Reference%20(Darren%20Atkinson).pdf)
-
-## General information
-
-```
-$026 = demo mode
-$036 = level counter
-$E5E = time counter
-```
+[M68000](../specs/M68000_16_32-Bit_Microprocessor_Programmers_Reference_Manual_4th_Edition_text.pdf)
 
 ## Character's management
 
