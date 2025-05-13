@@ -22,8 +22,10 @@ $FF8569 - Player 1
 $FF8629 - Player 2
 ```
 
+Starting from these offset, I found the following information stored for each player:
+
 ```
-O     = offset
+O      = offset
 O + 05 = pos x (word)
 O + 0A = pos y (byte)
 O + 13 = character (byte, from 0 to 2)
@@ -32,17 +34,6 @@ O + 13 = character (byte, from 0 to 2)
 ```
 
 ### Enemy data
-
-Everytime an enemy spawn in the fight, a free ram **slot** of $C0 bytes is booked for managing enemy's data, such as animation, position, etc.
-
-Here's an example of slot's map address:
-
-1. $ff8fe8
-2. $ff8f28
-3. $ff8e68
-4. $ff8da8
-5. $ff8ce8
-[...]
 
 Enemy's boss level often take address $ff9a68
 
@@ -84,10 +75,39 @@ This is the character's available value that I discovered so far:
 02	0501 = el gado
 02	0600 = roxy
 02	0601 = poison
-02	0800 = holli wood (red)
+02	0800 = holly wood (red)
+```
+
+### Initial pose
+
+Below are some codes I found for the character's initial pose.
+<br/>
+Behaviour may vary according to the character kind itself, so for instance a value of 0x04 means staying crouched for Bred, while for Andore it means immediately charging the player
+
+```
+00 = ?
+01 = ?
+02 = lean against the wall
+04 = ?
+06 = ?
+07 = coming from a door
+0C = coming from above
 ```
 
 ### Enemy's spawn code
+
+Everytime an enemy spawn in the fight, a free ram **slot** of $C0 bytes is booked for managing enemy's data, such as animation, position, etc.
+
+Here's an example of slot's map address:
+
+```
+1. $ff8fe8
+2. $ff8f28
+3. $ff8e68
+4. $ff8da8
+5. $ff8ce8
+[...]
+```
 
 There are some routines responsable for the enemy spawning during gameplay.
 
@@ -245,3 +265,13 @@ ffbc4a	02	-> routine d
 0708cc	02080000	-> routine c
 0708dc	02050000	-> routine c
 ```
+
+### Bosses
+
+04 0000 = Damnd
+04 0100 = Sodom
+04 0200 = Edi.E
+04 0300 = Rolento
+04 0400 = Abigail
+04 0500 = Belger
+04 0600 = Bosstest
