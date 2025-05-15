@@ -48,6 +48,7 @@ O + $14	character
 O + $15	initial pose
 O + $18	energy		
 O + $1C	energy bar size
+O + $25 frame animation object (double)
 ...
 ```
 
