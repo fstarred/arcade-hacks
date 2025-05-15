@@ -35,8 +35,6 @@ O + 13 = character (byte, from 0 to 2)
 
 ### Enemy data
 
-Enemy's boss level often take address $ff9a68
-
 Typically, when an enemy dies the address slot reserved for it get free so when the next enemy spawn on the screen can take it.
 This is a bit of content map that an enemy slot can contains:
 
@@ -131,6 +129,9 @@ Here's an example of slot's map address:
 4. $ff8da8
 5. $ff8ce8
 [...]
+
+Boss:
+$ff9a68
 ```
 
 There are some routines responsable for the enemy spawning during gameplay.
