@@ -11,6 +11,10 @@
 **Specs**<br>
 [M68000](../specs/M68000_16_32-Bit_Microprocessor_Programmers_Reference_Manual_4th_Edition_text.pdf)
 
+## General game data
+
+$FF8412 = scenario position
+
 ## Character's management
 
 ### Player data
