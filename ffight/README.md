@@ -60,25 +60,29 @@ O + $25 frame animation object (double)
 
 This is the character's available value that I discovered so far:
 
-```02	0000 = bred
-02	0001 = doug
-02	0002 = jake
-02	0003 = simons
-02	0100 = j
-02	0101 = two.p
-02	0200 = axl
-02	0201 = slash
-02	0300 = andore jr.
-02	0301 = andore
-02	0302 = g.andore
-02	0400 = g. oriber
-02	0401 = bill bull
-02	0402 = wong who
-02	0500 = holly wood
-02	0501 = el gado
-02	0600 = roxy
-02	0601 = poison
-02	0800 = holly wood (red)
+```
+byte position:
+12|13|14
+
+02 00 00 = bred
+02 00 01 = doug
+02 00 02 = jake
+02 00 03 = simons
+02 01 00 = j
+02 01 01 = two.p
+02 02 00 = axl
+02 02 01 = slash
+02 03 00 = andore jr.
+02 03 01 = andore
+02 03 02 = g.andore
+02 04 00 = g. oriber
+02 04 01 = bill bull
+02 04 02 = wong who
+02 05 00 = holly wood
+02 05 01 = el gado
+02 06 00 = roxy
+02 06 01 = poison
+02 08 00 = holly wood (red)
 ```
 
 ### Initial pose
