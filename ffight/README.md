@@ -56,6 +56,16 @@ O + $25 frame animation object (double)
 ...
 ```
 
+### Boss data
+
+```
+O = offset = $ff9a68
+O + $06 = pos x (word)
+O + $0B = pos y
+O + $18 = energy
+O + $1C = energy bar size
+```
+
 ### Characters
 
 This is the character's available value that I discovered so far:
