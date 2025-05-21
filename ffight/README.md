@@ -13,7 +13,11 @@
 
 ## General game data
 
-$FF8412 = scenario position
+```
+$FF8412 = scene position
+$FF8129 = stage clear
+$FF812B = boss clear
+```
 
 ## Character's management
 
