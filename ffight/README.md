@@ -26,16 +26,16 @@ $FF812B = boss clear
 Player data is stored on the following addresses:
 
 ```
-$FF8569 - Player 1
-$FF8629 - Player 2
+$FF8568 - Player 1
+$FF8628 - Player 2
 ```
 
 Starting from these offset, I found the following information stored for each player:
 
 ```
 O = offset
-O + 05 = pos x (word)
-O + 0A = pos y (byte)
+O + 06 = pos x (3 bytes)
+O + 0A = pos y (word)
 O + 13 = character (byte, from 0 to 2)
 0 + 25 = animation frame
 ...
@@ -64,8 +64,8 @@ O + $25 frame animation object (double)
 
 ```
 O = offset = $ff9a68
-O + $06 = pos x (word)
-O + $0B = pos y
+O + $06 = pos x (3 bytes)
+O + $0A = pos y (word)
 O + $18 = energy
 O + $1C = energy bar size
 ```
