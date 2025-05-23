@@ -48,8 +48,8 @@ This is a bit of content map that an enemy slot can contains:
 
 ```
 O = offset
-O + $06	pos x
-O + $07	pos x
+O + $06	pos x (word)
+O + $0A pos y (word)
 O + $12	character
 O + $13	character
 O + $14	character
