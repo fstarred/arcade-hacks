@@ -14,9 +14,12 @@
 ## General game data
 
 ```
-$FF8412 = scene position
-$FF8129 = stage clear
-$FF812B = boss clear
+0xFF80BE = stage
+0xFF80BF = sub stage
+0xFF8412 = scene position x (word)
+0xFF8129 = stage clear
+0xFF812B = boss clear
+0xFF845C = scene position y (word)
 ```
 
 ## Character's management
@@ -40,6 +43,11 @@ O + 13 = character (byte, from 0 to 2)
 0 + 25 = animation frame
 ...
 ```
+
+### Objects
+
+0x080F = opening door
+
 
 ### Enemy data
 
