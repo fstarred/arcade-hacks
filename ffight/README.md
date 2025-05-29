@@ -209,56 +209,26 @@ Enemies scanned in this routine are mandatory to beat in order to advance forwar
 
 Such maps are all contained at address 0x07XXXX
 
-```
-[slum 1]
-0x06D02C
-0x070596
-[slum 2]
-0x06D0CA
-0x0705FA
-[slum 3]
-0x06D122
-0x07064E
-[subway 1]
-0x06D182
-0x07071E
-[subway 2]
-0x06D1F6
-0x070792
-[subway 3]
-0x06D382
-0x070866
-[subway 4]
-0x06D44A
-0x0708EA
-[west side 1]
-0x06D454
-0x0708F4
-[west side 2]
-0x06D4D6
-0x070AB6
-[west side 3]
-0x06D52E
-0x070AFA
-[industrial area 1]
-0x06D5FA
-0x070C64
-[industrial area 2]
-0x06D858
-0x070EE8
-[bay area]
-0x06D968
-0x070EEE
-[up town 1]
-0x06E1C2
-0x071364
-[up town 2]
-0x06E612
-0x0714F8
-[up town 3]
-0x06E8C4
-0x07167C
-```
+
+| STAGE     | MAP      | ENEMIES  |
+| --------  | -------- | -------- |
+| SLUM 1    | 0x06D02C | 0x070596 |
+| SLUM 2    | 0x06D0CA | 0x0705FA |
+| SLUM 3    | 0x06D122 | 0x07064E |
+| SUBWAY 1  | 0x06D182 | 0x07071E |
+| SUBWAY 2  | 0x06D1F6 | 0x070792 |
+| SUBWAY 3  | 0x06D382 | 0x070866 |
+| SUBWAY 4  | 0x06D44A | 0x0708EA |
+| W. SIDE 1 | 0x06D454 | 0x0708F4 |
+| W. SIDE 2 | 0x06D4D6 | 0x070AB6 |
+| W. SIDE 3 | 0x06D52E | 0x070AFA |
+| I. AREA 1 | 0x06D5FA | 0x070C64 |
+| I. AREA 2 | 0x06D858 | 0x070EE8 |
+| BAY AREA  | 0x06D968 | 0x070EEE |
+| UP TOWN 1 | 0x06E1C2 | 0x071364 |
+| UP TOWN 2 | 0x06E612 | 0x0714F8 |
+| UP TOWN 3 | 0x06E8C4 | 0x07167C |
+
 
 It is possible to find out how these addressess are get by the following routines:
 
