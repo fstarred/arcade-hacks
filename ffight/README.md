@@ -57,14 +57,14 @@ This is a bit of content map that an enemy slot can contains:
 ```
 O = offset
 O + 0x06	pos x (word)
-O + 0x0A pos y (word)
+O + 0x0A        pos y (word)
 O + 0x12	character
 O + 0x13	character
 O + 0x14	character
 O + 0x15	initial pose
 O + 0x18	energy		
 O + 0x1C	energy bar size
-O + 0x25 frame animation object (double)
+O + 0x25        frame animation object (double)
 ...
 ```
 
@@ -83,8 +83,6 @@ O + 0x1C = energy bar size
 This is the character's available value that I discovered so far:
 
 ```
-byte position:
-12|13|14
 
 02 00 00 = bred
 02 00 01 = doug
@@ -107,11 +105,37 @@ byte position:
 02 08 00 = holly wood (red)
 ```
 
-### Initial pose
+#### Initial pose
 
 Below are some codes I found for the character's initial pose.
 <br/>
 Behaviour may vary according to the character kind itself, so for instance a value of 0x04 means staying crouched for Bred, while for Andore it means immediately charging the player
+
+
+### Objects
+
+
+```
+0x080F = sliding door
+0x0816 = drop
+0x0A00 = door
+0x0A01 = drumcan
+0x0A02 = chandelier
+0x0A03 = billboard
+0x0A04 = freight
+0x0A05 = dustbin
+0x0A06 = barrel
+0x0A07 = tire
+0x0A08 = tel.booth
+0x0A09 = glass
+0x0A0A = rolling drumcan
+0x0A0F = grenade
+0x0A10 = expanding flame
+0x0A11 = flame
+0x0A12 = wheelchair
+```
+
+
 
 ```
 00 = ?
@@ -179,9 +203,11 @@ These maps are all contained at address 0x06XXXX
 
 Enemy routine:
 
-Scan from the vector address and load into memory mapped enemies that are mandatory to bear in order to advance forward in the lever or to the next stage
+Scan from the vector address and load into memory mapped enemies. 
 
-These maps are all contained at address 0x07XXXX
+Enemies scanned in this routine are mandatory to beat in order to advance forward in the level or go for the next stage
+
+Such maps are all contained at address 0x07XXXX
 
 ```
 [slum 1]
