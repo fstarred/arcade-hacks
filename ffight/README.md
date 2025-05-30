@@ -370,6 +370,9 @@ O + F = if value == 1, enabled only with two players
 | 0x6ECAD | 0x2102 | Jake      | 0xffac69 |
 
 
+![weird intro](https://github.com/user-attachments/assets/7ecde17d-0264-45e0-9b48-252f9e0ff257)
+
+
 ### Bonus: Car
 
 ```
@@ -394,6 +397,9 @@ or you could add another weapon by putting the following value at address 0x6F1C
 ```
 06F1CE   0000  0140  0018  0601  0000  0000  FF01   ...@........ÿ.
 ```
+
+![Bonus car](https://github.com/user-attachments/assets/3277f4d5-d300-4afb-848c-5580148b964c)
+
 
 (not sure about the side effects by the way)
 
