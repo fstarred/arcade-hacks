@@ -306,7 +306,7 @@ While the first offset takes 0x12 bytes to store general information, the other 
 
 ### Enemies coming from the door
 
-You have probably noticed that at stage Slum 1, some enemies comes from two opening doors put at beginning and in the middle of the scene.
+You have probably noticed at stage Slum 1 there are enemies coming from two opening doors placed at beginning and in the middle of the stage.
 
 ![Enemies coming from the door](https://github.com/user-attachments/assets/9e33a266-db20-4706-a101-9941ea1c91db)
 
@@ -398,10 +398,10 @@ or you could add another weapon by putting the following value at address 0x6F1C
 06F1CE   0000  0140  0018  0601  0000  0000  FF01   ...@........ÿ.
 ```
 
+(not sure about the side effects by the way)
+
 ![Bonus car](https://github.com/user-attachments/assets/3277f4d5-d300-4afb-848c-5580148b964c)
 
-
-(not sure about the side effects by the way)
 
 ```
 O = offset = 0xffaea8
