@@ -14,8 +14,9 @@
 ## General game data
 
 ```
-0xFF80BE = stage
-0xFF80BF = sub stage
+0xFF8082 = demo mode (00=OFF | FF=ON)
+0xFF80BE = area
+0xFF80BF = stage
 0xFF8412 = scene position x (word)
 0xFF8129 = stage clear
 0xFF812B = boss clear
@@ -37,12 +38,21 @@ Starting from these offset, I found the following information stored for each pl
 
 ```
 O = offset
+O + 0x02 = status
 O + 0x06 = pos x (3 bytes)
 O + 0x0A = pos y (word)
 O + 0x13 = character (byte, from 0 to 2)
 0 + 0x25 = animation frame
 ...
+
+STATUS
+0x02 = player control
+0x04 = dead
+0x06 = continue screen
+0x08 = stage start
+0x0A = stage end
 ```
+
 
 
 ### Enemy data
@@ -363,11 +373,11 @@ O + F = if value == 1, enabled only with two players
 ```
 
 
-| ROM     | VALUE  | CHARACTER | MEMORY   |
+| ROM     | VALUE  | CHARACTER | RAM      |
 | ------- | ------ | --------- | -------- |
-| 0x6EC91 | 0x2100 | Damnd     | 0xffade9 |
-| 0x6EC9F | 0x2101 | Doug      | 0xffad29 |
-| 0x6ECAD | 0x2102 | Jake      | 0xffac69 |
+| 0x6EC91 | 0x2100 | Damnd     | 0xFFADE8 |
+| 0x6EC9F | 0x2101 | Doug      | 0xFFAD28 |
+| 0x6ECAD | 0x2102 | Jake      | 0xFFAC68 |
 
 
 ![weird intro](https://github.com/user-attachments/assets/7ecde17d-0264-45e0-9b48-252f9e0ff257)
