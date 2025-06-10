@@ -74,9 +74,9 @@ O + 0x25        frame animation object (double)
 ...
 ```
 
-Everytime an enemy spawn in the fight, a free ram **slot** of 0xC0 bytes is booked for managing enemy's data, such as animation, position, etc.
+Everytime an enemy spawn in the fight, a free ram **slot** of 0xC0 bytes is booked for managing enemy's data, such as animation, position, energy, etc.
 
-Here's an example of slot's map address:
+Here's an example of slot's available address list:
 
 ```
 1. 0xff8fe8
@@ -87,19 +87,17 @@ Here's an example of slot's map address:
 [...]
 
 Boss:
-0xff9a68
+1. 0xff9a68
+2. 0xff99a8 * only for hacks; on regular game, boss is only one for area 
+[...]
+
+Objects:
+1. 0xffba68
+2. 0xffbb28
+3. 0xffbbe8
+4. 0xffbe28
 ```
 
-
-### Boss data
-
-```
-O = offset = 0xff9a68
-O + 0x06 = pos x (3 bytes)
-O + 0x0A = pos y (word)
-O + 0x18 = energy
-O + 0x1C = energy bar size
-```
 
 ### Characters
 
@@ -419,4 +417,29 @@ O + 0x07  = pos x
 O + 0x0B  = pos y
 O + 0x13  = character
 ```
+
+### Players catch by Andore at West Side 1
+
+
+
+When screen position x (0xFF8412) = 0x600, player status pass to 0x0A (stage clear).
+Then Andore reach and grab you.
+
+![0557](https://github.com/user-attachments/assets/d4215514-11f9-426c-b3ed-0237ea45b19c)
+
+The below code show the trigger moment (see instruction at 0x061576).
+
+```
+06155C: jmp     ($2,PC,D1.w)
+061566: move.b  ($40,A6), D0
+06156A: move.w  ($6,PC,D0.w), D1
+06156E: jmp     ($2,PC,D1.w)
+061576: cmpi.w  #$600, ($6,A6)
+06157C: bcs     $61588
+06157E: addq.b  #2, ($40,A6)
+061582: move.b  #$1, ($129,A5)
+061588: rts
+```
+
+Andore information are at 0xff9a68 (same address dedicated to the boss area)
 
