@@ -23,7 +23,7 @@
 0xFF845C = scene position y (word)
 ```
 
-## Characters and objects management
+## Characters and objects data
 
 ### Player data
 
@@ -74,31 +74,6 @@ O + 0x25        frame animation object (double)
 ...
 ```
 
-Everytime an enemy spawn in the fight, a free ram **slot** of 0xC0 bytes is booked for managing enemy's data, such as animation, position, energy, etc.
-
-Here's an example of slot's available address list:
-
-```
-1. 0xff8fe8
-2. 0xff8f28
-3. 0xff8e68
-4. 0xff8da8
-5. 0xff8ce8
-[...]
-
-Boss:
-1. 0xff9a68
-2. 0xff99a8 * only for hacks; on regular game, boss is only one for area 
-[...]
-
-Objects:
-1. 0xffba68
-2. 0xffbb28
-3. 0xffbbe8
-4. 0xffbe28
-```
-
-
 ### Characters
 
 This is the character's available value that I discovered so far:
@@ -142,18 +117,6 @@ Behaviour may vary according to the character kind itself, so for instance a val
 0C = coming from above
 ```
 
-### Boss
-
-```
-04 0000 = Damnd
-04 0100 = Sodom
-04 0200 = Edi.E
-04 0300 = Rolento
-04 0400 = Abigail
-04 0500 = Belger
-04 0600 = Bosstest
-```
-
 ### Objects
 
 ```
@@ -175,6 +138,18 @@ Behaviour may vary according to the character kind itself, so for instance a val
 0x0A10 = expanding flame
 0x0A11 = flame
 0x0A12 = wheelchair
+```
+
+### Boss
+
+```
+04 0000 = Damnd
+04 0100 = Sodom
+04 0200 = Edi.E
+04 0300 = Rolento
+04 0400 = Abigail
+04 0500 = Belger
+04 0600 = Bosstest
 ```
 
 ## Stage mapping
@@ -346,6 +321,36 @@ O + 0x1D = character
 01FBE8   0032  0032  1D7C  0002  0002  3D7C  0078  001E   .2.2.|....=|.x..
 ```
 
+## Objects in memory
+
+When a mapped object / enemy has to load into memory (see chapters above about map / enemy information), some reserved slots will fill with that data.
+
+Here's an example of slot's available address list:
+
+```
+Enemy:
+1. 0xff8fe8
+2. 0xff8f28
+3. 0xff8e68
+4. 0xff8da8
+5. 0xff8ce8
+[...]
+
+Boss:
+1. 0xff9a68
+2. 0xff99a8 * only for hacks; on regular game, boss is only one for area 
+[...]
+
+Objects:
+1. 0xffba68
+2. 0xffbb28
+3. 0xffbbe8
+4. 0xffbe28
+```
+
+Enemies and boss takes 0xC0 bytes size, so you can easily do a scan starting from the first index and decrease by 0xC0 for looking for the next one
+
+
 ## Special scenes
 
 ### Intro
@@ -425,7 +430,7 @@ O + 0x13  = character
 When screen position x (0xFF8412) = 0x600, player status pass to 0x0A (stage clear).
 Then Andore reach and grab you.
 
-![0557](https://github.com/user-attachments/assets/d4215514-11f9-426c-b3ed-0237ea45b19c)
+![Andore take you into the ring](https://github.com/user-attachments/assets/d4215514-11f9-426c-b3ed-0237ea45b19c)
 
 The below code show the trigger moment (see instruction at 0x061576).
 
@@ -442,4 +447,116 @@ The below code show the trigger moment (see instruction at 0x061576).
 ```
 
 Andore information are at 0xff9a68 (same address dedicated to the boss area)
+
+## Boss
+
+Bosses are typically active when the stage position x (0xFF8412) reach some points (there are some exceptions we'll see later).
+
+So, even if you try mapping a boss on a position dedicated to a regular object / enemy, it won't spawn until you do some modifications
+on the logic ROM data.
+
+### Damnd
+
+![Damnd giving prematurely his warmly welcome](https://github.com/user-attachments/assets/93d6dd61-d7de-4596-883e-0473004454ed)
+
+Below are some critical instructions related to Damnd behaviour:
+
+```
+03D3B2  cmpi.w  #$aa0, ($412,A5)                            0C6D 00B0 0412		; when 0xFF8412 = x then boss is active
+03EC7A  move.b  #$1, ($12b,A5)                              1B7C 0001 012B		; write boss clear flag
+03ECBC  move.b  #$1, ($129,A5)                              1B7C 0001 0129		; write stage clear flag
+
+040860  move.w  #$c8, D1                                    323C 00C8			; if energy drops below this value
+040864  cmp.w   ($18,A6), D1                                B26E 0018			; (0xC8) then call for friend's support
+040868  bcs     $40874                                      650A			; if carry flag is set, branch on 40874
+
+
+040B02  cmpi.w  #$bf4, D0                                   0C40 0BF4			; when is thrown or jump over pos x, branch to 040B0A
+040B0A  move.w  #$bf3, ($6,A6)                              3D7C 0213 0006		; set position with value x
+040C02  cmpi.w  #$bf4, D3                                   0C43 0212			; don't know, set it as x max margin
+040C08  cmpi.w  #$ab4, D3                                   0C43 00F4			; don't know, set it as x min margin
+040AF2  cmpi.w  #$ab4, D0                                   0C40 00D4			; when is thrown or jump at position over x, branch to 0x040AFA
+040AFA  move.w  #$ab4, ($6,A6)                              3D7C 00D4 0006		; set position with value x
+```
+
+So let's say we want to fight Damnd also on other stages, we could write some routines starting from a spare ROM slot, i.e. 0x90000:
+
+
+```
+00090000                             7      ORG    $90000
+00090000                             8  START:                  
+00090000  4A2D 00BE                  9      TST.B ($BE,A5)
+00090004  6606                      10      BNE.B EXIT
+00090006  0C2D 0002 00BF            11      CMPI.B #2,($BF,A5)
+0009000C                            12  EXIT:
+0009000C  4E75                      13      RTS    
+0009000E                            14  CHECK_FINAL_STAGE:    
+0009000E  61F0                      15      BSR.B START
+00090010  6706                      16      BEQ.B CHECK_ENABLE
+00090012                            17  FORCECARRY:
+00090012  0C16 0000                 18      CMPI.B #0,(A6)
+00090016  4E75                      19      RTS  
+00090018                            20  CHECK_ENABLE:    
+00090018  0C6D 0AA0 0412            21      CMPI.W #$0AA0,($412,A5)    
+0009001E  4E75                      22      RTS
+00090020                            23  CALL_ENEMIES:
+00090020  61DE                      24      BSR.B START
+00090022  66E8                      25      BNE.B EXIT
+00090024  323C 00C8                 26      MOVE.W #$C8,D1
+00090028  B26E 0018                 27      CMP.W ($18,A6),D1
+0009002C  4E75                      28      RTS
+0009002E                            29  BOSS_CLEAR_FLAG:
+0009002E  61D0                      30      BSR.B START
+00090030  66DA                      31      BNE.B EXIT
+00090032  1B7C 0001 012B            32      MOVE.B  #$1, ($12B,A5)
+00090038  4E75                      33      RTS
+0009003A                            34  STAGE_CLEAR_FLAG:
+0009003A  61C4                      35      BSR.B START
+0009003C  66CE                      36      BNE.B EXIT
+0009003E  1B7C 0001 0129            37      MOVE.B  #$1, ($129,A5)
+00090044  4E75                      38      RTS
+00090046                            39      
+```
+
+Then we can modify the following instructions:
+
+```
+03D3B2  jsr     $9000e.l                                    4EB9 0009 000E
+03D3B8  bcs     $3d3dc                                      6522
+
+03EC7A  jsr     $9002e.l                                    4EB9 0009 002E
+
+03ECBC  jsr     $9003a.l                                    4EB9 0009 003A
+
+040860  jsr     $90020.l                                    4EB9 0009 0020
+040866  nop                                                 4E71
+040868  bcs     $40874                                      650A
+
+040C08  cmpi.w  #$50, D3                                    0C43
+
+040AF2  cmpi.w  #$50, D0                                    0C40 0050
+
+040AFA  move.w  #$50, ($6,A6)                               3D7C 0050 0006 
+```
+
+What we actually did is to modify some critical instructions when Damnd appears not on his expected stage.
+
+0x03D3B2: removed the check with 0xFF8412 value <br>
+0x03EC7A: removed the boss clear flag, so the enemies won't die automatically after boss death <br>
+0x03ECBC: removed the stage clear flag, so area is not clear <br>
+0x040C08, 0x040AF2, 0x040AFA: lowered the left margin  <br>
+
+Finally, let's say we want Damnd to show on all 3 slums stages.
+
+Modify these two address in the following way:
+
+```
+06D02C   0070  0230  0040  0400  0000  0000  0000   .p.0.@........
+
+06D0E6   0650  0770  002E  0400  0000  0100  0400   .P.p..........
+```
+
+![Slum 2](https://github.com/user-attachments/assets/17e03ed6-7cfd-4af3-85d2-9927d8b7124a)
+
+... yeah, we do have it !
 
