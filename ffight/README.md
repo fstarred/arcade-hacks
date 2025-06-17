@@ -563,3 +563,94 @@ Modify these two address in the following way:
 
 ... yeah, we do have it !
 
+### Sodom
+
+The below instructions are related to Sodom character:
+
+```
+00E164  cmpi.w  #$1300, ($412,A5)                           0C6D 1300 0412		; don't know
+042600  move.b  #$1, ($12b,A5)                              1B7C 0001 012B		; write boss clear flag
+042698  move.b  #$1, ($129,A5)                              1B7C 0001 0129		; write stage clear flag
+040CFA  cmpi.w  #$1300, ($412,A5)                           0C6D 1300 0412		; when 0xFF8412 = x then boss is active
+042ACA  cmpi.w  #$1200, D3                                  0C43 1200			; left stage margin
+042AD0  cmpi.w  #$14e0, D3                                  0C43 14E0			; right stage margin
+```
+
+Let's do some modifications so that, for example, we face Sodom inside a subway's vagon.
+
+Like we did for Damnd, we create some routines at a spare ROM space, this time at address 0x90100
+
+```
+00090100                             7      ORG    $90100
+00090100                             8  START:                  
+00090100  0C2D 0001 00BE             9      CMPI.B #1,($BE,A5)
+00090106  6606                      10      BNE.B EXIT
+00090108  0C2D 0003 00BF            11      CMPI.B #3,($BF,A5)
+0009010E                            12  EXIT:  
+0009010E  4E75                      13      RTS    
+00090110                            14  CHECK_FINAL_STAGE:    
+00090110  61EE                      15      BSR.B START
+00090112  6706                      16      BEQ.B CHECK
+00090114                            17  FORCECARRY:
+00090114  0C16 0000                 18      CMPI.B #0,(A6)
+00090118  4E75                      19      RTS  
+0009011A                            20  CHECK:    
+0009011A  0C6D 1300 0412            21      CMPI.W #$1300,($412,A5)    
+00090120  4E75                      22      RTS
+00090122                            23  BOSS_CLEAR_FLAG:
+00090122  61DC                      24      BSR.B START
+00090124  66E8                      25      BNE.B EXIT
+00090126  1B7C 0001 012B            26      MOVE.B  #$1, ($12B,A5)
+0009012C  4E75                      27      RTS
+0009012E                            28  STAGE_CLEAR_FLAG:
+0009012E  61D0                      29      BSR.B START
+00090130  66DC                      30      BNE.B EXIT
+00090132  1B7C 0001 0129            31      MOVE.B  #$1, ($129,A5)
+00090138  4E75                      32      RTS
+```
+
+Then we can modify the instructions in order to fight Sodom on the subway stage 2 with no bad side effects:
+
+```
+042600  jsr     $90122.l                                    4EB9 0009 0122
+
+042698  jsr     $9012e.l                                    4EB9 0009 012E
+
+040CFA  jsr     $90110.l                                    4EB9 0009 0110
+```
+
+Finally, we place Sodom at begin of the Subway stage 2 by modifying the related stage map
+
+```
+   06D1F6   0500  0606  0048  0201  0001  0000  FF00   .....H......ÿ.
+...
+   06D220   05BE  075E  0048  0401  0000  0000  FF00   .¾.^.H......ÿ.
+...
+```
+
+![Sodom on subway 2](https://github.com/user-attachments/assets/008667b0-ef3a-4703-9c80-a8568c2ab8eb)
+
+Maybe we can also make things harder.. so why not facing 2 Sodoms on the final stage's area ?
+
+The idea here is to address the dedicated map's information to another spare ROM location.
+
+If we place a breakpoint at 0x614E and we take a look to the register A3, we'll first see the value 0x6308, which is the vector address for the first area; a long-word size after we find the base vector of the 2nd area, which is 0x6D178.
+By checking the content of 0x6D178, we see:
+
+```
+06D178   0008  007C  0208  02D0  0002  0130  02D0  0010   ...|.._þ...0.Ð..
+```
+
+The value at 0x6D178 + 0x06 contains the offset from 6D178 where the map is located, since 0x06 = (2 bytes * 4 stage - 2). <br>
+Therefore, map information of the Subway last stage is located at address 0x6D178 + 0x02D0 = 0x6D448. <br>
+We can replace value 0x02D0 with 0x5FFE, so that final map location will be on the spare ROM 0x73176 and modify its content with the following:
+
+```
+073176   0002  1200  1250  0088  0401  0000  0000  0000   .....P..........
+073186   FFFF  FFFF  FFFF  FFFF  FFFF  FFFF  FFFF  FFFF   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ
+```
+
+and voilà, 2 is better than one (or not?)
+
+![2 Sodoms](https://github.com/user-attachments/assets/5dec5299-5962-452a-996f-b93457400f22)
+
