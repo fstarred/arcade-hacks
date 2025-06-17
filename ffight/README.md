@@ -448,12 +448,14 @@ The below code show the trigger moment (see instruction at 0x061576).
 
 Andore information are at 0xff9a68 (same address dedicated to the boss area)
 
-## Boss
+## Bosses data
 
-Bosses are typically active when the stage position x (0xFF8412) reach some points (there are some exceptions we'll see later).
+Unlike ordinary enemies, boss position is not stored in any map; instead, when loading last stage's area, initial boss data is stored on memory from address 0xFF9A68.
 
-So, even if you try mapping a boss on a position dedicated to a regular object / enemy, it won't spawn until you do some modifications
-on the logic ROM data.
+Boss won't be activated until meeting certain conditions, such as reaching a specific screen horizontal position (0xFF8412), vertical position (0xFF845C) - that's the case of Rolento - or other cases that we'll see later.
+
+Despite all this logic stuff, IT IS POSSIBLE to put a boss on the map / enemy information; however that boss won't spawn until you do some modifications
+on the logic ROM data (the only exception to this rule is Edi.E).
 
 ### Damnd
 
@@ -544,6 +546,7 @@ What we actually did is to modify some critical instructions when Damnd appears 
 0x03D3B2: removed the check with 0xFF8412 value <br>
 0x03EC7A: removed the boss clear flag, so the enemies won't die automatically after boss death <br>
 0x03ECBC: removed the stage clear flag, so area is not clear <br>
+0x040868: avoid Damnd call for friend support when energy drop down to a certain value
 0x040C08, 0x040AF2, 0x040AFA: lowered the left margin  <br>
 
 Finally, let's say we want Damnd to show on all 3 slums stages.
