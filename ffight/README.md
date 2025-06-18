@@ -450,9 +450,8 @@ Andore information are at 0xff9a68 (same address dedicated to the boss area)
 
 ## Bosses data
 
-Unlike ordinary enemies, boss position is not stored in any map data; instead, when loading last stage's area, preliminary boss data is stored on memory starting at address 0xFF9A68.
-
-Boss won't be activated until meeting certain conditions, such as reaching a specific screen horizontal position (0xFF8412), vertical position (0xFF845C) - that's the case of Rolento - or other cases that we'll see later.
+Unlike ordinary enemies, bosses are not mapped into enemy / stage data (the only exception is Rolento); instead, when loading last stage's area, preliminary boss data is stored on memory starting at address 0xFF9A68, and other data won't be loaded until the meeting of specific criteria:
+such conditions could be the reaching a specific screen horizontal position (0xFF8412), vertical position (0xFF845C) - and still is the case of Rolento - or other cases that we'll see later.
 
 Despite all this logic stuff, IT IS POSSIBLE to put a boss on the map / enemy information; however that boss won't spawn until you do some modifications
 on the logic ROM data (the only exception to this rule is Edi.E).
