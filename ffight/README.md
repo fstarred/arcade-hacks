@@ -122,6 +122,7 @@ Behaviour may vary according to the character kind itself, so for instance a val
 ```
 0x080F = sliding door
 0x0816 = drop
+0x082A = Rolento going down the ladder
 0x0831 = break point arrow
 0x0A00 = door
 0x0A01 = drumcan
@@ -169,7 +170,7 @@ Scan from the vector address and load into memory mapped enemies.
 In order to advance forward in the level or go for the next stage, you must beat all of these enemies.
 
 
-| STAGE     | MAP R.   | ENEMY R. |
+| STAGE     | STAGE R. | ENEMY R. |
 | --------  | -------- | -------- |
 | SLUM 1    | 0x06D02C | 0x070596 |
 | SLUM 2    | 0x06D0CA | 0x0705FA |
@@ -712,4 +713,9 @@ and then we place our routine calls:
 ```
 
 ![Edi.E](https://github.com/user-attachments/assets/6dfd0edb-c7aa-41fc-b9e8-eb5fc4f892c3)
+
+### Rolento
+
+This is the only boss area thay is actually mapped into the stage map data, like an ordinary enemy.
+
 
