@@ -57,8 +57,8 @@ STATUS
 
 ### Enemy data
 
-Typically, when an enemy dies the address slot reserved for it get free so when the next enemy spawn on the screen can take it.
-This is a bit of content map that an enemy slot can contains:
+Typically, when enemy data needs to be loaded into memory, the program delegates specific reserved slots of memory for it.
+Here is a bit of content map that an enemy data contains:
 
 ```
 O = offset
@@ -612,11 +612,13 @@ Like we did for Damnd, we create some routines at a spare ROM space, this time a
 Then we can modify the instructions in order to fight Sodom on the subway stage 2 with no bad side effects:
 
 ```
+040CFA  jsr     $90110.l                                    4EB9 0009 0110
+
 042600  jsr     $90122.l                                    4EB9 0009 0122
 
 042698  jsr     $9012e.l                                    4EB9 0009 012E
 
-040CFA  jsr     $90110.l                                    4EB9 0009 0110
+042ACA  cmpi.w  #$0100, D3                                  0C43 0100
 ```
 
 Finally, we place Sodom at begin of the Subway stage 2 by modifying the related stage map
