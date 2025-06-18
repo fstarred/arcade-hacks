@@ -158,9 +158,9 @@ There are two main addresses for each stage dedicated for mapping enemies or obj
 
 For the sake of convenience, we'll call in the following way:
 
-**Map routine:**
+**Stage routine:**
 
-Scan from the vector address and load into memory mapped enemies and objects; enemies contained into this map are not mandatory to beat for advancing the next stage.
+Scan from the vector address and load into memory mapped enemies and objects; enemies contained into this map are not blocking, so player can advance to next stage without killing them.
 
 **Enemy routine:**
 
@@ -188,9 +188,9 @@ In order to advance forward in the level or go for the next stage, you must beat
 | UP TOWN 2 | 0x06E612 | 0x0714F8 |
 | UP TOWN 3 | 0x06E8C4 | 0x07167C |
 
-### Map routine
+### Stage routine
 
-Information map address is extracted by the following routine called on stage init.
+The stage data address is extracted by the following routine called on stage init.
 
 ```
  00604A  lea     ($2bc,PC) ; ($6308), A3                     47FA 02BC	* = 6D024
@@ -238,7 +238,7 @@ Information map enemy address is extracted by the following routine called on st
 
 ### Map information
 
-Here's an example of the first stage map (slum 1), located at address 0x06D02C:
+Here's an example of the first stage map data (slum 1), located at address 0x06D02C:
 
 ```
 O + 0x00 = when 0xFF8412 == value, then load into memory
@@ -263,11 +263,11 @@ O + 0x0D = if value == 1, enabled only with two players
 06D0C6   FFFF  0002  0650  06E0  003F  0A04  0126   ÿÿ...P.à.?...&
 ```
 
-We can divide each block by 0x0E bytes, so we have first offset starting at 0x06D02C, then the next ones at 0x06D03A,0x06D048 and so on.
+For the ease of reading or usage, we can split each block by 0x0E bytes so that we have first offset starting at 0x06D02C, then the next ones at 0x06D03A,0x06D048 and so on.
 
 ### Enemy information
 
-Below's the enemy's map of the first stage (slum 1)
+Below's the enemy's map data of the first stage (slum 1)
 
 ```
 O + 0x00 = when 0xFF8412 == value then load into memory the enemy data:
@@ -450,7 +450,7 @@ Andore information are at 0xff9a68 (same address dedicated to the boss area)
 
 ## Bosses data
 
-Unlike ordinary enemies, boss position is not stored in any map; instead, when loading last stage's area, initial boss data is stored on memory from address 0xFF9A68.
+Unlike ordinary enemies, boss position is not stored in any map data; instead, when loading last stage's area, preliminary boss data is stored on memory starting at address 0xFF9A68.
 
 Boss won't be activated until meeting certain conditions, such as reaching a specific screen horizontal position (0xFF8412), vertical position (0xFF845C) - that's the case of Rolento - or other cases that we'll see later.
 
@@ -486,38 +486,38 @@ So let's say we want to fight Damnd also on other stages, we could write some ro
 
 ```
 00090000                             7      ORG    $90000
-00090000                             8  START:                  
-00090000  4A2D 00BE                  9      TST.B ($BE,A5)
-00090004  6606                      10      BNE.B EXIT
-00090006  0C2D 0002 00BF            11      CMPI.B #2,($BF,A5)
-0009000C                            12  EXIT:
-0009000C  4E75                      13      RTS    
-0009000E                            14  CHECK_FINAL_STAGE:    
-0009000E  61F0                      15      BSR.B START
-00090010  6706                      16      BEQ.B CHECK_ENABLE
-00090012                            17  FORCECARRY:
-00090012  0C16 0000                 18      CMPI.B #0,(A6)
-00090016  4E75                      19      RTS  
-00090018                            20  CHECK_ENABLE:    
-00090018  0C6D 0AA0 0412            21      CMPI.W #$0AA0,($412,A5)    
-0009001E  4E75                      22      RTS
-00090020                            23  CALL_ENEMIES:
-00090020  61DE                      24      BSR.B START
-00090022  66E8                      25      BNE.B EXIT
-00090024  323C 00C8                 26      MOVE.W #$C8,D1
-00090028  B26E 0018                 27      CMP.W ($18,A6),D1
-0009002C  4E75                      28      RTS
-0009002E                            29  BOSS_CLEAR_FLAG:
-0009002E  61D0                      30      BSR.B START
-00090030  66DA                      31      BNE.B EXIT
-00090032  1B7C 0001 012B            32      MOVE.B  #$1, ($12B,A5)
-00090038  4E75                      33      RTS
-0009003A                            34  STAGE_CLEAR_FLAG:
-0009003A  61C4                      35      BSR.B START
-0009003C  66CE                      36      BNE.B EXIT
-0009003E  1B7C 0001 0129            37      MOVE.B  #$1, ($129,A5)
-00090044  4E75                      38      RTS
-00090046                            39      
+00090000                             8  START:
+00090000                             9  CHECK_FINAL_STAGE:                  
+00090000  4A2D 00BE                 10      TST.B ($BE,A5)
+00090004  6606                      11      BNE.B EXIT
+00090006  0C2D 0002 00BF            12      CMPI.B #2,($BF,A5)
+0009000C                            13  EXIT:  
+0009000C  4E75                      14      RTS    
+0009000E                            15  CHECK_SPAWN:    
+0009000E  61F0                      16      BSR.B CHECK_FINAL_STAGE
+00090010  6706                      17      BEQ.B CHECK_POSITION
+00090012                            18  FORCECARRY:
+00090012  0C16 0000                 19      CMPI.B #0,(A6)
+00090016  4E75                      20      RTS  
+00090018                            21  CHECK_POSITION:    
+00090018  0C6D 0AA0 0412            22      CMPI.W #$0AA0,($412,A5)    
+0009001E  4E75                      23      RTS
+00090020                            24  CALL_ENEMIES:
+00090020  61DE                      25      BSR.B CHECK_FINAL_STAGE
+00090022  66E8                      26      BNE.B EXIT
+00090024  323C 00C8                 27      MOVE.W #$C8,D1
+00090028  B26E 0018                 28      CMP.W ($18,A6),D1
+0009002C  4E75                      29      RTS
+0009002E                            30  BOSS_CLEAR_FLAG:
+0009002E  61D0                      31      BSR.B CHECK_FINAL_STAGE
+00090030  66DA                      32      BNE.B EXIT
+00090032  1B7C 0001 012B            33      MOVE.B  #$1, ($12B,A5)
+00090038  4E75                      34      RTS
+0009003A                            35  STAGE_CLEAR_FLAG:
+0009003A  61C4                      36      BSR.B CHECK_FINAL_STAGE
+0009003C  66CE                      37      BNE.B EXIT
+0009003E  1B7C 0001 0129            38      MOVE.B  #$1, ($129,A5)
+00090044  4E75                      39      RTS
 ```
 
 Then we can modify the following instructions:
@@ -582,31 +582,32 @@ Like we did for Damnd, we create some routines at a spare ROM space, this time a
 
 ```
 00090100                             7      ORG    $90100
-00090100                             8  START:                  
-00090100  0C2D 0001 00BE             9      CMPI.B #1,($BE,A5)
-00090106  6606                      10      BNE.B EXIT
-00090108  0C2D 0003 00BF            11      CMPI.B #3,($BF,A5)
-0009010E                            12  EXIT:  
-0009010E  4E75                      13      RTS    
-00090110                            14  CHECK_FINAL_STAGE:    
-00090110  61EE                      15      BSR.B START
-00090112  6706                      16      BEQ.B CHECK
-00090114                            17  FORCECARRY:
-00090114  0C16 0000                 18      CMPI.B #0,(A6)
-00090118  4E75                      19      RTS  
-0009011A                            20  CHECK:    
-0009011A  0C6D 1300 0412            21      CMPI.W #$1300,($412,A5)    
-00090120  4E75                      22      RTS
-00090122                            23  BOSS_CLEAR_FLAG:
-00090122  61DC                      24      BSR.B START
-00090124  66E8                      25      BNE.B EXIT
-00090126  1B7C 0001 012B            26      MOVE.B  #$1, ($12B,A5)
-0009012C  4E75                      27      RTS
-0009012E                            28  STAGE_CLEAR_FLAG:
-0009012E  61D0                      29      BSR.B START
-00090130  66DC                      30      BNE.B EXIT
-00090132  1B7C 0001 0129            31      MOVE.B  #$1, ($129,A5)
-00090138  4E75                      32      RTS
+00090100                             8  START:   
+00090100                             9  CHECK_FINAL_STAGE:              
+00090100  0C2D 0001 00BE            10      CMPI.B #1,($BE,A5)
+00090106  6606                      11      BNE.B EXIT
+00090108  0C2D 0003 00BF            12      CMPI.B #3,($BF,A5)
+0009010E                            13  EXIT:  
+0009010E  4E75                      14      RTS    
+00090110                            15  CHECK_MUST_SPAWN:    
+00090110  61EE                      16      BSR.B CHECK_FINAL_STAGE
+00090112  6706                      17      BEQ.B CHECK_POSITION
+00090114                            18  FORCECARRY:
+00090114  0C16 0000                 19      CMPI.B #0,(A6)
+00090118  4E75                      20      RTS  
+0009011A                            21  CHECK_POSITION:    
+0009011A  0C6D 1300 0412            22      CMPI.W #$1300,($412,A5)    
+00090120  4E75                      23      RTS
+00090122                            24  BOSS_CLEAR_FLAG:
+00090122  61DC                      25      BSR.B CHECK_FINAL_STAGE
+00090124  66E8                      26      BNE.B EXIT
+00090126  1B7C 0001 012B            27      MOVE.B  #$1, ($12B,A5)
+0009012C  4E75                      28      RTS
+0009012E                            29  STAGE_CLEAR_FLAG:
+0009012E  61D0                      30      BSR.B CHECK_FINAL_STAGE
+00090130  66DC                      31      BNE.B EXIT
+00090132  1B7C 0001 0129            32      MOVE.B  #$1, ($129,A5)
+00090138  4E75                      33      RTS
 ```
 
 Then we can modify the instructions in order to fight Sodom on the subway stage 2 with no bad side effects:
@@ -634,18 +635,19 @@ Finally, we place Sodom at begin of the Subway stage 2 by modifying the related 
 
 Maybe we can also make things harder.. so why not facing 2 Sodoms on the final stage's area ?
 
-The idea here is to address the dedicated map's information to another spare ROM location.
+The idea here is to address the dedicated stage's information to another spare ROM location.
 
-If we place a breakpoint at 0x614E and we take a look to the register A3, we'll first see the value 0x6308, which is the vector address for the first area; a long-word size after we find the base vector of the 2nd area, which is 0x6D178.
+By placing a breakpoint at 0x614E and taking a look to the register A3, we'll first see the value 0x6308, which is the vector address for the first area; a long-word size after this and then we find the base vector of the 2nd area, which is 0x6D178.
 By checking the content of 0x6D178, we see:
 
 ```
 06D178   0008  007C  0208  02D0  0002  0130  02D0  0010   ...|.._þ...0.Ð..
 ```
 
-The value at 0x6D178 + 0x06 contains the offset from 6D178 where the map is located, since 0x06 = (2 bytes * 4 stage - 2). <br>
-Therefore, map information of the Subway last stage is located at address 0x6D178 + 0x02D0 = 0x6D448. <br>
-We can replace value 0x02D0 with 0x5FFE, so that final map location will be on the spare ROM 0x73176 and modify its content with the following:
+The value at 0x6D178 + 0x06 contains the distance in bytes from 0x6D178 where the stage map is located (remember 0x06 = (2 bytes * 4 stage - 2)). <br>
+Therefore, stage's data information of the Subway 4 is located at address 0x6D178 + 0x02D0 = 0x6D448. <br>
+We can replace value 0x02D0 with 0x5FFE, so that we change the stage data to the spare ROM location 0x73176. 
+Then we modify its content with the following:
 
 ```
 073176   0002  1200  1250  0088  0401  0000  0000  0000   .....P..........
@@ -655,4 +657,60 @@ We can replace value 0x02D0 with 0x5FFE, so that final map location will be on t
 and voilà, 2 is better than one (or not?)
 
 ![2 Sodoms](https://github.com/user-attachments/assets/5dec5299-5962-452a-996f-b93457400f22)
+
+### Edi.E
+
+This is the easier boss to reuse on Final Fight, as it enough to place its character on the stage / enemy map data just like any other enemy.
+
+These are the location related to the activation of stage and boss clear flags
+
+```
+0476CA  move.b  #$1, ($12b,A5)                              1B7C 0001 012B	  ; write boss clear flag
+047760  move.b  #$1, ($129,A5)                              1B7C 0001 0129        ; write stage clear flag
+```
+
+This is the routine that checks on the West End stage if Edi.E character must be activated
+
+```
+ 003234  move.w  ($6,A6), D0                                 302E 0006
+ 003238  sub.w   ($412,A5), D0                               906D 0412
+ 00323C  addi.w  #$30, D0                                    0640 0030
+ 003240  cmpi.w  #$1e0, D0                                   0C40 01E0	(this occurs when $ff8412 = $d10)
+ 003244  bhi     $3264                                       621E
+```
+
+but we can ignore this and focus to the flags above so they are enabled only on the last stage.
+
+We write this code on a spare ROM address (in this example 0x90200)
+
+```
+00090200                             7      ORG    $90200
+00090200                             8  START:   
+00090200                             9  CHECK_FINAL_STAGE:              
+00090200  0C2D 0002 00BE            10      CMPI.B #2,($BE,A5)
+00090206  6606                      11      BNE.B EXIT
+00090208  0C2D 0002 00BF            12      CMPI.B #2,($BF,A5)
+0009020E                            13  EXIT:  
+0009020E  4E75                      14      RTS    
+00090210                            15  BOSS_CLEAR_FLAG:
+00090210  61EE                      16      BSR.B CHECK_FINAL_STAGE
+00090212  66FA                      17      BNE.B EXIT
+00090214  1B7C 0001 012B            18      MOVE.B  #$1, ($12B,A5)
+0009021A  4E75                      19      RTS
+0009021C                            20  STAGE_CLEAR_FLAG:
+0009021C  61E2                      21      BSR.B CHECK_FINAL_STAGE
+0009021E  66EE                      22      BNE.B EXIT
+00090220  1B7C 0001 0129            23      MOVE.B  #$1, ($129,A5)
+00090226  4E75                      24      RTS
+```
+
+and then we place our routine calls:
+
+```
+0476CA  jsr     $90210.l                                    4EB9 0009 0210
+
+047760  jsr     $9021C.l                                    4EB9 0009 021C
+```
+
+![Edi.E](https://github.com/user-attachments/assets/6dfd0edb-c7aa-41fc-b9e8-eb5fc4f892c3)
 
