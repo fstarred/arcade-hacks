@@ -647,6 +647,11 @@ By checking the content of 0x6D178, we see:
 The value at 0x6D178 + 0x06 contains the distance in bytes from 0x6D178 where the stage map is located (remember 0x06 = (2 bytes * 4 stage - 2)). <br>
 Therefore, stage's data information of the Subway 4 is located at address 0x6D178 + 0x02D0 = 0x6D448. <br>
 We can replace value 0x02D0 with 0x5FFE, so that we change the stage data to the spare ROM location 0x73176. 
+
+```
+06D178   0008  007C  0208  5FFE  0002  0130  02D0  0010   ...|.._þ...0.Ð..
+```
+
 Then we modify its content with the following:
 
 ```
@@ -718,4 +723,114 @@ and then we place our routine calls:
 
 This is the only boss area thay is actually mapped into the stage map data, like an ordinary enemy.
 
+Let's having a look at address 0x06D954:
 
+```
+   06D946   0910  0E20  0930  0205  0102  0000  0000    ..  0........
+   06D954   0980  0D74  0A80  0403  0000  0000  FF00    ..t........ÿ.
+   06D962   FFFF  0002  0002  0108  02A8  0040  0201   ÿÿ.......¨.@..
+```
+
+Notice that on this stage (Industrial Area 2) enemies load on memory according to the vertical stage position 0xFF845C.
+
+```
+ 0060D2  cmp.w   ($45c,A5), D0                               B06D 045C
+ 0060D6  bgt     $60e2                                       6E0A
+ 0060D8  bsr     $616a                                       6100 0090
+```
+
+The first two times Rolento will appear on screen, we see him going up the ladder thowing some bombs. <br>
+
+Technically, it's just an object (0x082A) mapped on the stage data at addresses 0x06D89E and 0x06D8D6, when stage's vertical position reach
+value 0x01D4 and later 0x05DA
+
+```
+   06D89E   01D4  0D74  02D4  082A  0000  0000  0000   .Ô.t.Ô.*......
+...
+   06D8D6   05D4  0D74  06D4  082A  0000  0000  0000   .Ô.t.Ô.*......
+```
+
+As we seen above, Rolento is mapped at position 0x0980, however his status flag is updated when meeting the following condition:
+
+```
+ 048AAA: cmpi.w  #$ac0, ($45c,A5)
+ 048AB0: bcs     $48aca
+ 048AB2: addq.b  #2, ($3,A6)
+ 048AB6: move.w  #$580, ($94,A6)
+```
+
+At a certain moment he will start jumping over the lift bars, we can see these two routines:
+
+```
+ 049782  cmpi.w  #$8c, ($a,A6)                               0C6E 008C 000A
+ 049788  bcc     $4976c                                      64E2
+ 04978A  addq.b  #2, ($5,A6)                                 542E 0005
+ 04978E  move.w  #$8c, ($a,A6)                               3D7C 008C 000A
+
+...
+
+ 049218  cmpi.w  #$8c, ($a,A6)                               0C6E 008C 000A
+ 04921E  bcc     $49206                                      64E6
+ 049220  addq.b  #2, ($5,A6)                                 542E 0005
+ 049224  move.w  #$8c, ($a,A6)                               3D7C 008C 000A
+```
+
+Notice, in case we want to change the value of the height Rolento will jump over, we can change the value 0x8C with something else.
+
+Now, let's say we want to share the ring with Sodom and Rolento, but ONLY when playing 2 players mode:
+
+As usually, we write a routine for Rolento, this time ad address 0x90300
+
+
+```
+00090300                             7      ORG    $90300
+00090300                             8  START:   
+00090300                             9  CHECK_FINAL_STAGE:              
+00090300  0C2D 0003 00BE            10      CMPI.B #3,($BE,A5)
+00090306  6606                      11      BNE.B EXIT
+00090308  0C2D 0001 00BF            12      CMPI.B #1,($BF,A5)
+0009030E                            13  EXIT:  
+0009030E  4E75                      14      RTS    
+00090310                            15  CHECK_SPAWN:    
+00090310  61EE                      16      BSR.B CHECK_FINAL_STAGE
+00090312  6708                      17      BEQ.B CHECK_POSITION
+00090314                            18  FORCECARRY:
+00090314  0C6D 0000 045C            19      CMPI.W  #$0, ($45C,A5)
+0009031A  4E75                      20      RTS  
+0009031C                            21  CHECK_POSITION:    
+0009031C  0C6D 0AC0 045C            22      CMPI.W  #$AC0, ($45C,A5)    
+00090322  4E75                      23      RTS    
+00090324                            24  BOSS_CLEAR_FLAG:
+00090324  61DA                      25      BSR.B CHECK_FINAL_STAGE
+00090326  66E6                      26      BNE.B EXIT
+00090328  1B7C 0001 012B            27      MOVE.B  #$1, ($12B,A5)
+0009032E  4E75                      28      RTS
+00090330                            29  STAGE_CLEAR_FLAG:
+00090330  61CE                      30      BSR.B CHECK_FINAL_STAGE
+00090332  66DA                      31      BNE.B EXIT
+00090334  1B7C 0001 0129            32      MOVE.B  #$1, ($129,A5)
+0009033A  4E75                      33      RTS
+```
+
+Then we change the check at 0x48AAA so Rolento will immediately appear when reaching position:
+
+```
+ 048AAA  jsr     $90310.l                                    4EB9 0009 0310
+```
+
+As we did for Sodom, we modify this:
+
+```
+06D178   0008  007C  0208  5FFE  0002  0130  02D0  0010   ...|.._þ...0.Ð..
+```
+
+We change the stage map related to Subway 4 with this:
+
+```
+073176   0002  1200  1250  0088  0403  0000  0000  FF01   .....P..........
+073186   FFFF  FFFF  FFFF  FFFF  FFFF  FFFF  FFFF  FFFF   ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ
+```
+
+![Rolento&Sodom](https://github.com/user-attachments/assets/53173356-4862-451a-8aac-3b18ed7cfeb9)
+
+We can enjoy Rolento & Sodom with 2P mode. Unfortunatly, for the time being, I don't know how palette works on CPS1, so we can only face a broken palette version of Rolento
