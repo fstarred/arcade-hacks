@@ -834,3 +834,57 @@ We change the stage map related to Subway 4 with this:
 ![Rolento&Sodom](https://github.com/user-attachments/assets/53173356-4862-451a-8aac-3b18ed7cfeb9)
 
 We can enjoy Rolento & Sodom with 2P mode. Unfortunatly, for the time being, I don't know how palette works on CPS1, so we can only face a broken palette version of Rolento
+
+### Abigail
+
+Like Edi.E, this is a quite simple boss to fit in any scenario.
+
+As usually there's a position matching stage in order to make him spawn:
+
+```
+04BE30  cmpi.w  #$2280, ($412,A5)                           0C6D 2280 0412
+04BE36  bcs     $4beb6                                      6500 007E
+	
+04D404  move.b  #$1, ($12b,A5)                              1B7C 0001 012B		; write boss clear flag
+
+04D4E2  move.b  #$1, ($129,A5)                              1B7C 0001 0129		; write stage clear flag
+```
+
+We write the following routine:
+
+```
+00090400                             7      ORG    $90400
+00090400                             8  START:   
+00090400                             9  CHECK_FINAL_STAGE:              
+00090400  0C2D 0004 00BE            10      CMPI.B #4,($BE,A5)
+00090406                            11  EXIT    
+00090406  4E75                      12      RTS    
+00090408                            13  CHECK_SPAWN:    
+00090408  61F6                      14      BSR.B CHECK_FINAL_STAGE
+0009040A  6706                      15      BEQ.B CHECK_POSITION
+0009040C                            16  FORCECARRY:
+0009040C  0C16 0000                 17      CMPI.B #0,(A6)
+00090410  4E75                      18      RTS  
+00090412                            19  CHECK_POSITION:    
+00090412  0C6D 2280 0412            20      CMPI.W #$2280,($412,A5)    
+00090418  4E75                      21      RTS
+0009041A                            22  BOSS_CLEAR_FLAG:
+0009041A  61E4                      23      BSR.B CHECK_FINAL_STAGE
+0009041C  66E8                      24      BNE.B EXIT
+0009041E  1B7C 0001 012B            25      MOVE.B  #$1, ($12B,A5)
+00090424  4E75                      26      RTS
+00090426                            27  STAGE_CLEAR_FLAG:
+00090426  61D8                      28      BSR.B CHECK_FINAL_STAGE
+00090428  66DC                      29      BNE.B EXIT
+0009042A  1B7C 0001 0129            30      MOVE.B  #$1, ($129,A5)
+00090430  4E75                      31      RTS
+```
+
+And then we program the jump to:
+
+```
+ 04D404  jsr     $9041a.l                                    4EB9 0009 041A
+
+ 04D4E2  jsr     $90426.l                                    4EB9 0009 0426
+```
+
