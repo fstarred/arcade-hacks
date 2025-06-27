@@ -91,6 +91,8 @@ This is the character's available value that I discovered so far:
 02 03 00 = andore jr.
 02 03 01 = andore
 02 03 02 = g.andore
+02 03 03 = u.andore
+02 03 04 = f.andore
 02 04 00 = g. oriber
 02 04 01 = bill bull
 02 04 02 = wong who
