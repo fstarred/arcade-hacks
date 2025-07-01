@@ -17,10 +17,10 @@
 0xFF8082 = demo mode (00=OFF | FF=ON)
 0xFF80BE = area
 0xFF80BF = stage
-0xFF8412 = scene position x (word)
-0xFF8129 = stage clear
-0xFF812B = boss clear
-0xFF845C = scene position y (word)
+0xFF8412 = stage position x (word)
+0xFF8129 = stage clear flag
+0xFF812B = boss clear flag
+0xFF845C = stage position y (word)
 ```
 
 ## Characters and objects data
@@ -835,7 +835,7 @@ We change the stage map related to Subway 4 with this:
 
 ![Rolento&Sodom](https://github.com/user-attachments/assets/53173356-4862-451a-8aac-3b18ed7cfeb9)
 
-We can enjoy Rolento & Sodom with 2P mode. Unfortunatly, for the time being, I don't know how palette works on CPS1, so we can only face a broken palette version of Rolento
+We can enjoy Rolento & Sodom with 2P mode. On palette chapter we see how we can fix Rolento's palette
 
 ### Abigail
 
@@ -890,3 +890,36 @@ And then we program the jump to:
  04D4E2  jsr     $90426.l                                    4EB9 0009 0426
 ```
 
+### Belger
+
+Last boss will not spawn until we reach the 0xFF8412 match value (horizontal stage position).
+
+```
+04EA0A: cmpi.w  #$3240, ($412,A5)			    0C6D 3240 0412
+04EA14  move.w  #$3200, ($6,A6)                             3D7C 3200 0006
+```
+
+In most of the cases, stages vertical position (0xFF845C) equals 0, so in order to place Belger on our stage we need to replace this instruction:
+
+```
+04FF3C  subi.w  #$828, D0                                   0440 0828
+```
+
+with this:
+
+```
+04FF3C  subi.w  #$028, D0                                   0440 0028
+```
+
+You'll also notice that, when Belger is about to die, he keeps his position near the window of the building, so he can better take off at the right moment :)
+
+There's an instruction that check for Belger's energy:
+
+```
+04F076  cmpi.w  #$32, ($18,A6)                              0C6E 0032 0018
+04F07C  bhi     $4f096                                      6218
+..
+04F5E0  move.w  #$3370, ($a6,A6)                            3D7C 3370 00A6
+```
+
+We can skip that check by simply replacing that bhi with bra (6018)
