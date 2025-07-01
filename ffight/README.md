@@ -890,6 +890,9 @@ And then we program the jump to:
  04D4E2  jsr     $90426.l                                    4EB9 0009 0426
 ```
 
+![Abigail on charge](https://github.com/user-attachments/assets/0ef99122-3366-4975-93f0-6e2c7d92b428)
+
+
 ### Belger
 
 Last boss will not spawn until we reach the 0xFF8412 match value (horizontal stage position).
@@ -920,6 +923,11 @@ There's an instruction that check for Belger's energy:
 04F07C  bhi     $4f096                                      6218
 ..
 04F5E0  move.w  #$3370, ($a6,A6)                            3D7C 3370 00A6
+..
+050670  cmpi.w  #$32, ($18,A6)                              0C6E 0032 0018
+050676  bhi     $50690                                      6218
 ```
 
-We can skip that check by simply replacing that bhi with bra (6018)
+We can skip that check by simply replacing that bhi with bra (6018) on 0x4F07C and 0x50676, so that we keep Belger stable on the screen
+
+![Belger](https://github.com/user-attachments/assets/80641579-2f6a-4fb2-a65a-cceceee29e1d)
