@@ -19,7 +19,7 @@
 0xFF80BF = stage
 0xFF8412 = stage position x (word)
 0xFF8129 = stage clear flag
-0xFF812B = boss clear flag
+0xFF812B = area clear flag
 0xFF845C = stage position y (word)
 ```
 
@@ -928,6 +928,106 @@ There's an instruction that check for Belger's energy:
 050676  bhi     $50690                                      6218
 ```
 
-We can skip that check by simply replacing that bhi with bra (6018) on 0x4F07C and 0x50676, so that we keep Belger stable on the screen
+We can skip that check by simply replacing that bhi with bra (6018) on 0x4F07C and 0x50676, so that we keep Belger stable on the screen.
+
+Finally, we have the instructions for writing the stage / area clear flag
+
+```
+04F9B2  move.b  #$1, ($12b,A5)                              1B7C 0001 012B
+
+04FA4E  move.b  #$1, ($129,A5)                              1B7C 0001 0129
+
+04FA38  move.b  #$1, ($129,A5)                              1B7C 0001 0129
+```
+
+This is the complete routine if you want to face Belger earlier than expected:
+
+```
+000E0500                             7      ORG    $E0500
+000E0500                             8  START:   
+000E0500                             9  CHECK_FINAL_STAGE:              
+000E0500  0C2D 0005 00BE            10      CMPI.B #5,($BE,A5)
+000E0506  6606                      11      BNE.B EXIT
+000E0508  0C2D 0002 00BF            12      CMPI.B #2,($BF,A5)
+000E050E                            13  EXIT:  
+000E050E  4E75                      14      RTS    
+000E0510                            15  CHECK_MUST_SPAWN:    
+000E0510  61EE                      16      BSR.B CHECK_FINAL_STAGE
+000E0512  6706                      17      BEQ.B CHECK_POSITION
+000E0514                            18  FORCECARRY:
+000E0514  0C16 0000                 19      CMPI.B #0,(A6)
+000E0518  4E75                      20      RTS  
+000E051A                            21  CHECK_POSITION:    
+000E051A  0C6D 3240 0412            22      CMPI.W #$3240,($412,A5)    
+000E0520  4E75                      23      RTS
+000E0522                            24  MOVE_TO_POSITION:
+000E0522  61DC                      25      BSR.B CHECK_FINAL_STAGE
+000E0524  6712                      26      BEQ.B MOVE_TO_LS_POSITION        
+000E0526  2F00                      27      MOVE.L D0,-(SP)
+000E0528  302D 0412                 28      MOVE.W ($412,A5),D0
+000E052C  0440 0040                 29      SUB.W #$40,D0
+000E0530  3D40 0006                 30      MOVE.W D0,($6,A6)
+000E0534  201F                      31      MOVE.L (SP)+,D0
+000E0536  4E75                      32      RTS    
+000E0538                            33  MOVE_TO_LS_POSITION:
+000E0538  3D7C 3200 0006            34      MOVE.W #$3200,($6,A6)
+000E053E  4E75                      35      RTS
+000E0540                            36  CHECK_IS_ON_VCENTRE:
+000E0540  61BE                      37      BSR.B CHECK_FINAL_STAGE
+000E0542  6706                      38      BEQ.B CHECK_LS_VPOS
+000E0544  0440 0010                 39      SUBI.W #$10, D0
+000E0548  4E75                      40      RTS
+000E054A                            41  CHECK_LS_VPOS:
+000E054A  0440 0810                 42      SUBI.W #$810, D0
+000E054E  4E75                      43      RTS
+000E0550                            44  CHECK_ABOUT_TO_DIE:
+000E0550  61AE                      45      BSR.B CHECK_FINAL_STAGE
+000E0552  6708                      46      BEQ.B IS_ABOUT_TO_DIE
+000E0554  0C6E 0000 0012            47      CMPI.W #$0,($12,A6)
+000E055A  4E75                      48      RTS
+000E055C                            49  IS_ABOUT_TO_DIE:
+000E055C  0C6E 0032 0018            50      CMPI.W #$32,($18,A6)
+000E0562  4E75                      51      RTS
+000E0564                            52  BOSS_CLEAR_FLAG:
+000E0564  619A                      53      BSR.B CHECK_FINAL_STAGE
+000E0566  66A6                      54      BNE.B EXIT
+000E0568  1B7C 0001 012B            55      MOVE.B  #$1, ($12B,A5)
+000E056E  4E75                      56      RTS    
+000E0570                            57  STAGE_CLEAR_FLAG:
+000E0570  618E                      58      BSR.B CHECK_FINAL_STAGE
+000E0572  669A                      59      BNE.B EXIT
+000E0574  1B7C 0001 0129            60      MOVE.B  #$1, ($129,A5)
+000E057A  4E75                      61      RTS
+000E057C                            62  ENDING_SET_FLAG:
+000E057C  6182                      63      BSR.B CHECK_FINAL_STAGE
+000E057E  668E                      64      BNE.B EXIT
+000E0580  1B7C 00FF 0129            65      MOVE.B #$FF, ($129,A5)
+000E0586  4E75                      66      RTS    
+000E0588                            67        
+```
+
+We need to modify these routines as written below:
+
+```
+ 04EA0A  jsr     $e0510.l                                    4EB9 000E 0510
+
+ 04EA14  jsr     $e0522.l                                    4EB9 000E 0522
+
+ 04FF3C  jsr     $e0540.l                                    4EB9 000E 0540
+ 04FF42  nop                                                 4E71
+
+ 04F076  jsr     $e0550.l                                    4EB9 000E 0550
+
+ 050670  jsr     $e0550.l                                    4EB9 000E 0550
+
+ 04F9B2  jsr     $e0564.l                                    4EB9 000E 0564
+
+ 04FA4E  jsr     $e0570.l                                    4EB9 000E 0570
+
+ 04FA38  jsr     $e0570.l                                    4EB9 000E 0570
+
+ 00ED1A  jsr     $e057c.l                                    4EB9 000E 057C
+```
+
 
 ![Belger](https://github.com/user-attachments/assets/80641579-2f6a-4fb2-a65a-cceceee29e1d)
