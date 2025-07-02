@@ -119,14 +119,14 @@ Behaviour may vary according to the character kind itself, so for instance a val
 0C = coming from above
 ```
 
-### Objects
+### Mappable objects
 
 ```
 0x080F = sliding door
 0x0816 = drop
 0x082A = Rolento going down the ladder
 0x0831 = break point arrow
-0x0A00 = door
+
 0x0A01 = drumcan
 0x0A02 = chandelier
 0x0A03 = billboard
@@ -141,9 +141,78 @@ Behaviour may vary according to the character kind itself, so for instance a val
 0x0A10 = expanding flame
 0x0A11 = flame
 0x0A12 = wheelchair
+
+0x120000 = barbecue		
+0x120001 = steak				
+0x120002 = chicken			
+0x120003 = hamburger	
+0x120004 = hot dog			
+0x120005 = pizza				
+0x120006 = curry				
+0x120007 = sushi				
+0x120008 = banana				
+0x120009 = pineapple	
+0x12000A = apple				
+0x12000B = orange				
+0x12000C = grape				
+0x12000D = soft drink
+0x12000E = soft drink
+0x12000F = beer					
+0x120010 = beer					
+0x120011 = whisky				
+0x120012 = beer					
+0x120013 = gum					
+0x120014 = diamond			
+0x120015 = gold bar		
+0x120016 = ruby					
+0x120017 = emerdald		
+0x120018 = pearl				
+0x120019 = topaz				
+0x12001A = necklace		
+0x12001B = watch				
+0x12001C = dollar				
+0x12001D = yen					
+0x12001E = yen					
+0x12001F = radio				
+0x120020 = napkin				
+0x120021 = hat					
+0x120022 = hammer				
+
+0x060000 = knife		
+0x060100 = murasama		
+0x060200 = pipe			
 ```
 
-### Boss
+### Objects inside object
+
+The following is a code map of the objects that pop up once you destroy some objects (i.e. a drumcan, barrel, tire, etc.).
+
+These 2 bytes are right after the object type on the stage map (see offset + 0x08 on Map information chapter)
+
+```
+0x100 = food (barbecue)
+0x101 = food (steak)
+0x102 = food (barbecue)
+0x124 = knife
+0x125 = muramasa
+0x126 = pipe
+0x180 = nothing
+0x181 = food
+0x185 = topaz
+0x186 = point
+0x183 = food (beer)
+0x187 = nothing
+0x18a = muramasa / pipe
+0x18e = hot dog
+0x200 = food (barbecue)
+0x225 = muramasa
+0x226 = pipe
+0x282 = food (pineapple)
+0x283 = food (beer)
+0x503 = food
+```
+
+### Bosses
 
 ```
 04 0000 = Damnd
@@ -247,10 +316,10 @@ Here's an example of the first stage map data (slum 1), located at address 0x06D
 O + 0x00 = when 0xFF8412 == value, then load into memory
 O + 0x02 = position x (word)
 O + 0x04 = position y (word)
-O + 0x06 = character / object	(3 bytes)
-O + 0x09 = initial pose (if character)
-O + 0x08 = object contained (if object)
-O + 0x0D = if value == 1, enabled only with two players
+O + 0x06 = character / object	(3 bytes for characters, 2 for objects)
+O + 0x08 = object inside (only for object)
+O + 0x09 = initial pose (only for character)
+O + 0x0D = if value == 1, enabled only with 2 players mode
 
 06D02C   0070  0210  0040  0200  0002  0000  0000   .p...@........
 06D03A   0140  0228  00B8  080F  0000  0000  0000   .@.(.¸........
