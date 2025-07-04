@@ -2,6 +2,12 @@
 
 ![Andore at start](https://github.com/user-attachments/assets/62648f7e-de08-4460-a915-520712c65192)
 
+# Table of Contents
+1. [System information](#a-system)
+2. [General game data](#a-system)
+3. [Characters and objects data](#a-objdata)
+
+<a id="a-system"></a>
 ## System information
 
 **CPU**
@@ -40,7 +46,7 @@
 | BAY AREA   | 0x04 | 0x06      | 1      |
 | UP TOWN    | 0x05 | 0x07      | 3      |
 
-## Characters and objects data
+## Characters and objects data <a name="a-objdata"></a>
 
 ### Player data
 
