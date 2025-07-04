@@ -925,7 +925,7 @@ We change the stage map related to Subway 4 with this:
 
 ![Rolento&Sodom](https://github.com/user-attachments/assets/53173356-4862-451a-8aac-3b18ed7cfeb9)
 
-We can enjoy Rolento & Sodom with 2P mode. On palette chapter we see how we can fix Rolento's palette
+We can enjoy Rolento & Sodom with 2P mode. We'll see later how to fix Rolento's colors on Palette chapter
 
 ### Abigail
 
@@ -945,41 +945,41 @@ As usually there's a position matching stage in order to make him spawn:
 We write the following routine:
 
 ```
-00090400                             7      ORG    $90400
-00090400                             8  START:   
-00090400                             9  CHECK_FINAL_STAGE:              
-00090400  0C2D 0004 00BE            10      CMPI.B #4,($BE,A5)
-00090406                            11  EXIT    
-00090406  4E75                      12      RTS    
-00090408                            13  CHECK_SPAWN:    
-00090408  61F6                      14      BSR.B CHECK_FINAL_STAGE
-0009040A  6706                      15      BEQ.B CHECK_POSITION
-0009040C                            16  FORCECARRY:
-0009040C  0C16 0000                 17      CMPI.B #0,(A6)
-00090410  4E75                      18      RTS  
-00090412                            19  CHECK_POSITION:    
-00090412  0C6D 2280 0412            20      CMPI.W #$2280,($412,A5)    
-00090418  4E75                      21      RTS
-0009041A                            22  BOSS_CLEAR_FLAG:
-0009041A  61E4                      23      BSR.B CHECK_FINAL_STAGE
-0009041C  66E8                      24      BNE.B EXIT
-0009041E  1B7C 0001 012B            25      MOVE.B  #$1, ($12B,A5)
-00090424  4E75                      26      RTS
-00090426                            27  STAGE_CLEAR_FLAG:
-00090426  61D8                      28      BSR.B CHECK_FINAL_STAGE
-00090428  66DC                      29      BNE.B EXIT
-0009042A  1B7C 0001 0129            30      MOVE.B  #$1, ($129,A5)
-00090430  4E75                      31      RTS
+000E0400                             7      ORG    $E0400
+000E0400                             8  START:   
+000E0400                             9  CHECK_FINAL_STAGE:              
+000E0400  0C2D 0004 00BE            10      CMPI.B #4,($BE,A5)
+000E0406                            11  EXIT    
+000E0406  4E75                      12      RTS    
+000E0408                            13  CHECK_SPAWN:    
+000E0408  61F6                      14      BSR.B CHECK_FINAL_STAGE
+000E040A  6706                      15      BEQ.B CHECK_POSITION
+000E040C                            16  FORCECARRY:
+000E040C  0C16 0000                 17      CMPI.B #0,(A6)
+000E0410  4E75                      18      RTS  
+000E0412                            19  CHECK_POSITION:    
+000E0412  0C6D 2280 0412            20      CMPI.W #$2280,($412,A5)    
+000E0418  4E75                      21      RTS
+000E041A                            22  BOSS_CLEAR_FLAG:
+000E041A  61E4                      23      BSR.B CHECK_FINAL_STAGE
+000E041C  66E8                      24      BNE.B EXIT
+000E041E  1B7C 0001 012B            25      MOVE.B  #$1, ($12B,A5)
+000E0424  4E75                      26      RTS
+000E0426                            27  STAGE_CLEAR_FLAG:
+000E0426  61D8                      28      BSR.B CHECK_FINAL_STAGE
+000E0428  66DC                      29      BNE.B EXIT
+000E042A  1B7C 0001 0129            30      MOVE.B  #$1, ($129,A5)
+000E0430  4E75                      31      RTS
 ```
 
 And then we program the jump routines as follows:
 
 ```
- 04BE30  jsr     $90408.l                                    4EB9 0009 0408
+ 04BE30  jsr     $E0408.l                                    4EB9 000E 0408
 
- 04D404  jsr     $9041a.l                                    4EB9 0009 041A
+ 04D404  jsr     $E041a.l                                    4EB9 000E 041A
 
- 04D4E2  jsr     $90426.l                                    4EB9 0009 0426
+ 04D4E2  jsr     $E0426.l                                    4EB9 000E 0426
 ```
 
 ![Abigail on charge](https://github.com/user-attachments/assets/0ef99122-3366-4975-93f0-6e2c7d92b428)
