@@ -664,48 +664,48 @@ The below instructions are related to Sodom character:
 
 Let's do some modifications so that, for example, we face Sodom inside a subway's vagon.
 
-Like we did for Damnd, we create some routines at a spare ROM space, this time at address 0x90100
+Like we did for Damnd, we create some routines at a spare ROM space, this time at address 0xE0100
 
 ```
-00090100                             7      ORG    $90100
-00090100                             8  START:   
-00090100                             9  CHECK_FINAL_STAGE:              
-00090100  0C2D 0001 00BE            10      CMPI.B #1,($BE,A5)
-00090106  6606                      11      BNE.B EXIT
-00090108  0C2D 0003 00BF            12      CMPI.B #3,($BF,A5)
-0009010E                            13  EXIT:  
-0009010E  4E75                      14      RTS    
-00090110                            15  CHECK_MUST_SPAWN:    
-00090110  61EE                      16      BSR.B CHECK_FINAL_STAGE
-00090112  6706                      17      BEQ.B CHECK_POSITION
-00090114                            18  FORCECARRY:
-00090114  0C16 0000                 19      CMPI.B #0,(A6)
-00090118  4E75                      20      RTS  
-0009011A                            21  CHECK_POSITION:    
-0009011A  0C6D 1300 0412            22      CMPI.W #$1300,($412,A5)    
-00090120  4E75                      23      RTS
-00090122                            24  BOSS_CLEAR_FLAG:
-00090122  61DC                      25      BSR.B CHECK_FINAL_STAGE
-00090124  66E8                      26      BNE.B EXIT
-00090126  1B7C 0001 012B            27      MOVE.B  #$1, ($12B,A5)
-0009012C  4E75                      28      RTS
-0009012E                            29  STAGE_CLEAR_FLAG:
-0009012E  61D0                      30      BSR.B CHECK_FINAL_STAGE
-00090130  66DC                      31      BNE.B EXIT
-00090132  1B7C 0001 0129            32      MOVE.B  #$1, ($129,A5)
-00090138  4E75                      33      RTS
+000E0100                             7      ORG    $E0100
+000E0100                             8  START:   
+000E0100                             9  CHECK_FINAL_STAGE:              
+000E0100  0C2D 0001 00BE            10      CMPI.B #1,($BE,A5)
+000E0106  6606                      11      BNE.B EXIT
+000E0108  0C2D 0003 00BF            12      CMPI.B #3,($BF,A5)
+000E010E                            13  EXIT:  
+000E010E  4E75                      14      RTS    
+000E0110                            15  CHECK_MUST_SPAWN:    
+000E0110  61EE                      16      BSR.B CHECK_FINAL_STAGE
+000E0112  6706                      17      BEQ.B CHECK_POSITION
+000E0114                            18  FORCECARRY:
+000E0114  0C16 0000                 19      CMPI.B #0,(A6)
+000E0118  4E75                      20      RTS  
+000E011A                            21  CHECK_POSITION:    
+000E011A  0C6D 1300 0412            22      CMPI.W #$1300,($412,A5)    
+000E0120  4E75                      23      RTS
+000E0122                            24  BOSS_CLEAR_FLAG:
+000E0122  61DC                      25      BSR.B CHECK_FINAL_STAGE
+000E0124  66E8                      26      BNE.B EXIT
+000E0126  1B7C 0001 012B            27      MOVE.B  #$1, ($12B,A5)
+000E012C  4E75                      28      RTS
+000E012E                            29  STAGE_CLEAR_FLAG:
+000E012E  61D0                      30      BSR.B CHECK_FINAL_STAGE
+000E0130  66DC                      31      BNE.B EXIT
+000E0132  1B7C 0001 0129            32      MOVE.B  #$1, ($129,A5)
+000E0138  4E75                      33      RTS
 ```
 
 Then we can modify the instructions in order to fight Sodom on the subway stage 2 with no bad side effects:
 
 ```
-040CFA  jsr     $90110.l                                    4EB9 0009 0110
+040CFA  jsr     $E0110.l                                    4EB9 000E 0110
 
-042600  jsr     $90122.l                                    4EB9 0009 0122
+042600  jsr     $E0122.l                                    4EB9 000E 0122
 
-042698  jsr     $9012e.l                                    4EB9 0009 012E
+042698  jsr     $E012e.l                                    4EB9 000E 012E
 
-042ACA  cmpi.w  #$0100, D3                                  0C43 0100
+042ACA  cmpi.w  #$0050, D3                                  0C43 0050
 ```
 
 Finally, we place Sodom at begin of the Subway stage 2 by modifying the related stage map
