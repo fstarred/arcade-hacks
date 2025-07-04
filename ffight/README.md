@@ -549,7 +549,7 @@ on the logic ROM data (the only exception to this rule is Edi.E).
 
 ![Damnd giving prematurely his warmly welcome](https://github.com/user-attachments/assets/93d6dd61-d7de-4596-883e-0473004454ed)
 
-Below are some critical instructions related to Damnd behaviour:
+Below are listed some instructions that affect Damnd's behaviour:
 
 ```
 03D3B2  cmpi.w  #$aa0, ($412,A5)                            0C6D 00B0 0412		; when 0xFF8412 = x then boss is active
@@ -569,58 +569,56 @@ Below are some critical instructions related to Damnd behaviour:
 040AFA  move.w  #$ab4, ($6,A6)                              3D7C 00D4 0006		; set position with value x
 ```
 
-So let's say we want to fight Damnd also on other stages, we could write some routines starting from a spare ROM slot, i.e. 0x90000:
+Ok, let's say we want to fight Damnd also on other stages, we could write some routines starting from a spare ROM slot, i.e. 0xE0000:
 
 
 ```
-00090000                             7      ORG    $90000
-00090000                             8  START:
-00090000                             9  CHECK_FINAL_STAGE:                  
-00090000  4A2D 00BE                 10      TST.B ($BE,A5)
-00090004  6606                      11      BNE.B EXIT
-00090006  0C2D 0002 00BF            12      CMPI.B #2,($BF,A5)
-0009000C                            13  EXIT:  
-0009000C  4E75                      14      RTS    
-0009000E                            15  CHECK_SPAWN:    
-0009000E  61F0                      16      BSR.B CHECK_FINAL_STAGE
-00090010  6706                      17      BEQ.B CHECK_POSITION
-00090012                            18  FORCECARRY:
-00090012  0C16 0000                 19      CMPI.B #0,(A6)
-00090016  4E75                      20      RTS  
-00090018                            21  CHECK_POSITION:    
-00090018  0C6D 0AA0 0412            22      CMPI.W #$0AA0,($412,A5)    
-0009001E  4E75                      23      RTS
-00090020                            24  CALL_ENEMIES:
-00090020  61DE                      25      BSR.B CHECK_FINAL_STAGE
-00090022  66E8                      26      BNE.B EXIT
-00090024  323C 00C8                 27      MOVE.W #$C8,D1
-00090028  B26E 0018                 28      CMP.W ($18,A6),D1
-0009002C  4E75                      29      RTS
-0009002E                            30  BOSS_CLEAR_FLAG:
-0009002E  61D0                      31      BSR.B CHECK_FINAL_STAGE
-00090030  66DA                      32      BNE.B EXIT
-00090032  1B7C 0001 012B            33      MOVE.B  #$1, ($12B,A5)
-00090038  4E75                      34      RTS
-0009003A                            35  STAGE_CLEAR_FLAG:
-0009003A  61C4                      36      BSR.B CHECK_FINAL_STAGE
-0009003C  66CE                      37      BNE.B EXIT
-0009003E  1B7C 0001 0129            38      MOVE.B  #$1, ($129,A5)
-00090044  4E75                      39      RTS
+000E0000                             7      ORG    $E0000
+000E0000                             8  START:
+000E0000                             9  CHECK_FINAL_STAGE:                  
+000E0000  4A2D 00BE                 10      TST.B ($BE,A5)
+000E0004  6606                      11      BNE.B EXIT
+000E0006  0C2D 0002 00BF            12      CMPI.B #2,($BF,A5)
+000E000C                            13  EXIT:  
+000E000C  4E75                      14      RTS    
+000E000E                            15  CHECK_SPAWN:    
+000E000E  61F0                      16      BSR.B CHECK_FINAL_STAGE
+000E0010  6706                      17      BEQ.B CHECK_POSITION
+000E0012                            18  FORCECARRY:
+000E0012  0C16 0000                 19      CMPI.B #0,(A6)
+000E0016  4E75                      20      RTS  
+000E0018                            21  CHECK_POSITION:    
+000E0018  0C6D 0AA0 0412            22      CMPI.W #$0AA0,($412,A5)    
+000E001E  4E75                      23      RTS
+000E0020                            24  CALL_ENEMIES:
+000E0020  61DE                      25      BSR.B CHECK_FINAL_STAGE
+000E0022  66E8                      26      BNE.B EXIT
+000E0024  323C 00C8                 27      MOVE.W #$C8,D1
+000E0028  B26E 0018                 28      CMP.W ($18,A6),D1
+000E002C  4E75                      29      RTS
+000E002E                            30  BOSS_CLEAR_FLAG:
+000E002E  61D0                      31      BSR.B CHECK_FINAL_STAGE
+000E0030  66DA                      32      BNE.B EXIT
+000E0032  1B7C 0001 012B            33      MOVE.B  #$1, ($12B,A5)
+000E0038  4E75                      34      RTS
+000E003A                            35  STAGE_CLEAR_FLAG:
+000E003A  61C4                      36      BSR.B CHECK_FINAL_STAGE
+000E003C  66CE                      37      BNE.B EXIT
+000E003E  1B7C 0001 0129            38      MOVE.B  #$1, ($129,A5)
+000E0044  4E75                      39      RTS
 ```
 
 Then we can modify the following instructions:
 
 ```
-03D3B2  jsr     $9000e.l                                    4EB9 0009 000E
-03D3B8  bcs     $3d3dc                                      6522
+03D3B2  jsr     $e000e.l                                    4EB9 000E 000E
 
-03EC7A  jsr     $9002e.l                                    4EB9 0009 002E
+03EC7A  jsr     $e002e.l                                    4EB9 000E 002E
 
-03ECBC  jsr     $9003a.l                                    4EB9 0009 003A
+03ECBC  jsr     $e003a.l                                    4EB9 000E 003A
 
-040860  jsr     $90020.l                                    4EB9 0009 0020
+040860  jsr     $e0020.l                                    4EB9 000E 0020
 040866  nop                                                 4E71
-040868  bcs     $40874                                      650A
 
 040C08  cmpi.w  #$50, D3                                    0C43
 
@@ -634,7 +632,7 @@ What we actually did is to modify some critical instructions when Damnd appears 
 0x03D3B2: removed the check with 0xFF8412 value <br>
 0x03EC7A: removed the boss clear flag, so the enemies won't die automatically after boss death <br>
 0x03ECBC: removed the stage clear flag, so area is not clear <br>
-0x040868: avoid Damnd call for friend support when energy drop down to a certain value
+0x040860: avoid Damnd call for friend support when energy drop down to a certain value
 0x040C08, 0x040AF2, 0x040AFA: lowered the left margin  <br>
 
 Finally, let's say we want Damnd to show on all 3 slums stages.
