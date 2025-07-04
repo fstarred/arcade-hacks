@@ -723,7 +723,9 @@ Maybe we can also make things harder.. so why not facing 2 Sodoms on the final s
 
 The idea here is to address the dedicated stage's information to another spare ROM location.
 
-By placing a breakpoint at 0x614E and taking a look to the register A3, we'll first see the value 0x6308, which is the vector address for the first area; a long-word size after this and then we find the base vector of the 2nd area, which is 0x6D178.
+First off, if you want to refresh your mind about the below content, take a look at Stage routine chapter.
+
+Now, by placing a breakpoint at 0x614E and taking a look to the register A3, we'll first see the value 0x6308, which is the vector address for the first area; a long-word size after this and then we find the base vector of the 2nd area, which is 0x6D178.
 By checking the content of 0x6D178, we see:
 
 ```
@@ -772,35 +774,35 @@ This is the routine that checks on the West End stage if Edi.E character must be
 
 but we can ignore this and focus to the flags above so they are enabled only on the last stage.
 
-We write this code on a spare ROM address (in this example 0x90200)
+We write this code on a spare ROM address (in this example 0xE0200)
 
 ```
-00090200                             7      ORG    $90200
-00090200                             8  START:   
-00090200                             9  CHECK_FINAL_STAGE:              
-00090200  0C2D 0002 00BE            10      CMPI.B #2,($BE,A5)
-00090206  6606                      11      BNE.B EXIT
-00090208  0C2D 0002 00BF            12      CMPI.B #2,($BF,A5)
-0009020E                            13  EXIT:  
-0009020E  4E75                      14      RTS    
-00090210                            15  BOSS_CLEAR_FLAG:
-00090210  61EE                      16      BSR.B CHECK_FINAL_STAGE
-00090212  66FA                      17      BNE.B EXIT
-00090214  1B7C 0001 012B            18      MOVE.B  #$1, ($12B,A5)
-0009021A  4E75                      19      RTS
-0009021C                            20  STAGE_CLEAR_FLAG:
-0009021C  61E2                      21      BSR.B CHECK_FINAL_STAGE
-0009021E  66EE                      22      BNE.B EXIT
-00090220  1B7C 0001 0129            23      MOVE.B  #$1, ($129,A5)
-00090226  4E75                      24      RTS
+000E0200                             7      ORG    $E0200
+000E0200                             8  START:   
+000E0200                             9  CHECK_FINAL_STAGE:              
+000E0200  0C2D 0002 00BE            10      CMPI.B #2,($BE,A5)
+000E0206  6606                      11      BNE.B EXIT
+000E0208  0C2D 0002 00BF            12      CMPI.B #2,($BF,A5)
+000E020E                            13  EXIT:  
+000E020E  4E75                      14      RTS    
+000E0210                            15  BOSS_CLEAR_FLAG:
+000E0210  61EE                      16      BSR.B CHECK_FINAL_STAGE
+000E0212  66FA                      17      BNE.B EXIT
+000E0214  1B7C 0001 012B            18      MOVE.B  #$1, ($12B,A5)
+000E021A  4E75                      19      RTS
+000E021C                            20  STAGE_CLEAR_FLAG:
+000E021C  61E2                      21      BSR.B CHECK_FINAL_STAGE
+000E021E  66EE                      22      BNE.B EXIT
+000E0220  1B7C 0001 0129            23      MOVE.B  #$1, ($129,A5)
+000E0226  4E75                      24      RTS
 ```
 
 and then we place our routine calls:
 
 ```
-0476CA  jsr     $90210.l                                    4EB9 0009 0210
+0476CA  jsr     $E0210.l                                    4EB9 000E 0210
 
-047760  jsr     $9021C.l                                    4EB9 0009 021C
+047760  jsr     $E021C.l                                    4EB9 000E 021C
 ```
 
 ![Edi.E](https://github.com/user-attachments/assets/6dfd0edb-c7aa-41fc-b9e8-eb5fc4f892c3)
@@ -865,46 +867,50 @@ Notice, in case we want to change the value of the height Rolento will jump over
 
 Now, let's say we want to share the ring with Sodom and Rolento, but ONLY when playing 2 players mode:
 
-As usually, we write a routine for Rolento, this time ad address 0x90300
+As usually, we write a routine for Rolento, this time at address 0xE0300
 
 
 ```
-00090300                             7      ORG    $90300
-00090300                             8  START:   
-00090300                             9  CHECK_FINAL_STAGE:              
-00090300  0C2D 0003 00BE            10      CMPI.B #3,($BE,A5)
-00090306  6606                      11      BNE.B EXIT
-00090308  0C2D 0001 00BF            12      CMPI.B #1,($BF,A5)
-0009030E                            13  EXIT:  
-0009030E  4E75                      14      RTS    
-00090310                            15  CHECK_SPAWN:    
-00090310  61EE                      16      BSR.B CHECK_FINAL_STAGE
-00090312  6708                      17      BEQ.B CHECK_POSITION
-00090314                            18  FORCECARRY:
-00090314  0C6D 0000 045C            19      CMPI.W  #$0, ($45C,A5)
-0009031A  4E75                      20      RTS  
-0009031C                            21  CHECK_POSITION:    
-0009031C  0C6D 0AC0 045C            22      CMPI.W  #$AC0, ($45C,A5)    
-00090322  4E75                      23      RTS    
-00090324                            24  BOSS_CLEAR_FLAG:
-00090324  61DA                      25      BSR.B CHECK_FINAL_STAGE
-00090326  66E6                      26      BNE.B EXIT
-00090328  1B7C 0001 012B            27      MOVE.B  #$1, ($12B,A5)
-0009032E  4E75                      28      RTS
-00090330                            29  STAGE_CLEAR_FLAG:
-00090330  61CE                      30      BSR.B CHECK_FINAL_STAGE
-00090332  66DA                      31      BNE.B EXIT
-00090334  1B7C 0001 0129            32      MOVE.B  #$1, ($129,A5)
-0009033A  4E75                      33      RTS
+000E0300                             7      ORG    $E0300
+000E0300                             8  START:   
+000E0300                             9  CHECK_FINAL_STAGE:              
+000E0300  0C2D 0003 00BE            10      CMPI.B #3,($BE,A5)
+000E0306  6606                      11      BNE.B EXIT
+000E0308  0C2D 0001 00BF            12      CMPI.B #1,($BF,A5)
+000E030E                            13  EXIT:  
+000E030E  4E75                      14      RTS    
+000E0310                            15  CHECK_SPAWN:    
+000E0310  61EE                      16      BSR.B CHECK_FINAL_STAGE
+000E0312  6708                      17      BEQ.B CHECK_POSITION
+000E0314                            18  FORCECARRY:
+000E0314  0C6D 0000 045C            19      CMPI.W  #$0, ($45C,A5)
+000E031A  4E75                      20      RTS  
+000E031C                            21  CHECK_POSITION:    
+000E031C  0C6D 0AC0 045C            22      CMPI.W  #$AC0, ($45C,A5)    
+000E0322  4E75                      23      RTS    
+000E0324                            24  BOSS_CLEAR_FLAG:
+000E0324  61DA                      25      BSR.B CHECK_FINAL_STAGE
+000E0326  66E6                      26      BNE.B EXIT
+000E0328  1B7C 0001 012B            27      MOVE.B  #$1, ($12B,A5)
+000E032E  4E75                      28      RTS
+000E0330                            29  STAGE_CLEAR_FLAG:
+000E0330  61CE                      30      BSR.B CHECK_FINAL_STAGE
+000E0332  66DA                      31      BNE.B EXIT
+000E0334  1B7C 0001 0129            32      MOVE.B  #$1, ($129,A5)
+000E033A  4E75                      33      RTS
 ```
 
-Then we change the check at 0x48AAA so Rolento will immediately appear when reaching position:
+Then we change the check at 0x48AAA so Rolento will immediately spawn when reaching position:
 
 ```
- 048AAA  jsr     $90310.l                                    4EB9 0009 0310
+ 048AAA  jsr     $E0310.l                                    4EB9 000E 0310
+
+ 04A252  jsr     $E0324.l                                    4EB9 000E 0324
+
+ 04A314  jsr     $E0330.l                                    4EB9 000E 0330
 ```
 
-As we did for Sodom, we modify this:
+As we did for Sodom, we modify the stage data address with this:
 
 ```
 06D178   0008  007C  0208  5FFE  0002  0130  02D0  0010   ...|.._þ...0.Ð..
