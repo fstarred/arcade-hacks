@@ -1,11 +1,12 @@
 # Final Fight
 
-![Andore at start](https://github.com/user-attachments/assets/62648f7e-de08-4460-a915-520712c65192)
-
 # Table of Contents
 1. [System information](#a-system)
-2. [General game data](#a-system)
+2. [General game data](#a-a-ggamedata)
 3. [Characters and objects data](#a-objdata)
+4. 
+
+![Andore at start](https://github.com/user-attachments/assets/62648f7e-de08-4460-a915-520712c65192)
 
 <a id="a-system"></a>
 ## System information
@@ -20,6 +21,7 @@
 **Other references**<br>
 [The Book of CP-System](https://fabiensanglard.net/cpsb/index.html)
 
+<a id="a-ggamedata"></a>
 ## General game data
 
 ```
@@ -33,7 +35,7 @@
 0xFF845C = stage position y (word)
 ```
 
-## Area code
+### Area code
 
 | STAGE      | AREA | LEVEL SEQ | STAGES |
 | ---------- | ---- | --------- | ------ |
@@ -46,7 +48,8 @@
 | BAY AREA   | 0x04 | 0x06      | 1      |
 | UP TOWN    | 0x05 | 0x07      | 3      |
 
-## Characters and objects data <a name="a-objdata"></a>
+<a id="a-objdata"></a>
+## Characters and objects data
 
 ### Player data
 
