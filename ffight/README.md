@@ -11,17 +11,34 @@
 **Specs**<br>
 [M68000](../specs/M68000_16_32-Bit_Microprocessor_Programmers_Reference_Manual_4th_Edition_text.pdf)
 
+**Other references**<br>
+[The Book of CP-System](https://fabiensanglard.net/cpsb/index.html)
+
 ## General game data
 
 ```
 0xFF8082 = demo mode (00=OFF | FF=ON)
 0xFF80BE = area
 0xFF80BF = stage
+0xFF80C1 = level sequence
 0xFF8412 = stage position x (word)
 0xFF8129 = stage clear flag
 0xFF812B = area clear flag
 0xFF845C = stage position y (word)
 ```
+
+## Area code
+
+| STAGE      | AREA | LEVEL SEQ | STAGES |
+| ---------- | ---- | --------- | ------ |
+| SLUM       | 0x00 | 0x00      | 3      |
+| SUBWAY     | 0x01 | 0x01      | 4      |
+| B. CAR     | 0x06 | 0x02      | -      |
+| WEST SIDE  | 0x02 | 0x03      | 3      |
+| IND. AREA  | 0x03 | 0x04      | 2      |
+| B. GLASS   | 0x07 | 0x05      | -      |
+| BAY AREA   | 0x04 | 0x06      | 1      |
+| UP TOWN    | 0x05 | 0x07      | 3      |
 
 ## Characters and objects data
 
@@ -183,11 +200,11 @@ Behaviour may vary according to the character kind itself, so for instance a val
 0x060200 = pipe			
 ```
 
-### Objects inside object
+### Breaking objects
 
 The following is a code map of the objects that pop up once you destroy some objects (i.e. a drumcan, barrel, tire, etc.).
 
-These 2 bytes are right after the object type on the stage map (see offset + 0x08 on Map information chapter)
+Unfortunately I still have to understand the logic behind these codes, however you can try by yourself; set the 2 bytes code right after the object type on the stage map (see offset + 0x08 on Map information chapter)
 
 ```
 0x100 = food (barbecue)
@@ -202,7 +219,7 @@ These 2 bytes are right after the object type on the stage map (see offset + 0x0
 0x186 = point
 0x183 = food (beer)
 0x187 = nothing
-0x18a = muramasa / pipe
+0x18a = weapon
 0x18e = hot dog
 0x200 = food (barbecue)
 0x225 = muramasa
@@ -951,9 +968,11 @@ We write the following routine:
 00090430  4E75                      31      RTS
 ```
 
-And then we program the jump to:
+And then we program the jump routines as follows:
 
 ```
+ 04BE30  jsr     $90408.l                                    4EB9 0009 0408
+
  04D404  jsr     $9041a.l                                    4EB9 0009 041A
 
  04D4E2  jsr     $90426.l                                    4EB9 0009 0426
@@ -971,7 +990,7 @@ Last boss will not spawn until we reach the 0xFF8412 match value (horizontal sta
 04EA14  move.w  #$3200, ($6,A6)                             3D7C 3200 0006
 ```
 
-In most of the cases, stages vertical position (0xFF845C) equals 0, so in order to place Belger on our stage we need to replace this instruction:
+In most of the cases, stage vertical position value (0xFF845C) equals 0, so in order to place Belger on our stage we need to replace this instruction:
 
 ```
 04FF3C  subi.w  #$828, D0                                   0440 0828
