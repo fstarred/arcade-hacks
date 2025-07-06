@@ -2,9 +2,12 @@
 
 # Table of Contents
 1. [System information](#a-system)
-2. [General game data](#a-a-ggamedata)
+2. [General game data](#a-general)
 3. [Characters and objects data](#a-objdata)
-4. 
+4. [Stage mapping](#a-stagemap)
+5. [Objects](#a-objects)
+6. [Special scenes](#a-specialscenes)
+7. [Bosses](#a-bosses)
 
 ![Andore at start](https://github.com/user-attachments/assets/62648f7e-de08-4460-a915-520712c65192)
 
@@ -21,7 +24,7 @@
 **Other references**<br>
 [The Book of CP-System](https://fabiensanglard.net/cpsb/index.html)
 
-<a id="a-ggamedata"></a>
+<a id="a-general"></a>
 ## General game data
 
 ```
@@ -250,6 +253,7 @@ Unfortunately I still have to understand the logic behind these codes, however y
 04 0600 = Bosstest
 ```
 
+<a id="a-stagemap"></a>
 ## Stage mapping
 
 There are two main addresses for each stage dedicated for mapping enemies or objects, each of them are scanned by dedicated routines.
@@ -419,9 +423,10 @@ O + 0x1D = character
 01FBE8   0032  0032  1D7C  0002  0002  3D7C  0078  001E   .2.2.|....=|.x..
 ```
 
+<a id="a-objects"></a>
 ## Objects in memory
 
-When a mapped object / enemy has to load into memory (see chapters above about map / enemy information), some reserved slots will fill with that data.
+Each type of object (i.e. enemy, food, breakable obstacle) has its reserved size of RAM to fill when need to be displayed.
 
 Here's an example of slot's available address list:
 
@@ -439,7 +444,7 @@ Boss:
 2. 0xff99a8 * only for hacks; on regular game, boss is only one for area 
 [...]
 
-Objects:
+Obstacles:
 1. 0xffba68
 2. 0xffbb28
 3. 0xffbbe8
@@ -448,7 +453,7 @@ Objects:
 
 Enemies and boss takes 0xC0 bytes size, so you can easily do a scan starting from the first index and decrease by 0xC0 for looking for the next one
 
-
+<a id="a-specialscenes"></a>
 ## Special scenes
 
 ### Intro
@@ -546,6 +551,7 @@ The below code show the trigger moment (see instruction at 0x061576).
 
 Andore information are at 0xff9a68 (same address dedicated to the boss area)
 
+<a id="a-bosses"></a>
 ## Bosses data
 
 Unlike ordinary enemies, bosses are not mapped into enemy / stage data (the only exception is Rolento); instead, when loading last stage's area, preliminary boss data is stored on memory starting at address 0xFF9A68, and other data won't be loaded until the meeting of specific criteria:
