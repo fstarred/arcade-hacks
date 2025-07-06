@@ -456,6 +456,137 @@ Enemies and boss takes 0xC0 bytes size, so you can easily do a scan starting fro
 <a id="a-specialscenes"></a>
 ## Special scenes
 
+### Hero's preview and demo mode
+
+![Guy](https://github.com/user-attachments/assets/bd76ddc4-09dd-4dfd-99c9-4e7b3f1924af)
+
+All these scenes occurs during demo mode.
+
+The below data is the Guy's movement's map that is used for his presentation that takes place in the subway 2 stage.
+
+```
+   072200   0000  0012  0001  0013  0000  0022  0001  001D   ..........."....
+   072210   0011  0007  0001  0001  0000  0004  0010  0006   ................
+   072220   0000  0FF8  5688  2006  0000  0003  0010  0005   ...øV. .........
+   072230   0000  0004  0010  0004  0000  0004  0010  0004   ................
+   072240   0000  0004  0010  0003  0000  0005  0010  0006   ................
+   072250   0000  001A  0020  0004  0022  0003  0002  0007   ..... ..."......
+   072260   0000  0027  0001  0038  0021  0008  0001  0003   ...'...8.!......
+   072270   0000  0006  0010  0005  0000  010B  0020  000A   ............. ..
+   072280   0000  0001  0010  0007  0000  0059  0001  0002   ...........Y....
+   072290   0021  0008  0001  0004  0011  0006  0001  0002   .!..............
+   0722A0   0000  0016  0000  0000  0000  0000  0000  0000   ................
+   0722B0   0000  0000  0000  0000  0000  0000  0000  0000   ................
+```
+
+The structure is quite simple:
+
+```
+O + 0 = character's movement (2 bytes)
+O + 2 = timing (2 bytes)
+...
+```
+
+The following is the input byte table:
+
+```
+0x01 Right
+0x02 Left
+0x04 Up
+0x08 Down
+0x10 Button 1    
+0x20 Button 2    
+```
+
+These value can be combined using OR operator.
+
+Now we take as an example the values contained at address 0x72210 which are :
+
+```
+0011 movement
+0007 timing
+```
+
+This means that for 0x7 VBLANK times, the registered movement is 0x11, which equals to:
+
+01 OR 10, RIGHT + BUTTON 1<br>
+
+Timing value is registered at memory 0xFF12AC, while movement at 0xFF805C and 0xFF8568+82.
+
+The following is where we can find the table of movements for each hero:
+
+| GUY     | CODY    | HAGGAR  |
+| --------| ------- | ------- |
+| 0x72200 | 0x72300 | 0x72400 |
+
+### Demo scenes
+
+![0523](https://github.com/user-attachments/assets/ba9a48c0-8d27-4e82-a201-5f7d86067478)
+
+Like hero's preview, stage demo works in a similar way.
+
+The following routine init the map of movement address at memory 0xFF80E4 and 0x0FF80F4, respectively for player 1 and 2.
+
+```
+ 002AC0  move.w  (-$4,A1), D0                                3029 FFFC
+ 002AC4  lea     (-$4,A1,D0.w), A2                           45F1 00FC
+ 002AC8  move.l  A2, ($e4,A5)                                2B4A 00E4 ; init P1 movement map address at RAM 0xFF80E4
+ 002ACC  move.w  (-$2,A1), D0                                3029 FFFE 
+ 002AD0  lea     (-$4,A1,D0.w), A2                           45F1 00FC
+ 002AD4  move.l  A2, ($f4,A5)                                2B4A 00F4 ; init P2 movement map address at RAM 0xFF80F4
+ 002AD8  rts                                                 4E75
+```
+
+These are the movement address map for the 3 demo scenes:
+
+| Player 1 | Player 2 | Stage     |
+| -------- | -------- | --------- |
+| 0x63FEC  | 0x6406C  | SLUM 3    |
+| 0x64120  | 0x641C0  | I. AREA 1 |
+| 0x642C4  | 0x643E4  | SUBWAY 2  |
+
+For instance, this is the movement's map of Guy at Slum 3 stage (the first demo scene in co-op with Haggar).
+
+```
+O + 0 = timing   (byte)
+O + 1 = movement (byte)
+...
+
+   063FEC   3E00  0610  D700  1008  0900  0610  1C00  0901   >...×... ..... .
+   063FFC   0100  0810  1400  1101  0A11  4901  0300  1602   ..........I.....
+   06400C   0800  6801  2200  0504  1106  0604  0605  1101   ..h."...........
+   06401C   0D00  0B01  1109  0218  0A10  0C00  4502  1A06   ..... ......E...
+   06402C   0D04  0105  0101  2900  0A08  1309  0201  1300   ......).... ....
+   06403C   0D04  0705  0315  0114  0410  1900  1B02  0F00   ................
+   06404C   0302  120A  0102  1600  0A04  1605  0204  0500   ................
+   06405C   0810  0B00  0810  3B00  0808  FF00  0000  0000   ......;...ÿ.....
+   06406C   3E00  0702  1400  0701  1400  0210  4B00  0304   >...........K...
+   06407C   7005  1504  1505  0F01  0411  1C01  0E09  0D01   p............ ..
+   06408C   0511  5401  0211  0110  0304  0600  0210  0800   ..T.............
+   06409C   0310  0700  0510  0700  0410  0600  0510  1100   ................
+```
+
+While playing the scene, this routine read and set either timing and movement code from the address is currently pointing at 0xFF80E4 / 0xFF80F4
+
+```
+ 002C50  move.b  ($0,A2), ($6,A3)                            176A 0000 0006 ; read and set timing value
+ 002C56  beq     $2c66                                       670E
+ 002C58  subq.b  #1, ($6,A3)                                 532B 0006
+ 002C5C  move.b  ($1,A2), ($82,A4)                           196A 0001 0082 ; read and set movement value
+ 002C62  addq.l  #2, ($0,A3)                                 54AB 0000
+ 002C66  rts                                                 4E75
+```
+
+Timing value is registered at memory 0xFF80EA for P1 and 0xFF80FA for P2, while movements on Player reserved address (either 0xFF8568 or 0xFF8628) + 0x82.
+
+```
+   O + 0 = pointer to registered movement map
+   O + 6 = current timing value, decrease each VBLANK occurs
+
+   FF80E4   0006  3FEE  0000  3D00  0000  0000  0000  0000   ..?î..=......... ; P1
+   FF80F4   0006  406E  0000  3D00  0000  0000  0000  0000   ..@n..=......... ; P2
+```
+
 ### Intro
 
 ```
@@ -487,7 +618,6 @@ O + F = if value == 1, enabled only with two players
 
 
 ![weird intro](https://github.com/user-attachments/assets/7ecde17d-0264-45e0-9b48-252f9e0ff257)
-
 
 ### Bonus: Car
 
@@ -1138,3 +1268,6 @@ We need to modify these routines as written below:
 
 
 ![Belger](https://github.com/user-attachments/assets/80641579-2f6a-4fb2-a65a-cceceee29e1d)
+
+
+
