@@ -29,27 +29,14 @@
 
 ```
 0xFF8082 = demo mode (00=OFF | FF=ON)
-0xFF80BE = area
-0xFF80BF = stage
+0xFF80BE = area value
+0xFF80BF = stage value
 0xFF80C1 = level sequence
 0xFF8412 = stage position x (word)
 0xFF8129 = stage clear flag
 0xFF812B = area clear flag
 0xFF845C = stage position y (word)
 ```
-
-### Area code
-
-| STAGE      | AREA | LEVEL SEQ | STAGES |
-| ---------- | ---- | --------- | ------ |
-| SLUM       | 0x00 | 0x00      | 3      |
-| SUBWAY     | 0x01 | 0x01      | 4      |
-| B. CAR     | 0x06 | 0x02      | -      |
-| WEST SIDE  | 0x02 | 0x03      | 3      |
-| IND. AREA  | 0x03 | 0x04      | 2      |
-| B. GLASS   | 0x07 | 0x05      | -      |
-| BAY AREA   | 0x04 | 0x06      | 1      |
-| UP TOWN    | 0x05 | 0x07      | 3      |
 
 <a id="a-objdata"></a>
 ## Characters and objects data
@@ -422,6 +409,90 @@ O + 0x1D = character
 01FBD8   102E  0002  323B  0006  4EFB  1002  0008  001C   ....2;..Nû......
 01FBE8   0032  0032  1D7C  0002  0002  3D7C  0078  001E   .2.2.|....=|.x..
 ```
+
+### Area/Stage sequence
+
+After the player select sequence, these instruction initialize the stage / area value to 0:
+
+```
+ 05C8BE  move.b  ($e,A6), ($be,A5)                           1B6E 000E 00BE
+ 05C8C4  move.b  ($f,A6), ($bf,A5)                           1B6E 000F 00BF
+
+ 004D30  clr.b   ($bf,A5)                                    422D 00BF
+```
+
+You may take a look at this routine called after clearing a stage:
+
+```
+ 004E70  addq.b  #1, ($bf,A5)                                522D 00BF                  ; increase stage value
+ 004E74  bsr     $5476                                       6100 0600
+...
+ 005476  moveq   #$0, D0                                     7000
+ 005478  move.b  ($be,A5), D0                                102D 00BE
+ 00547C  move.b  ($4,PC,D0.w), D0                            103B 0004			; read from address 0x005482,x
+...
+ 004E78  cmp.b   ($bf,A5), D0                                B02D 00BF
+ 004E7C  bhi     $4e86                                       6208
+ 004E7E  move.w  #$a, ($0,A5)                                3B7C 000A 0000
+ 004E84  rts                                                 4E75
+... if passes on PC = 0x04E7E
+ 0054C0  move.b  ($c1,A5), D0                                102D 00C1			; 0xFF80C1 = sequence level
+ 0054C4  add.b   D0, D0                                      D000
+ 0054C6  move.b  ($34,PC,D0.w), ($be,A5)                     1B7B 0034 00BE
+ 0054CC  move.b  ($2f,PC,D0.w), ($122,A5)                    1B7B 002F 0122		; read from address 0x0054FC,x
+ 0054D2  rts                                                 4E75
+```
+
+To better understand the above routine, consider this:<br>
+
+Each time a stage is clear, its value increase (see 0x004E70). <br>
+
+This is the content of address 0x005482:
+
+```
+ 005482   0304  0302  0103  0101  0101  102D  0065  0200   ...........-.e..
+```
+
+Every bytes simple means the number of stages for each area. (i.e. SLUM = 03, SUBWAY = 04, W.SIDE = 03, etc..)
+
+| STAGE      | AREA | LEVEL SEQ | STAGES |
+| ---------- | ---- | --------- | ------ |
+| SLUM       | 0x00 | 0x00      | 3      |
+| SUBWAY     | 0x01 | 0x01      | 4      |
+| B. CAR     | 0x06 | 0x02      | -      |
+| WEST SIDE  | 0x02 | 0x03      | 3      |
+| IND. AREA  | 0x03 | 0x04      | 2      |
+| B. GLASS   | 0x07 | 0x05      | -      |
+| BAY AREA   | 0x04 | 0x06      | 1      |
+| UP TOWN    | 0x05 | 0x07      | 3      |
+
+After increasing its value, if current stage value equals the number of the stages related to the current area (see instruction 0x00547C),
+the sequence byte increases its value (0xFF80C1) so that the routine point to next expected area
+
+```
+0054FC   0000  0100  0601  0200  0300  0701  0400  0500   ................	
+```
+
+You can see from the above data - expressed in word unit - the area sequence planned during the game.
+
+#### Changing the area sequence order
+
+As usually, let's do a simple drill to demonstrate how this stuff work; we'll start from Subway area (value 1), then we'll back to Slum area (value 0), and then
+we'll switch the bonus area.<br>
+
+So we modify the area init instruction with:
+
+```
+05C8BE  move.b  #0, ($be,A5)                           1B7C 0000 00BE
+```
+
+and then the content of the area sequence:
+
+```
+0054FC   0000  0000  0701  0200  0300  0601  0400  0500   ................	
+```
+
+Notice the first two bytes are actually unused, because if you want to change the starting area you have to modify the instruction at 0x05C8BE, as we did above
 
 <a id="a-objects"></a>
 ## Objects in memory
