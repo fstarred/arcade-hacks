@@ -876,7 +876,7 @@ Then we can modify the following instructions:
 040860  jsr     $e0020.l                                    4EB9 000E 0020
 040866  nop                                                 4E71
 
-040C08  cmpi.w  #$50, D3                                    0C43
+040C08  cmpi.w  #$50, D3                                    0C43 0050
 
 040AF2  cmpi.w  #$50, D0                                    0C40 0050
 
