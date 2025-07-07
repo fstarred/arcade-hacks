@@ -1,13 +1,35 @@
 # Final Fight
 
 # Table of Contents
-1. [System information](#a-system)
+1. [System information](#a-system)	
 2. [General game data](#a-general)
 3. [Characters and objects data](#a-objdata)
+   1. [Player data](#a-playerdata)
+   2. [Enemy data](#a-enemydata)
+   3. [Characters](#a-charsdata)   
+   4. [Mappable objects](#a-mappableobj)
+   5. [Breakable objects](#a-breakobj)
 4. [Stage mapping](#a-stagemap)
-5. [Objects](#a-objects)
-6. [Special scenes](#a-specialscenes)
-7. [Bosses](#a-bosses)
+   1. [Stage routine](#a-stageroutine)
+   2. [Enemy routine](#a-enemyroutine)
+   3. [Stage map](#a-stagemap)
+   4. [Enemy map](#a-enemymap)
+5. [Area/Stage sequence](#a-stageseq)
+6. [Objects in memory](#a-objectsmem)
+7. [Special scenes](#a-specialscenes)
+   1. [Presentation](#a-presentation)
+   2. [Demo scenes](#a-demoscenes)
+   3. [Slum intro](#a-slumintro)
+   4. [Bonus car](#a-bonuscar)
+   5. [West Side 1 Andore](#a-wside1andore)
+8. [Bosses](#a-bosses)
+   1. [Damnd](#a-damnd)
+   2. [Sodom](#a-sodom)
+   3. [Edi.E](#a-edie)
+   4. [Rolento](#a-rolento)
+   5. [Abigail](#a-abigail)
+   6. [Belger](#a-belger)
+
 
 ![Andore at start](https://github.com/user-attachments/assets/62648f7e-de08-4460-a915-520712c65192)
 
@@ -41,6 +63,7 @@
 <a id="a-objdata"></a>
 ## Characters and objects data
 
+<a id="a-playerdata"></a>
 ### Player data
 
 Player data is stored on the following addresses:
@@ -69,8 +92,7 @@ STATUS
 0x0A = stage end
 ```
 
-
-
+<a id="a-enemydata"></a>
 ### Enemy data
 
 Typically, when enemy data needs to be loaded into memory, the program delegates specific reserved slots of memory for it.
@@ -90,12 +112,14 @@ O + 0x25        frame animation object (double)
 ...
 ```
 
+<a id="a-charsdata"></a>
 ### Characters
 
 This is the character's available value that I discovered so far:
 
-```
+#### Ordinary enemies
 
+```
 02 00 00 = bred
 02 00 01 = doug
 02 00 02 = jake
@@ -119,6 +143,19 @@ This is the character's available value that I discovered so far:
 02 08 00 = holly wood (red)
 ```
 
+#### Bosses
+
+```
+04 0000 = Damnd
+04 0100 = Sodom
+04 0200 = Edi.E
+04 0300 = Rolento
+04 0400 = Abigail
+04 0500 = Belger
+04 0600 = Bosstest
+```
+
+
 #### Initial pose
 
 Below are some codes I found for the character's initial pose.
@@ -135,6 +172,7 @@ Behaviour may vary according to the character kind itself, so for instance a val
 0C = coming from above
 ```
 
+<a id="a-mappableobj"></a>
 ### Mappable objects
 
 ```
@@ -199,7 +237,8 @@ Behaviour may vary according to the character kind itself, so for instance a val
 0x060200 = pipe			
 ```
 
-### Breaking objects
+<a id="a-breakobj"></a>
+### Breakable objects
 
 The following is a code map of the objects that pop up once you destroy some objects (i.e. a drumcan, barrel, tire, etc.).
 
@@ -228,18 +267,6 @@ Unfortunately I still have to understand the logic behind these codes, however y
 0x503 = food
 ```
 
-### Bosses
-
-```
-04 0000 = Damnd
-04 0100 = Sodom
-04 0200 = Edi.E
-04 0300 = Rolento
-04 0400 = Abigail
-04 0500 = Belger
-04 0600 = Bosstest
-```
-
 <a id="a-stagemap"></a>
 ## Stage mapping
 
@@ -257,26 +284,7 @@ Scan from the vector address and load into memory mapped enemies.
 
 In order to advance forward in the level or go for the next stage, you must beat all of these enemies.
 
-
-| STAGE     | STAGE R. | ENEMY R. |
-| --------  | -------- | -------- |
-| SLUM 1    | 0x06D02C | 0x070596 |
-| SLUM 2    | 0x06D0CA | 0x0705FA |
-| SLUM 3    | 0x06D122 | 0x07064E |
-| SUBWAY 1  | 0x06D182 | 0x07071E |
-| SUBWAY 2  | 0x06D1F6 | 0x070792 |
-| SUBWAY 3  | 0x06D382 | 0x070866 |
-| SUBWAY 4  | 0x06D44A | 0x0708EA |
-| W. SIDE 1 | 0x06D454 | 0x0708F4 |
-| W. SIDE 2 | 0x06D4D6 | 0x070AB6 |
-| W. SIDE 3 | 0x06D52E | 0x070AFA |
-| I. AREA 1 | 0x06D5FA | 0x070C64 |
-| I. AREA 2 | 0x06D858 | 0x070EE8 |
-| BAY AREA  | 0x06D968 | 0x070EEE |
-| UP TOWN 1 | 0x06E1C2 | 0x071364 |
-| UP TOWN 2 | 0x06E612 | 0x0714F8 |
-| UP TOWN 3 | 0x06E8C4 | 0x07167C |
-
+<a id="a-stageroutine"></a>
 ### Stage routine
 
 The stage data address is extracted by the following routine called on stage init.
@@ -302,6 +310,7 @@ The stage data address is extracted by the following routine called on stage ini
 
 ```
 
+<a id="a-enemyroutine"></a>
 ### Enemy routine
 
 Information map enemy address is extracted by the following routine called on stage init.
@@ -324,8 +333,8 @@ Information map enemy address is extracted by the following routine called on st
 005B0E  rts                                                 4E75                 ; place a breakpoint here !
 ```
 
-
-### Map information
+<a id="a-stagemap"></a>
+### Stage map
 
 Here's an example of the first stage map data (slum 1), located at address 0x06D02C:
 
@@ -354,7 +363,8 @@ O + 0x0D = if value == 1, enabled only with 2 players mode
 
 For the ease of reading or usage, we can split each block by 0x0E bytes so that we have first offset starting at 0x06D02C, then the next ones at 0x06D03A,0x06D048 and so on.
 
-### Enemy information
+<a id="a-enemymap"></a>
+### Enemy map
 
 Below's the enemy's map data of the first stage (slum 1)
 
@@ -376,7 +386,28 @@ O + 0x04 = character / pose (double)
 
 While the first offset takes 0x12 bytes to store general information, the other ones takes 0x10 bytes for storing enemy information
 
-### Enemies coming from the door
+#### Stage mapping addresses
+
+| STAGE     | STAGE R. | ENEMY R. |
+| --------  | -------- | -------- |
+| SLUM 1    | 0x06D02C | 0x070596 |
+| SLUM 2    | 0x06D0CA | 0x0705FA |
+| SLUM 3    | 0x06D122 | 0x07064E |
+| SUBWAY 1  | 0x06D182 | 0x07071E |
+| SUBWAY 2  | 0x06D1F6 | 0x070792 |
+| SUBWAY 3  | 0x06D382 | 0x070866 |
+| SUBWAY 4  | 0x06D44A | 0x0708EA |
+| W. SIDE 1 | 0x06D454 | 0x0708F4 |
+| W. SIDE 2 | 0x06D4D6 | 0x070AB6 |
+| W. SIDE 3 | 0x06D52E | 0x070AFA |
+| I. AREA 1 | 0x06D5FA | 0x070C64 |
+| I. AREA 2 | 0x06D858 | 0x070EE8 |
+| BAY AREA  | 0x06D968 | 0x070EEE |
+| UP TOWN 1 | 0x06E1C2 | 0x071364 |
+| UP TOWN 2 | 0x06E612 | 0x0714F8 |
+| UP TOWN 3 | 0x06E8C4 | 0x07167C |
+
+#### Enemies coming from the door
 
 You have probably noticed at stage Slum 1 there are enemies coming from two opening doors placed at beginning and in the middle of the stage.
 
@@ -410,7 +441,8 @@ O + 0x1D = character
 01FBE8   0032  0032  1D7C  0002  0002  3D7C  0078  001E   .2.2.|....=|.x..
 ```
 
-### Area/Stage sequence
+<a id="a-stageseq"></a>
+## Area/Stage sequence
 
 After the player select sequence, these instruction initialize the stage / area value to 0:
 
@@ -494,7 +526,8 @@ and then the content of the area sequence:
 
 Notice the first two bytes are actually unused, because if you want to change the starting area you have to modify the instruction at 0x05C8BE, as we did above
 
-<a id="a-objects"></a>
+
+<a id="a-objectsmem"></a>
 ## Objects in memory
 
 Each type of object (i.e. enemy, food, breakable obstacle) has its reserved size of RAM to fill when need to be displayed.
@@ -524,16 +557,18 @@ Obstacles:
 
 Enemies and boss takes 0xC0 bytes size, so you can easily do a scan starting from the first index and decrease by 0xC0 for looking for the next one
 
+
 <a id="a-specialscenes"></a>
 ## Special scenes
 
-### Hero's preview and demo mode
+<a id="a-presentation"></a>
+### Presentation
 
 ![Guy](https://github.com/user-attachments/assets/bd76ddc4-09dd-4dfd-99c9-4e7b3f1924af)
 
 All these scenes occurs during demo mode.
 
-The below data is the Guy's movement's map that is used for his presentation that takes place in the subway 2 stage.
+The below data is the Guy's movement's map that is used for his presentation which takes place in the subway 2 stage.
 
 ```
    072200   0000  0012  0001  0013  0000  0022  0001  001D   ..........."....
@@ -557,6 +592,8 @@ O + 0 = character's movement (2 bytes)
 O + 2 = timing (2 bytes)
 ...
 ```
+
+#### controls
 
 The following is the input byte table:
 
@@ -590,6 +627,7 @@ The following is where we can find the table of movements for each hero:
 | --------| ------- | ------- |
 | 0x72200 | 0x72300 | 0x72400 |
 
+<a id="a-demoscenes"></a>
 ### Demo scenes
 
 ![0523](https://github.com/user-attachments/assets/ba9a48c0-8d27-4e82-a201-5f7d86067478)
@@ -658,7 +696,8 @@ Timing value is registered at memory 0xFF80EA for P1 and 0xFF80FA for P2, while 
    FF80F4   0006  406E  0000  3D00  0000  0000  0000  0000   ..@n..=......... ; P2
 ```
 
-### Intro
+<a id="a-slumintro"></a>
+### Slum intro
 
 ```
 O + 2 = position x
@@ -690,6 +729,7 @@ O + F = if value == 1, enabled only with two players
 
 ![weird intro](https://github.com/user-attachments/assets/7ecde17d-0264-45e0-9b48-252f9e0ff257)
 
+<a id="a-bonuscar"></a>
 ### Bonus: Car
 
 ```
@@ -727,9 +767,8 @@ O + 0x0B  = pos y
 O + 0x13  = character
 ```
 
-### Players catch by Andore at West Side 1
-
-
+<a id="a-wside1andore"></a>
+### West Side 1 Andore scene
 
 When screen position x (0xFF8412) = 0x600, player status pass to 0x0A (stage clear).
 Then Andore reach and grab you.
@@ -753,7 +792,7 @@ The below code show the trigger moment (see instruction at 0x061576).
 Andore information are at 0xff9a68 (same address dedicated to the boss area)
 
 <a id="a-bosses"></a>
-## Bosses data
+## Bosses
 
 Unlike ordinary enemies, bosses are not mapped into enemy / stage data (the only exception is Rolento); instead, when loading last stage's area, preliminary boss data is stored on memory starting at address 0xFF9A68, and other data won't be loaded until the meeting of specific criteria:
 such conditions could be the reaching a specific screen horizontal position (0xFF8412), vertical position (0xFF845C) - and still is the case of Rolento - or other cases that we'll see later.
@@ -761,6 +800,7 @@ such conditions could be the reaching a specific screen horizontal position (0xF
 Despite all this logic stuff, IT IS POSSIBLE to put a boss on the map / enemy information; however that boss won't spawn until you do some modifications
 on the logic ROM data (the only exception to this rule is Edi.E).
 
+<a id="a-damnd"></a>
 ### Damnd
 
 ![Damnd giving prematurely his warmly welcome](https://github.com/user-attachments/assets/93d6dd61-d7de-4596-883e-0473004454ed)
@@ -865,6 +905,7 @@ Modify these two address in the following way:
 
 ... yeah, we do have it !
 
+<a id="a-sodom"></a>
 ### Sodom
 
 The below instructions are related to Sodom character:
@@ -967,6 +1008,7 @@ and voilà, 2 is better than one (or not?)
 
 ![2 Sodoms](https://github.com/user-attachments/assets/5dec5299-5962-452a-996f-b93457400f22)
 
+<a id="a-edie"></a>
 ### Edi.E
 
 This is the easier boss to reuse on Final Fight, as it enough to place its character on the stage / enemy map data just like any other enemy.
@@ -1023,6 +1065,7 @@ and then we place our routine calls:
 
 ![Edi.E](https://github.com/user-attachments/assets/6dfd0edb-c7aa-41fc-b9e8-eb5fc4f892c3)
 
+<a id="a-rolento"></a>
 ### Rolento
 
 This is the only boss area thay is actually mapped into the stage map data, like an ordinary enemy.
@@ -1143,6 +1186,7 @@ We change the stage map related to Subway 4 with this:
 
 We can enjoy Rolento & Sodom with 2P mode. We'll see later how to fix Rolento's colors on Palette chapter
 
+<a id="a-abigail"></a>
 ### Abigail
 
 Like Edi.E, this is a quite simple boss to fit in any scenario.
@@ -1200,7 +1244,7 @@ And then we program the jump routines as follows:
 
 ![Abigail on charge](https://github.com/user-attachments/assets/0ef99122-3366-4975-93f0-6e2c7d92b428)
 
-
+<a id="a-belger"></a>
 ### Belger
 
 Last boss will not spawn until we reach the 0xFF8412 match value (horizontal stage position).
@@ -1336,7 +1380,6 @@ We need to modify these routines as written below:
 
  00ED1A  jsr     $e057c.l                                    4EB9 000E 057C
 ```
-
 
 ![Belger](https://github.com/user-attachments/assets/80641579-2f6a-4fb2-a65a-cceceee29e1d)
 
