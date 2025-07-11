@@ -819,8 +819,8 @@ Below are listed some instructions that affect Damnd's behaviour:
 
 040B02  cmpi.w  #$bf4, D0                                   0C40 0BF4			; when is thrown or jump over pos x, branch to 040B0A
 040B0A  move.w  #$bf3, ($6,A6)                              3D7C 0213 0006		; set position with value x
-040C02  cmpi.w  #$bf4, D3                                   0C43 0212			; don't know, set it as x max margin
-040C08  cmpi.w  #$ab4, D3                                   0C43 00F4			; don't know, set it as x min margin
+040C02  cmpi.w  #$bf4, D3                                   0C43 0212			; unknown
+040C08  cmpi.w  #$ab4, D3                                   0C43 00F4			; unknown
 040AF2  cmpi.w  #$ab4, D0                                   0C40 00D4			; when is thrown or jump at position over x, branch to 0x040AFA
 040AFA  move.w  #$ab4, ($6,A6)                              3D7C 00D4 0006		; set position with value x
 ```
@@ -831,65 +831,112 @@ Ok, let's say we want to fight Damnd also on other stages, we could write some r
 ```
 000E0000                             7      ORG    $E0000
 000E0000                             8  START:
-000E0000                             9  CHECK_FINAL_STAGE:                  
-000E0000  4A2D 00BE                 10      TST.B ($BE,A5)
-000E0004  6606                      11      BNE.B EXIT
-000E0006  0C2D 0002 00BF            12      CMPI.B #2,($BF,A5)
-000E000C                            13  EXIT:  
-000E000C  4E75                      14      RTS    
-000E000E                            15  CHECK_SPAWN:    
-000E000E  61F0                      16      BSR.B CHECK_FINAL_STAGE
-000E0010  6706                      17      BEQ.B CHECK_POSITION
-000E0012                            18  FORCECARRY:
-000E0012  0C16 0000                 19      CMPI.B #0,(A6)
-000E0016  4E75                      20      RTS  
-000E0018                            21  CHECK_POSITION:    
-000E0018  0C6D 0AA0 0412            22      CMPI.W #$0AA0,($412,A5)    
-000E001E  4E75                      23      RTS
-000E0020                            24  CALL_ENEMIES:
-000E0020  61DE                      25      BSR.B CHECK_FINAL_STAGE
-000E0022  66E8                      26      BNE.B EXIT
-000E0024  323C 00C8                 27      MOVE.W #$C8,D1
-000E0028  B26E 0018                 28      CMP.W ($18,A6),D1
-000E002C  4E75                      29      RTS
-000E002E                            30  BOSS_CLEAR_FLAG:
-000E002E  61D0                      31      BSR.B CHECK_FINAL_STAGE
-000E0030  66DA                      32      BNE.B EXIT
-000E0032  1B7C 0001 012B            33      MOVE.B  #$1, ($12B,A5)
-000E0038  4E75                      34      RTS
-000E003A                            35  STAGE_CLEAR_FLAG:
-000E003A  61C4                      36      BSR.B CHECK_FINAL_STAGE
-000E003C  66CE                      37      BNE.B EXIT
-000E003E  1B7C 0001 0129            38      MOVE.B  #$1, ($129,A5)
-000E0044  4E75                      39      RTS
+000E0000                             9  L3D3B2:    
+000E0000  0C6D 0002 00BE            10      CMPI.W #$0002,($BE,A5)
+000E0006  6720                      11      BEQ.B .CHECK_POSITION
+000E0008                            12  .LOAD_COLORS:
+000E0008  48E7 80C0                 13      MOVEM.L D0/A0-A1,-(SP)
+000E000C  7008                      14      MOVEQ #8,D0
+000E000E  41F9 000C03E0             15      LEA $0C03E0,A0                  ; $0C0000 (SLUM PALETTE) + ($1E*$20)
+000E0014  43F9 009143A0             16      LEA $9143A0,A1                  ; $914000 (PALETTE REGISTER) + ($1D*$20)
+000E001A                            17  .LOOPCOL:
+000E001A  22D8                      18      MOVE.L (A0)+,(A1)+
+000E001C  51C8 FFFC                 19      DBF D0,.LOOPCOL    
+000E0020  4CDF 0301                 20      MOVEM.L (SP)+,D0/A0-A1
+000E0024  4A00                      21      TST.B D0                        ; RESET CARRY FLAG
+000E0026  4E75                      22      RTS  
+000E0028                            23  .CHECK_POSITION:    
+000E0028  0C6D 0AA0 0412            24      CMPI.W #$0AA0,($412,A5)    
+000E002E  4E75                      25      RTS
+000E0030                            26  L40860:
+000E0030  6700 000E                 27      BEQ .CHECKENERGY
+000E0034  0C6D 0002 00BE            28      CMPI.W #0002,($BE,A5)
+000E003A  660A                      29      BNE.B .FORCECARRYFLAG
+000E003C  323C 00C8                 30      MOVE.W #$C8,D1
+000E0040                            31  .CHECKENERGY    
+000E0040  B26E 0018                 32      CMP.W ($18,A6),D1
+000E0044  4E75                      33      RTS
+000E0046                            34  .FORCECARRYFLAG:
+000E0046  0C2E 0005 0012            35      CMPI.B #$5,($12,A6)             ; DEST OPERAND IS ALWAYS $04
+000E004C  4E75                      36      RTS
+000E004E                            37  L40B02:
+000E004E  0C6D 0002 00BE            38      CMPI.W #0002,($BE,A5)
+000E0054  6608                      39      BNE.B .EXIT
+000E0056  0C40 0BF4                 40      CMPI.W #$BF4,D0
+000E005A  6502                      41      BCS.B .EXIT
+000E005C  4E75                      42      RTS
+000E005E                            43  .EXIT    
+000E005E  588F                      44      ADDQ.L #4,SP
+000E0060  4EF9 00040B10             45      JMP $40B10
+000E0066                            46  L40C02:
+000E0066  0C6D 0002 00BE            47      CMPI.W #0002,($BE,A5)        
+000E006C  6616                      48      BNE.B .EXIT
+000E006E  0C43 0BF4                 49      CMPI.W #$BF4,D3
+000E0072  6500 000A                 50      BCS .L40C08
+000E0076                            51  .BRATO40C1E    
+000E0076  588F                      52      ADDQ.L #4,SP
+000E0078  4EF9 00040C1E             53      JMP $40C1E
+000E007E                            54  .L40C08
+000E007E  0C43 0AB4                 55      CMPI.W #$AB4,D3
+000E0082  65F2                      56      BCS .BRATO40C1E            
+000E0084                            57  .EXIT        
+000E0084  4E75                      58      RTS
+000E0086                            59  L40AF2:
+000E0086  0C6D 0002 00BE            60      CMPI.W #0002,($BE,A5)
+000E008C  660A                      61      BNE.B .EXIT
+000E008E  0C40 0AB4                 62      CMPI.W #$AB4,D0
+000E0092  6400 0004                 63      BCC .EXIT
+000E0096  4E75                      64      RTS        
+000E0098                            65  .EXIT
+000E0098  588F                      66      ADDQ.L #4,SP
+000E009A  4EF9 00040B02             67      JMP $40B02
+000E00A0                            68  L3EC7A:
+000E00A0  0C6D 0002 00BE            69      CMPI.W #0002,($BE,A5)
+000E00A6  6606                      70      BNE.B .EXIT
+000E00A8  1B7C 0001 012B            71      MOVE.B  #$1, ($12B,A5)
+000E00AE                            72  .EXIT    
+000E00AE  4E75                      73      RTS
+000E00B0                            74  L3ECBC:
+000E00B0  0C6D 0002 00BE            75      CMPI.W #0002,($BE,A5)
+000E00B6  6606                      76      BNE.B .EXIT
+000E00B8  1B7C 0001 0129            77      MOVE.B  #$1, ($129,A5)
+000E00BE                            78  .EXIT    
+000E00BE  4E75                      79      RTS
 ```
 
 Then we can modify the following instructions:
 
 ```
-03D3B2  jsr     $e000e.l                                    4EB9 000E 000E
+03D3B2  jsr     $e0000.l                                    4EB9 000E 0000
 
-03EC7A  jsr     $e002e.l                                    4EB9 000E 002E
+03EC7A  jsr     $e00a0.l                                    4EB9 000E 00A0
 
-03ECBC  jsr     $e003a.l                                    4EB9 000E 003A
+03ECBC  jsr     $e00b0.l                                    4EB9 000E 00B0
 
-040860  jsr     $e0020.l                                    4EB9 000E 0020
+04085E  nop                                                 4E71
+040860  jsr     $e0030.l                                    4EB9 000E 0030
 040866  nop                                                 4E71
 
-040C08  cmpi.w  #$50, D3                                    0C43 0050
+040B02  jsr     $e004e.l                                    4EB9 000E 004E
+040B08  addq.b  #1, D6                                      5206
 
-040AF2  cmpi.w  #$50, D0                                    0C40 0050
+040C02  jsr     $e0066.l                                    4EB9 000E 0066
+040C08  nop                                                 4E71
+040C0A  nop                                                 4E71
+040C0C  nop                                                 4E71
 
-040AFA  move.w  #$50, ($6,A6)                               3D7C 0050 0006 
+040AF2  jsr     $e0086.l                                    4EB9 000E 0086
+040AF8  addq.b  #1, D6                                      5206
+
 ```
 
-What we actually did is to modify some critical instructions when Damnd appears not on his expected stage.
+What we actually did is to modify some critical instructions when Damnd appears on a different stage than **Slum 3**.
 
 0x03D3B2: removed the check with 0xFF8412 value <br>
-0x03EC7A: removed the boss clear flag, so the enemies won't die automatically after boss death <br>
-0x03ECBC: removed the stage clear flag, so area is not clear <br>
-0x040860: avoid Damnd call for friend support when energy drop down to a certain value
-0x040C08, 0x040AF2, 0x040AFA: lowered the left margin  <br>
+0x03EC7A: removed the area clear flag, so the enemies won't die automatically after boss death <br>
+0x03ECBC: removed the stage clear flag <br>
+0x040860: avoid Damnd call for support when energy drop down to a certain value
+The remaining addresses are about some checks on position, mostly the margin of Slum 3 ($ab4 - $bf4)  <br>
 
 Finally, let's say we want Damnd to show on all 3 slums stages.
 
