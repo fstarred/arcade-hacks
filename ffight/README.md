@@ -14,6 +14,7 @@
    2. [Enemy routine](#a-enemyroutine)
    3. [Stage map](#a-stagemap)
    4. [Enemy map](#a-enemymap)
+   5. [References](#a-stagemapref)
 5. [Area/Stage sequence](#a-stageseq)
 6. [Objects in memory](#a-objectsmem)
 7. [Special scenes](#a-specialscenes)
@@ -29,6 +30,7 @@
    4. [Rolento](#a-rolento)
    5. [Abigail](#a-abigail)
    6. [Belger](#a-belger)
+9. [Load ROM modification with MAME](#a-howtohack)      
 
 
 ![Andore at start](https://github.com/user-attachments/assets/62648f7e-de08-4460-a915-520712c65192)
@@ -386,7 +388,8 @@ O + 0x04 = character / pose (double)
 
 While the first offset takes 0x12 bytes to store general information, the other ones takes 0x10 bytes for storing enemy information
 
-#### Stage mapping addresses
+<a id="a-stagemapref"></a>
+### references
 
 | STAGE     | STAGE R. | ENEMY R. |
 | --------  | -------- | -------- |
@@ -1430,5 +1433,16 @@ We need to modify these routines as written below:
 
 ![Belger](https://github.com/user-attachments/assets/80641579-2f6a-4fb2-a65a-cceceee29e1d)
 
+<a id="a-howtohack"></a>
+## Load ROM modifications with MAME
 
+Place mod files under mame root directory, start mame with -debug option under prompt then type the following from the console prompt:
+
+```
+loadr damnd.bin,e0000,100,:maincpu
+loadr damndmod.bin,03D3B2,3860,:maincpu
+
+loadr color.bin,e0600,100,:maincpu
+loadr colormod.bin,016904,250,:maincpu
+```
 
