@@ -1031,13 +1031,18 @@ Like we did for Damnd, we create some routines at a spare ROM space, this time a
 Then we can modify the instructions in order to fight Sodom on the subway stage 2 with no bad side effects:
 
 ```
-040CFA  jsr     $E0110.l                                    4EB9 000E 0110
+040CD8  jsr     $e014e.l                                    4EB9 000E 014E
 
-042600  jsr     $E0122.l                                    4EB9 000E 0122
+040CFA  jsr     $E0100.l                                    4EB9 000E 0100
 
-042698  jsr     $E012e.l                                    4EB9 000E 012E
+042600  jsr     $e0166.l                                    4EB9 000E 0166
 
-042ACA  cmpi.w  #$0050, D3                                  0C43 0050
+042698  jsr     $e0176.l                                    4EB9 000E 0176
+
+042ACA  jsr     $e0130.l                                    4EB9 000E 0130
+042AD0  nop                                                 4E71
+042AD2  nop                                                 4E71
+042AD4  nop                                                 4E71
 ```
 
 Finally, we place Sodom at begin of the Subway stage 2 by modifying the related stage map
