@@ -1,6 +1,6 @@
 000E0600 Starting Address
 Assembler used: EASy68K Editor/Assembler v5.16.01
-Created On: 15/07/2025 23:56:52
+Created On: 16/07/2025 00:31:13
 
 00000000                             1  *-----------------------------------------------------------
 00000000                             2  * Title      :
@@ -28,102 +28,86 @@ Created On: 15/07/2025 23:56:52
 000E0626  3C29 000A                 24      MOVE.W ($A,A1),D6       
 000E062A                            25  .TRANSTO1D:    
 000E062A  0206 00E0                 26      ANDI.B #$E0,D6          ; KEEP ALL ATTRIBUTES BUT PALETTE
-000E062E                            27  ;    ORI.B #$1D,D6
-000E062E  8C28 0015                 28      OR.B ($15,A0),D6
-000E0632  6004                      29      BRA.B .EXIT
-000E0634                            30  .ORIGINAL
-000E0634  3C29 000A                 31      MOVE.W ($A,A1),D6
-000E0638                            32  .EXIT    
-000E0638  4A28 002F                 33      TST.B ($2F,A0)
-000E063C  4E75                      34      RTS    
-000E063E                            35  L16B40:                     ; DAMND
-000E063E  0C28 0004 0012            36      CMP.B #04,($12,A0)      ; CHECK IF BOSS CHARACTER
-000E0644  6616                      37      BNE.B .ORIGINAL
-000E0646  1C28 0013                 38      MOVE.B ($13,A0),D6      
-000E064A  BC2D 00BE                 39      CMP.B ($BE,A5),D6       ; CHECK IF SAME BOSS AREA
-000E064E  670C                      40      BEQ.B .ORIGINAL
-000E0650  3C19                      41      MOVE.W (A1)+,D6
-000E0652  0206 00E0                 42      ANDI.B #$E0,D6          ; KEEP ALL ATTRIBUTES BUT PALETTE
-000E0656                            43  ;    ORI.B #$1D,D6
-000E0656  8C28 0015                 44      OR.B ($15,A0),D6
-000E065A  6002                      45      BRA.B .EXIT
-000E065C                            46  .ORIGINAL
-000E065C  3C19                      47      MOVE.W (A1)+,D6       
-000E065E                            48  .EXIT    
-000E065E  0A46 0020                 49      EORI.W #$20,D6        
-000E0662  4E75                      50      RTS
-000E0664                            51  L16AA2:                     ; DAMND
-000E0664  3F00                      52      MOVE.W D0,-(SP)
-000E0666  0C28 0004 0012            53      CMP.B #04,($12,A0)      ; CHECK IF BOSS CHARACTER
-000E066C  6618                      54      BNE.B .ORIGINAL    
-000E066E  1028 0013                 55      MOVE.B ($13,A0),D0
-000E0672  B02D 00BE                 56      CMP.B ($BE,A5),D0       ; CHECK IF SAME BOSS AREA
-000E0676  670E                      57      BEQ.B .ORIGINAL
-000E0678  3019                      58      MOVE.W (A1)+,D0
-000E067A  0200 00E0                 59      ANDI.B #$E0,D0          ; KEEP ALL ATTRIBUTES BUT PALETTE
-000E067E                            60  ;    ORI.B #$1D,D0
-000E067E  8028 0015                 61      OR.B ($15,A0),D0
-000E0682  3CC0                      62      MOVE.W D0,(A6)+        
-000E0684  6002                      63      BRA.B .EXIT        
-000E0686                            64  .ORIGINAL
-000E0686  3CD9                      65      MOVE.W  (A1)+,(A6)+    
-000E0688                            66  .EXIT
-000E0688  301F                      67      MOVE.W (SP)+,D0
-000E068A  D65A                      68      ADD.W   (A2)+, D3
-000E068C  D85A                      69      ADD.W   (A2)+, D4
-000E068E  4E75                      70      RTS            
-000E0690                            71  L16D44_16D18:               ; SODOM
-000E0690  0C28 0004 0012            72      CMP.B #04,($12,A0)      ; CHECK IF BOSS CHARACTER
-000E0696  6616                      73      BNE.B .ORIGINAL    
-000E0698  1C28 0013                 74      MOVE.B ($13,A0),D6      
-000E069C  BC2D 00BE                 75      CMP.B ($BE,A5),D6       ; CHECK IF SAME BOSS AREA
-000E06A0  670C                      76      BEQ.B .ORIGINAL
-000E06A2  3C1A                      77      MOVE.W  (A2)+, D6
-000E06A4  0206 00E0                 78      ANDI.B #$E0,D6
-000E06A8                            79  ;    ORI.B #$1D,D6    
-000E06A8  8C28 0015                 80      OR.B ($15,A0),D6
-000E06AC  6002                      81      BRA.B .EXIT
-000E06AE                            82  .ORIGINAL
-000E06AE  3C1A                      83      MOVE.W  (A2)+, D6
-000E06B0                            84  .EXIT    
-000E06B0  0A46 0020                 85      EORI.W  #$20, D6
-000E06B4  4E75                      86      RTS
-000E06B6                            87  L16C96:                     ; SODOM
-000E06B6  0C28 0004 0012            88      CMP.B #04,($12,A0)      ; CHECK IF BOSS CHARACTER
-000E06BC  6616                      89      BNE.B .ORIGINAL  
-000E06BE  1C28 0013                 90      MOVE.B ($13,A0),D6      
-000E06C2  BC2D 00BE                 91      CMP.B ($BE,A5),D6       ; CHECK IF SAME BOSS AREA
-000E06C6  670C                      92      BEQ.B .ORIGINAL         
-000E06C8  3C1A                      93      MOVE.W  (A2)+, D6
-000E06CA  0206 00E0                 94      ANDI.B #$E0,D6
-000E06CE                            95  ;    ORI.B #$1D,D6   
-000E06CE  8C28 0015                 96      OR.B ($15,A0),D6
-000E06D2  6002                      97      BRA.B .EXIT
-000E06D4                            98  .ORIGINAL
-000E06D4  3C1A                      99      MOVE.W  (A2)+, D6
-000E06D6                           100  .EXIT        
-000E06D6  2452                     101      MOVEA.L  (A2),A2        
-000E06D8  4EF9 00016C86            102      JMP $16C86      
-000E06DE                           103  L16CBE:                     ; SODOM
-000E06DE  0C28 0004 0012           104      CMP.B #04,($12,A0)      ; CHECK IF BOSS CHARACTER
-000E06E4  6616                     105      BNE.B .ORIGINAL  
-000E06E6  1C28 0013                106      MOVE.B ($13,A0),D6      
-000E06EA  BC2D 00BE                107      CMP.B ($BE,A5),D6       ; CHECK IF SAME BOSS AREA
-000E06EE  670C                     108      BEQ.B .ORIGINAL         
-000E06F0  3C1A                     109      MOVE.W  (A2)+, D6
-000E06F2  0206 00E0                110      ANDI.B #$E0,D6
-000E06F6                           111  ;    ORI.B #$1D,D6   
-000E06F6  8C28 0015                112      OR.B ($15,A0),D6
-000E06FA  6002                     113      BRA.B .EXIT
-000E06FC                           114  .ORIGINAL
-000E06FC  3C1A                     115      MOVE.W  (A2)+, D6
-000E06FE                           116  .EXIT        
-000E06FE  2452                     117      MOVEA.L  (A2),A2        
-000E0700  4EF9 00016CAE            118      JMP $16CAE      
-000E0706                           119      
-000E0706                           120  * Put variables and constants here
-000E0706                           121  
-000E0706                           122      END    START        ; last line of source
+000E062E  8C28 0015                 27      OR.B ($15,A0),D6
+000E0632  6004                      28      BRA.B .EXIT
+000E0634                            29  .ORIGINAL
+000E0634  3C29 000A                 30      MOVE.W ($A,A1),D6
+000E0638                            31  .EXIT    
+000E0638  4A28 002F                 32      TST.B ($2F,A0)
+000E063C  4E75                      33      RTS    
+000E063E                            34  L16B40:                     ; DAMND
+000E063E  0C28 0004 0012            35      CMP.B #04,($12,A0)      ; CHECK IF BOSS CHARACTER
+000E0644  6616                      36      BNE.B .ORIGINAL
+000E0646  1C28 0013                 37      MOVE.B ($13,A0),D6      
+000E064A  BC2D 00BE                 38      CMP.B ($BE,A5),D6       ; CHECK IF SAME BOSS AREA
+000E064E  670C                      39      BEQ.B .ORIGINAL
+000E0650  3C19                      40      MOVE.W (A1)+,D6
+000E0652  0206 00E0                 41      ANDI.B #$E0,D6          ; KEEP ALL ATTRIBUTES BUT PALETTE
+000E0656  8C28 0015                 42      OR.B ($15,A0),D6
+000E065A  6002                      43      BRA.B .EXIT
+000E065C                            44  .ORIGINAL
+000E065C  3C19                      45      MOVE.W (A1)+,D6       
+000E065E                            46  .EXIT    
+000E065E  0A46 0020                 47      EORI.W #$20,D6        
+000E0662  4E75                      48      RTS
+000E0664                            49  L16AA2:                     ; DAMND
+000E0664  3F00                      50      MOVE.W D0,-(SP)
+000E0666  0C28 0004 0012            51      CMP.B #04,($12,A0)      ; CHECK IF BOSS CHARACTER
+000E066C  6618                      52      BNE.B .ORIGINAL    
+000E066E  1028 0013                 53      MOVE.B ($13,A0),D0
+000E0672  B02D 00BE                 54      CMP.B ($BE,A5),D0       ; CHECK IF SAME BOSS AREA
+000E0676  670E                      55      BEQ.B .ORIGINAL
+000E0678  3019                      56      MOVE.W (A1)+,D0
+000E067A  0200 00E0                 57      ANDI.B #$E0,D0          ; KEEP ALL ATTRIBUTES BUT PALETTE
+000E067E  8028 0015                 58      OR.B ($15,A0),D0
+000E0682  3CC0                      59      MOVE.W D0,(A6)+        
+000E0684  6002                      60      BRA.B .EXIT        
+000E0686                            61  .ORIGINAL
+000E0686  3CD9                      62      MOVE.W  (A1)+,(A6)+    
+000E0688                            63  .EXIT
+000E0688  301F                      64      MOVE.W (SP)+,D0
+000E068A  D65A                      65      ADD.W   (A2)+, D3
+000E068C  D85A                      66      ADD.W   (A2)+, D4
+000E068E  4E75                      67      RTS            
+000E0690                            68  L16D44_16D18:               ; SODOM
+000E0690  0C28 0004 0012            69      CMP.B #04,($12,A0)      ; CHECK IF BOSS CHARACTER
+000E0696  6616                      70      BNE.B .ORIGINAL    
+000E0698  1C28 0013                 71      MOVE.B ($13,A0),D6      
+000E069C  BC2D 00BE                 72      CMP.B ($BE,A5),D6       ; CHECK IF SAME BOSS AREA
+000E06A0  670C                      73      BEQ.B .ORIGINAL
+000E06A2  3C1A                      74      MOVE.W  (A2)+, D6
+000E06A4  0206 00E0                 75      ANDI.B #$E0,D6
+000E06A8  8C28 0015                 76      OR.B ($15,A0),D6
+000E06AC  6002                      77      BRA.B .EXIT
+000E06AE                            78  .ORIGINAL
+000E06AE  3C1A                      79      MOVE.W  (A2)+, D6
+000E06B0                            80  .EXIT    
+000E06B0  0A46 0020                 81      EORI.W  #$20, D6
+000E06B4  4E75                      82      RTS
+000E06B6                            83  L16C96:                     ; SODOM
+000E06B6  4EB9 000E06CE             84      JSR SHARED_1
+000E06BC  4EF9 00016C86             85      JMP $16C86      
+000E06C2                            86  L16CBE:                     ; SODOM
+000E06C2  4EB9 000E06CE             87      JSR SHARED_1
+000E06C8  4EF9 00016CAE             88      JMP $16CAE      
+000E06CE                            89  SHARED_1:
+000E06CE  0C28 0004 0012            90      CMP.B #04,($12,A0)      ; CHECK IF BOSS CHARACTER
+000E06D4  6616                      91      BNE.B .ORIGINAL  
+000E06D6  1C28 0013                 92      MOVE.B ($13,A0),D6      
+000E06DA  BC2D 00BE                 93      CMP.B ($BE,A5),D6       ; CHECK IF SAME BOSS AREA
+000E06DE  670C                      94      BEQ.B .ORIGINAL         
+000E06E0  3C1A                      95      MOVE.W  (A2)+, D6
+000E06E2  0206 00E0                 96      ANDI.B #$E0,D6
+000E06E6  8C28 0015                 97      OR.B ($15,A0),D6
+000E06EA  6002                      98      BRA.B .EXIT
+000E06EC                            99  .ORIGINAL
+000E06EC  3C1A                     100      MOVE.W  (A2)+, D6
+000E06EE                           101  .EXIT        
+000E06EE  2452                     102      MOVEA.L  (A2),A2        
+000E06F0  4E75                     103      RTS
+000E06F2                           104  * Put variables and constants here
+000E06F2                           105  
+000E06F2                           106      END    START        ; last line of source
 
 No errors detected
 No warnings generated
@@ -143,12 +127,11 @@ L16B40              E063E
 L16B40:EXIT         E065E
 L16B40:ORIGINAL     E065C
 L16C96              E06B6
-L16C96:EXIT         E06D6
-L16C96:ORIGINAL     E06D4
-L16CBE              E06DE
-L16CBE:EXIT         E06FE
-L16CBE:ORIGINAL     E06FC
+L16CBE              E06C2
 L16D44_16D18        E0690
 L16D44_16D18:EXIT   E06B0
 L16D44_16D18:ORIGINAL  E06AE
+SHARED_1            E06CE
+SHARED_1:EXIT       E06EE
+SHARED_1:ORIGINAL   E06EC
 START               E0600
