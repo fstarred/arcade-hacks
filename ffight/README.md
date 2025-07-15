@@ -836,75 +836,81 @@ Ok, let's say we want to fight Damnd also on other stages, we could write some r
 000E0000                             8  START:
 000E0000                             9  L3D3B2:    
 000E0000  0C6D 0002 00BE            10      CMPI.W #$0002,($BE,A5)
-000E0006  6720                      11      BEQ.B .CHECK_POSITION
-000E0008                            12  .LOAD_COLORS:
-000E0008  48E7 80C0                 13      MOVEM.L D0/A0-A1,-(SP)
-000E000C  7008                      14      MOVEQ #8,D0
-000E000E  41F9 000C03E0             15      LEA $0C03E0,A0                  ; $0C0000 (SLUM PALETTE) + ($1E*$20)
-000E0014  43F9 009143A0             16      LEA $9143A0,A1                  ; $914000 (PALETTE REGISTER) + ($1D*$20)
-000E001A                            17  .LOOPCOL:
-000E001A  22D8                      18      MOVE.L (A0)+,(A1)+
-000E001C  51C8 FFFC                 19      DBF D0,.LOOPCOL    
-000E0020  4CDF 0301                 20      MOVEM.L (SP)+,D0/A0-A1
-000E0024  4A00                      21      TST.B D0                        ; RESET CARRY FLAG
-000E0026  4E75                      22      RTS  
-000E0028                            23  .CHECK_POSITION:    
-000E0028  0C6D 0AA0 0412            24      CMPI.W #$0AA0,($412,A5)    
-000E002E  4E75                      25      RTS
-000E0030                            26  L40860:
-000E0030  6700 000E                 27      BEQ .CHECKENERGY
-000E0034  0C6D 0002 00BE            28      CMPI.W #0002,($BE,A5)
-000E003A  660A                      29      BNE.B .FORCECARRYFLAG
-000E003C  323C 00C8                 30      MOVE.W #$C8,D1
-000E0040                            31  .CHECKENERGY    
-000E0040  B26E 0018                 32      CMP.W ($18,A6),D1
-000E0044  4E75                      33      RTS
-000E0046                            34  .FORCECARRYFLAG:
-000E0046  0C2E 0005 0012            35      CMPI.B #$5,($12,A6)             ; DEST OPERAND IS ALWAYS $04
-000E004C  4E75                      36      RTS
-000E004E                            37  L40B02:
-000E004E  0C6D 0002 00BE            38      CMPI.W #0002,($BE,A5)
-000E0054  6608                      39      BNE.B .EXIT
-000E0056  0C40 0BF4                 40      CMPI.W #$BF4,D0
-000E005A  6502                      41      BCS.B .EXIT
-000E005C  4E75                      42      RTS
-000E005E                            43  .EXIT    
-000E005E  588F                      44      ADDQ.L #4,SP
-000E0060  4EF9 00040B10             45      JMP $40B10
-000E0066                            46  L40C02:
-000E0066  0C6D 0002 00BE            47      CMPI.W #0002,($BE,A5)        
-000E006C  6616                      48      BNE.B .EXIT
-000E006E  0C43 0BF4                 49      CMPI.W #$BF4,D3
-000E0072  6500 000A                 50      BCS .L40C08
-000E0076                            51  .BRATO40C1E    
-000E0076  588F                      52      ADDQ.L #4,SP
-000E0078  4EF9 00040C1E             53      JMP $40C1E
-000E007E                            54  .L40C08
-000E007E  0C43 0AB4                 55      CMPI.W #$AB4,D3
-000E0082  65F2                      56      BCS .BRATO40C1E            
-000E0084                            57  .EXIT        
-000E0084  4E75                      58      RTS
-000E0086                            59  L40AF2:
-000E0086  0C6D 0002 00BE            60      CMPI.W #0002,($BE,A5)
-000E008C  660A                      61      BNE.B .EXIT
-000E008E  0C40 0AB4                 62      CMPI.W #$AB4,D0
-000E0092  6400 0004                 63      BCC .EXIT
-000E0096  4E75                      64      RTS        
-000E0098                            65  .EXIT
-000E0098  588F                      66      ADDQ.L #4,SP
-000E009A  4EF9 00040B02             67      JMP $40B02
-000E00A0                            68  L3EC7A:
-000E00A0  0C6D 0002 00BE            69      CMPI.W #0002,($BE,A5)
-000E00A6  6606                      70      BNE.B .EXIT
-000E00A8  1B7C 0001 012B            71      MOVE.B  #$1, ($12B,A5)
-000E00AE                            72  .EXIT    
-000E00AE  4E75                      73      RTS
-000E00B0                            74  L3ECBC:
-000E00B0  0C6D 0002 00BE            75      CMPI.W #0002,($BE,A5)
-000E00B6  6606                      76      BNE.B .EXIT
-000E00B8  1B7C 0001 0129            77      MOVE.B  #$1, ($129,A5)
-000E00BE                            78  .EXIT    
-000E00BE  4E75                      79      RTS
+000E0006  6732                      11      BEQ.B .CHECK_POSITION
+000E0008  4A2D 00BE                 12      TST.B ($BE,A5)
+000E000C  6602                      13      BNE.B .LOAD_PALETTE
+000E000E  4E75                      14      RTS
+000E0010                            15  .LOAD_PALETTE:
+000E0010  48E7 C0C0                 16      MOVEM.L D0-D1/A0-A1,-(SP)
+000E0014  7008                      17      MOVEQ #8,D0
+000E0016  122E 0015                 18      MOVE.B ($15,A6),D1
+000E001A  EB59                      19      ROL #5,D1
+000E001C  41F9 000C03E0             20      LEA $0C03E0,A0                  ; $0C0000 (SLUM PALETTE) + ($1E*$20)
+000E0022  43F9 00914000             21      LEA $914000,A1                  
+000E0028  43F1 1000                 22      LEA (A1,D1.W),A1                ; $914000 (PALETTE REGISTER) + ($XX*$20)    
+000E002C                            23  .LOOPCOL:
+000E002C  22D8                      24      MOVE.L (A0)+,(A1)+
+000E002E  51C8 FFFC                 25      DBF D0,.LOOPCOL    
+000E0032  4CDF 0303                 26      MOVEM.L (SP)+,D0-D1/A0-A1
+000E0036  4A00                      27      TST.B D0                        ; RESET CARRY FLAG
+000E0038  4E75                      28      RTS  
+000E003A                            29  .CHECK_POSITION:    
+000E003A  0C6D 0AA0 0412            30      CMPI.W #$0AA0,($412,A5)        
+000E0040  4E75                      31      RTS
+000E0042                            32  L40860:
+000E0042  6700 000E                 33      BEQ .CHECKENERGY
+000E0046  0C6D 0002 00BE            34      CMPI.W #0002,($BE,A5)
+000E004C  660A                      35      BNE.B .FORCECARRYFLAG
+000E004E  323C 00C8                 36      MOVE.W #$C8,D1
+000E0052                            37  .CHECKENERGY    
+000E0052  B26E 0018                 38      CMP.W ($18,A6),D1
+000E0056  4E75                      39      RTS
+000E0058                            40  .FORCECARRYFLAG:
+000E0058  0C2E 0005 0012            41      CMPI.B #$5,($12,A6)             ; DEST OPERAND IS ALWAYS $04
+000E005E  4E75                      42      RTS
+000E0060                            43  L40B02:
+000E0060  0C6D 0002 00BE            44      CMPI.W #0002,($BE,A5)
+000E0066  6608                      45      BNE.B .EXIT
+000E0068  0C40 0BF4                 46      CMPI.W #$BF4,D0
+000E006C  6502                      47      BCS.B .EXIT
+000E006E  4E75                      48      RTS
+000E0070                            49  .EXIT    
+000E0070  588F                      50      ADDQ.L #4,SP                    ; RESTORE STACK POINTER
+000E0072  4EF9 00040B10             51      JMP $40B10
+000E0078                            52  L40C02:
+000E0078  0C6D 0002 00BE            53      CMPI.W #0002,($BE,A5)        
+000E007E  6616                      54      BNE.B .EXIT
+000E0080  0C43 0BF4                 55      CMPI.W #$BF4,D3
+000E0084  6500 000A                 56      BCS .L40C08
+000E0088                            57  .BRATO40C1E    
+000E0088  588F                      58      ADDQ.L #4,SP                    ; RESTORE STACK POINTER
+000E008A  4EF9 00040C1E             59      JMP $40C1E
+000E0090                            60  .L40C08
+000E0090  0C43 0AB4                 61      CMPI.W #$AB4,D3
+000E0094  65F2                      62      BCS .BRATO40C1E            
+000E0096                            63  .EXIT        
+000E0096  4E75                      64      RTS
+000E0098                            65  L40AF2:
+000E0098  0C6D 0002 00BE            66      CMPI.W #0002,($BE,A5)
+000E009E  660A                      67      BNE.B .EXIT
+000E00A0  0C40 0AB4                 68      CMPI.W #$AB4,D0
+000E00A4  6400 0004                 69      BCC .EXIT
+000E00A8  4E75                      70      RTS        
+000E00AA                            71  .EXIT
+000E00AA  588F                      72      ADDQ.L #4,SP                    ; RESTORE STACK POINTER
+000E00AC  4EF9 00040B02             73      JMP $40B02
+000E00B2                            74  L3EC7A:
+000E00B2  0C6D 0002 00BE            75      CMPI.W #0002,($BE,A5)
+000E00B8  6606                      76      BNE.B .EXIT
+000E00BA  1B7C 0001 012B            77      MOVE.B  #$1, ($12B,A5)
+000E00C0                            78  .EXIT    
+000E00C0  4E75                      79      RTS
+000E00C2                            80  L3ECBC:
+000E00C2  0C6D 0002 00BE            81      CMPI.W #0002,($BE,A5)
+000E00C8  6606                      82      BNE.B .EXIT
+000E00CA  1B7C 0001 0129            83      MOVE.B  #$1, ($129,A5)
+000E00D0                            84  .EXIT    
+000E00D0  4E75                      85      RTS
 ```
 
 Then we can modify the following instructions:
@@ -912,23 +918,23 @@ Then we can modify the following instructions:
 ```
 03D3B2  jsr     $e0000.l                                    4EB9 000E 0000
 
-03EC7A  jsr     $e00a0.l                                    4EB9 000E 00A0
+03EC7A  jsr     $e00b2.l                                    4EB9 000E 00B2
 
-03ECBC  jsr     $e00b0.l                                    4EB9 000E 00B0
+03ECBC  jsr     $e00c2.l                                    4EB9 000E 00C2
 
 04085E  nop                                                 4E71
-040860  jsr     $e0030.l                                    4EB9 000E 0030
+040860  jsr     $e0042.l                                    4EB9 000E 0042
 040866  nop                                                 4E71
 
-040B02  jsr     $e004e.l                                    4EB9 000E 004E
+040B02  jsr     $e0060.l                                    4EB9 000E 0060
 040B08  addq.b  #1, D6                                      5206
 
-040C02  jsr     $e0066.l                                    4EB9 000E 0066
+040C02  jsr     $e0078.l                                    4EB9 000E 0078
 040C08  nop                                                 4E71
 040C0A  nop                                                 4E71
 040C0C  nop                                                 4E71
 
-040AF2  jsr     $e0086.l                                    4EB9 000E 0086
+040AF2  jsr     $e0098.l                                    4EB9 000E 0098
 040AF8  addq.b  #1, D6                                      5206
 
 ```
@@ -978,68 +984,74 @@ Like we did for Damnd, we create some routines at a spare ROM space, this time a
 000E0100                             8  START:   
 000E0100                             9  L40CFA:            
 000E0100  0C6D 0103 00BE            10      CMPI.W #$0103,($BE,A5)    
-000E0106  6720                      11      BEQ.B .CHECK_POSITION
-000E0108                            12  .LOAD_COLORS:
-000E0108  48E7 80C0                 13      MOVEM.L D0/A0-A1,-(SP)
-000E010C  7008                      14      MOVEQ #8,D0
-000E010E  41F9 000C07E0             15      LEA $0C07E0,A0                  ; $0C0400 (SUBWAY PALETTE) + ($1E*$20)
-000E0114  43F9 009143A0             16      LEA $9143A0,A1                  ; $914000 (PALETTE REGISTER) + ($1D*$20)
-000E011A                            17  .LOOPCOL:
-000E011A  22D8                      18      MOVE.L (A0)+,(A1)+
-000E011C  51C8 FFFC                 19      DBF D0,.LOOPCOL    
-000E0120  4CDF 0301                 20      MOVEM.L (SP)+,D0/A0-A1
-000E0124  4A00                      21      TST.B D0                        ; RESET CARRY FLAG
-000E0126  4E75                      22      RTS      
-000E0128                            23  .CHECK_POSITION:    
-000E0128  0C6D 1300 0412            24      CMPI.W #$1300,($412,A5)    
-000E012E  4E75                      25      RTS
-000E0130                            26  L42ACA:
-000E0130  0C6D 0103 00BE            27      CMPI.W #$0103,($BE,A5)
-000E0136  6614                      28      BNE.B .EXIT
-000E0138  0C43 1200                 29      CMPI.W #$1200,D3
-000E013C  6408                      30      BCC.B .L42AD0
-000E013E                            31  .BRATO42ADC    
-000E013E  588F                      32      ADDQ.L #4,SP
-000E0140  4EF9 00042ADC             33      JMP $42ADC
-000E0146                            34  .L42AD0:
-000E0146  0C43 14E0                 35      CMPI.W #$14E0,D3
-000E014A  64F2                      36      BCC.B .BRATO42ADC
-000E014C                            37  .EXIT    
-000E014C  4E75                      38      RTS
-000E014E                            39  L40CD8:
-000E014E  0C6D 0103 00BE            40      CMPI.W #$0103,($BE,A5)
-000E0154  6608                      41      BNE.B .MOD
-000E0156  197C 0005 0013            42      MOVE.B #$5,($13,A4)
-000E015C  4E75                      43      RTS
-000E015E                            44  .MOD    
-000E015E  197C 0001 0013            45      MOVE.B #$1,($13,A4)
-000E0164  4E75                      46      RTS        
-000E0166                            47  L42600:
-000E0166  0C6D 0103 00BE            48      CMPI.W #$0103,($BE,A5)
-000E016C  6606                      49      BNE.B .EXIT
-000E016E  1B7C 0001 012B            50      MOVE.B  #$1, ($12B,A5)
-000E0174                            51  .EXIT    
-000E0174  4E75                      52      RTS
-000E0176                            53  L42698:
-000E0176  0C6D 0103 00BE            54      CMPI.W #$0103,($BE,A5)
-000E017C  6606                      55      BNE.B .EXIT
-000E017E  1B7C 0001 0129            56      MOVE.B  #$1, ($129,A5)
-000E0184                            57  .EXIT    
-000E0184  4E75                      58      RTS
+000E0106  6734                      11      BEQ.B .CHECK_POSITION
+000E0108  0C2D 0001 00BE            12      CMPI.B #$01,($BE,A5)
+000E010E  6602                      13      BNE.B .LOAD_PALETTE
+000E0110  4E75                      14      RTS    
+000E0112                            15  .LOAD_PALETTE:
+000E0112  48E7 C0C0                 16      MOVEM.L D0-D1/A0-A1,-(SP)
+000E0116  7008                      17      MOVEQ #8,D0
+000E0118  122E 0015                 18      MOVE.B ($15,A6),D1
+000E011C  EB59                      19      ROL #5,D1
+000E011E  41F9 000C07E0             20      LEA $0C07E0,A0                  ; $0C0400 (SUBWAY PALETTE) + ($1E*$20)
+000E0124  43F9 00914000             21      LEA $914000,A1                  
+000E012A  43F1 1000                 22      LEA (A1,D1.W),A1                ; $914000 (PALETTE REGISTER) + ($XX*$20)    
+000E012E                            23  .LOOPCOL:
+000E012E  22D8                      24      MOVE.L (A0)+,(A1)+
+000E0130  51C8 FFFC                 25      DBF D0,.LOOPCOL    
+000E0134  4CDF 0303                 26      MOVEM.L (SP)+,D0-D1/A0-A1
+000E0138  4A00                      27      TST.B D0                        ; RESET CARRY FLAG
+000E013A  4E75                      28      RTS      
+000E013C                            29  .CHECK_POSITION:    
+000E013C  0C6D 1300 0412            30      CMPI.W #$1300,($412,A5)    
+000E0142  4E75                      31      RTS
+000E0144                            32  L42ACA:
+000E0144  0C6D 0103 00BE            33      CMPI.W #$0103,($BE,A5)
+000E014A  6614                      34      BNE.B .EXIT
+000E014C  0C43 1200                 35      CMPI.W #$1200,D3
+000E0150  6408                      36      BCC.B .L42AD0
+000E0152                            37  .BRATO42ADC    
+000E0152  588F                      38      ADDQ.L #4,SP
+000E0154  4EF9 00042ADC             39      JMP $42ADC
+000E015A                            40  .L42AD0:
+000E015A  0C43 14E0                 41      CMPI.W #$14E0,D3
+000E015E  64F2                      42      BCC.B .BRATO42ADC
+000E0160                            43  .EXIT    
+000E0160  4E75                      44      RTS
+000E0162                            45  L40CD8:
+000E0162  0C6D 0103 00BE            46      CMPI.W #$0103,($BE,A5)
+000E0168  6608                      47      BNE.B .MOD
+000E016A  197C 0005 0013            48      MOVE.B #$5,($13,A4)
+000E0170  4E75                      49      RTS
+000E0172                            50  .MOD    
+000E0172  197C 0001 0013            51      MOVE.B #$1,($13,A4)
+000E0178  4E75                      52      RTS        
+000E017A                            53  L42600:
+000E017A  0C6D 0103 00BE            54      CMPI.W #$0103,($BE,A5)
+000E0180  6606                      55      BNE.B .EXIT
+000E0182  1B7C 0001 012B            56      MOVE.B  #$1, ($12B,A5)
+000E0188                            57  .EXIT    
+000E0188  4E75                      58      RTS
+000E018A                            59  L42698:
+000E018A  0C6D 0103 00BE            60      CMPI.W #$0103,($BE,A5)
+000E0190  6606                      61      BNE.B .EXIT
+000E0192  1B7C 0001 0129            62      MOVE.B  #$1, ($129,A5)
+000E0198                            63  .EXIT    
+000E0198  4E75                      64      RTS
 ```
 
 Then we can modify the instructions in order to fight Sodom on the subway stage 2 with no bad side effects:
 
 ```
-040CD8  jsr     $e014e.l                                    4EB9 000E 014E
+040CD8  jsr     $e0162.l                                    4EB9 000E 0162
 
-040CFA  jsr     $E0100.l                                    4EB9 000E 0100
+040CFA  jsr     $e0100.l                                    4EB9 000E 0100
 
-042600  jsr     $e0166.l                                    4EB9 000E 0166
+042600  jsr     $e017a.l                                    4EB9 000E 017A
 
-042698  jsr     $e0176.l                                    4EB9 000E 0176
+042698  jsr     $e018a.l                                    4EB9 000E 018A
 
-042ACA  jsr     $e0130.l                                    4EB9 000E 0130
+042ACA  jsr     $e0144.l                                    4EB9 000E 0144
 042AD0  nop                                                 4E71
 042AD2  nop                                                 4E71
 042AD4  nop                                                 4E71
