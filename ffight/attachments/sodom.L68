@@ -1,6 +1,6 @@
 000E0100 Starting Address
 Assembler used: EASy68K Editor/Assembler v5.16.01
-Created On: 15/07/2025 14:35:39
+Created On: 15/07/2025 23:25:43
 
 00000000                             1  *-----------------------------------------------------------
 00000000                             2  * Title      :
@@ -12,59 +12,65 @@ Created On: 15/07/2025 14:35:39
 000E0100                             8  START:   
 000E0100                             9  L40CFA:            
 000E0100  0C6D 0103 00BE            10      CMPI.W #$0103,($BE,A5)    
-000E0106  6720                      11      BEQ.B .CHECK_POSITION
-000E0108                            12  .LOAD_COLORS:
-000E0108  48E7 80C0                 13      MOVEM.L D0/A0-A1,-(SP)
-000E010C  7008                      14      MOVEQ #8,D0
-000E010E  41F9 000C07E0             15      LEA $0C07E0,A0                  ; $0C0400 (SUBWAY PALETTE) + ($1E*$20)
-000E0114  43F9 009143A0             16      LEA $9143A0,A1                  ; $914000 (PALETTE REGISTER) + ($1D*$20)
-000E011A                            17  .LOOPCOL:
-000E011A  22D8                      18      MOVE.L (A0)+,(A1)+
-000E011C  51C8 FFFC                 19      DBF D0,.LOOPCOL    
-000E0120  4CDF 0301                 20      MOVEM.L (SP)+,D0/A0-A1
-000E0124  4A00                      21      TST.B D0                        ; RESET CARRY FLAG
-000E0126  4E75                      22      RTS      
-000E0128                            23  .CHECK_POSITION:    
-000E0128  0C6D 1300 0412            24      CMPI.W #$1300,($412,A5)    
-000E012E  4E75                      25      RTS
-000E0130                            26  L42ACA:
-000E0130  0C6D 0103 00BE            27      CMPI.W #$0103,($BE,A5)
-000E0136  6614                      28      BNE.B .EXIT
-000E0138  0C43 1200                 29      CMPI.W #$1200,D3
-000E013C  6408                      30      BCC.B .L42AD0
-000E013E                            31  .BRATO42ADC    
-000E013E  588F                      32      ADDQ.L #4,SP
-000E0140  4EF9 00042ADC             33      JMP $42ADC
-000E0146                            34  .L42AD0:
-000E0146  0C43 14E0                 35      CMPI.W #$14E0,D3
-000E014A  64F2                      36      BCC.B .BRATO42ADC
-000E014C                            37  .EXIT    
-000E014C  4E75                      38      RTS
-000E014E                            39  L40CD8:
-000E014E  0C6D 0103 00BE            40      CMPI.W #$0103,($BE,A5)
-000E0154  6608                      41      BNE.B .MOD
-000E0156  197C 0005 0013            42      MOVE.B #$5,($13,A4)
-000E015C  4E75                      43      RTS
-000E015E                            44  .MOD    
-000E015E  197C 0001 0013            45      MOVE.B #$1,($13,A4)
-000E0164  4E75                      46      RTS        
-000E0166                            47  L42600:
-000E0166  0C6D 0103 00BE            48      CMPI.W #$0103,($BE,A5)
-000E016C  6606                      49      BNE.B .EXIT
-000E016E  1B7C 0001 012B            50      MOVE.B  #$1, ($12B,A5)
-000E0174                            51  .EXIT    
-000E0174  4E75                      52      RTS
-000E0176                            53  L42698:
-000E0176  0C6D 0103 00BE            54      CMPI.W #$0103,($BE,A5)
-000E017C  6606                      55      BNE.B .EXIT
-000E017E  1B7C 0001 0129            56      MOVE.B  #$1, ($129,A5)
-000E0184                            57  .EXIT    
-000E0184  4E75                      58      RTS
-000E0186                            59          
-000E0186                            60  
-000E0186                            61  * Put variables and constants here
-000E0186                            62  
-000E0186                            63      END    START        ; last line of source
+000E0106  6734                      11      BEQ.B .CHECK_POSITION
+000E0108  0C2D 0001 00BE            12      CMPI.B #$01,($BE,A5)
+000E010E  6602                      13      BNE.B .LOAD_PALETTE
+000E0110  4E75                      14      RTS    
+000E0112                            15  .LOAD_PALETTE:
+000E0112  48E7 C0C0                 16      MOVEM.L D0-D1/A0-A1,-(SP)
+000E0116  7008                      17      MOVEQ #8,D0
+000E0118  122E 0015                 18      MOVE.B ($15,A6),D1
+000E011C  EB59                      19      ROL #5,D1
+000E011E  41F9 000C07E0             20      LEA $0C07E0,A0                  ; $0C0400 (SUBWAY PALETTE) + ($1E*$20)
+000E0124  43F9 00914000             21      LEA $914000,A1                  
+000E012A  43F1 1000                 22      LEA (A1,D1.W),A1                ; $914000 (PALETTE REGISTER) + ($XX*$20)    
+000E012E                            23  .LOOPCOL:
+000E012E  22D8                      24      MOVE.L (A0)+,(A1)+
+000E0130  51C8 FFFC                 25      DBF D0,.LOOPCOL    
+000E0134  4CDF 0303                 26      MOVEM.L (SP)+,D0-D1/A0-A1
+000E0138  4A00                      27      TST.B D0                        ; RESET CARRY FLAG
+000E013A  4E75                      28      RTS      
+000E013C                            29  .CHECK_POSITION:    
+000E013C  0C6D 1300 0412            30      CMPI.W #$1300,($412,A5)    
+000E0142  4E75                      31      RTS
+000E0144                            32  L42ACA:
+000E0144  0C6D 0103 00BE            33      CMPI.W #$0103,($BE,A5)
+000E014A  6614                      34      BNE.B .EXIT
+000E014C  0C43 1200                 35      CMPI.W #$1200,D3
+000E0150  6408                      36      BCC.B .L42AD0
+000E0152                            37  .BRATO42ADC    
+000E0152  588F                      38      ADDQ.L #4,SP
+000E0154  4EF9 00042ADC             39      JMP $42ADC
+000E015A                            40  .L42AD0:
+000E015A  0C43 14E0                 41      CMPI.W #$14E0,D3
+000E015E  64F2                      42      BCC.B .BRATO42ADC
+000E0160                            43  .EXIT    
+000E0160  4E75                      44      RTS
+000E0162                            45  L40CD8:
+000E0162  0C6D 0103 00BE            46      CMPI.W #$0103,($BE,A5)
+000E0168  6608                      47      BNE.B .MOD
+000E016A  197C 0005 0013            48      MOVE.B #$5,($13,A4)
+000E0170  4E75                      49      RTS
+000E0172                            50  .MOD    
+000E0172  197C 0001 0013            51      MOVE.B #$1,($13,A4)
+000E0178  4E75                      52      RTS        
+000E017A                            53  L42600:
+000E017A  0C6D 0103 00BE            54      CMPI.W #$0103,($BE,A5)
+000E0180  6606                      55      BNE.B .EXIT
+000E0182  1B7C 0001 012B            56      MOVE.B  #$1, ($12B,A5)
+000E0188                            57  .EXIT    
+000E0188  4E75                      58      RTS
+000E018A                            59  L42698:
+000E018A  0C6D 0103 00BE            60      CMPI.W #$0103,($BE,A5)
+000E0190  6606                      61      BNE.B .EXIT
+000E0192  1B7C 0001 0129            62      MOVE.B  #$1, ($129,A5)
+000E0198                            63  .EXIT    
+000E0198  4E75                      64      RTS
+000E019A                            65          
+000E019A                            66  
+000E019A                            67  * Put variables and constants here
+000E019A                            68  
+000E019A                            69      END    START        ; last line of source
 
 No errors detected
 No warnings generated
@@ -73,18 +79,18 @@ No warnings generated
 SYMBOL TABLE INFORMATION
 Symbol-name         Value
 -------------------------
-L40CD8              E014E
-L40CD8:MOD          E015E
+L40CD8              E0162
+L40CD8:MOD          E0172
 L40CFA              E0100
-L40CFA:CHECK_POSITION  E0128
-L40CFA:LOAD_COLORS  E0108
-L40CFA:LOOPCOL      E011A
-L42600              E0166
-L42600:EXIT         E0174
-L42698              E0176
-L42698:EXIT         E0184
-L42ACA              E0130
-L42ACA:BRATO42ADC   E013E
-L42ACA:EXIT         E014C
-L42ACA:L42AD0       E0146
+L40CFA:CHECK_POSITION  E013C
+L40CFA:LOAD_PALETTE  E0112
+L40CFA:LOOPCOL      E012E
+L42600              E017A
+L42600:EXIT         E0188
+L42698              E018A
+L42698:EXIT         E0198
+L42ACA              E0144
+L42ACA:BRATO42ADC   E0152
+L42ACA:EXIT         E0160
+L42ACA:L42AD0       E015A
 START               E0100
