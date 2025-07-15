@@ -1,0 +1,59 @@
+000E0100 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.16.01
+Created On: 04/07/2025 17:43:57
+
+00000000                             1  *-----------------------------------------------------------
+00000000                             2  * Title      :
+00000000                             3  * Written by :
+00000000                             4  * Date       :
+00000000                             5  * Description:
+00000000                             6  *-----------------------------------------------------------
+000E0100                             7      ORG    $E0100
+000E0100                             8  START:   
+000E0100                             9  CHECK_FINAL_STAGE:              
+000E0100  0C2D 0001 00BE            10      CMPI.B #1,($BE,A5)
+000E0106  6606                      11      BNE.B EXIT
+000E0108  0C2D 0003 00BF            12      CMPI.B #3,($BF,A5)
+000E010E                            13  EXIT:  
+000E010E  4E75                      14      RTS    
+000E0110                            15  CHECK_MUST_SPAWN:    
+000E0110  61EE                      16      BSR.B CHECK_FINAL_STAGE
+000E0112  6706                      17      BEQ.B CHECK_POSITION
+000E0114                            18  FORCECARRY:
+000E0114  0C16 0000                 19      CMPI.B #0,(A6)
+000E0118  4E75                      20      RTS  
+000E011A                            21  CHECK_POSITION:    
+000E011A  0C6D 1300 0412            22      CMPI.W #$1300,($412,A5)    
+000E0120  4E75                      23      RTS
+000E0122                            24  BOSS_CLEAR_FLAG:
+000E0122  61DC                      25      BSR.B CHECK_FINAL_STAGE
+000E0124  66E8                      26      BNE.B EXIT
+000E0126  1B7C 0001 012B            27      MOVE.B  #$1, ($12B,A5)
+000E012C  4E75                      28      RTS
+000E012E                            29  STAGE_CLEAR_FLAG:
+000E012E  61D0                      30      BSR.B CHECK_FINAL_STAGE
+000E0130  66DC                      31      BNE.B EXIT
+000E0132  1B7C 0001 0129            32      MOVE.B  #$1, ($129,A5)
+000E0138  4E75                      33      RTS
+000E013A                            34  
+000E013A                            35          
+000E013A                            36  
+000E013A                            37  * Put variables and constants here
+000E013A                            38  
+000E013A                            39      END    START        ; last line of source
+
+No errors detected
+No warnings generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+BOSS_CLEAR_FLAG     E0122
+CHECK_FINAL_STAGE   E0100
+CHECK_MUST_SPAWN    E0110
+CHECK_POSITION      E011A
+EXIT                E010E
+FORCECARRY          E0114
+STAGE_CLEAR_FLAG    E012E
+START               E0100
