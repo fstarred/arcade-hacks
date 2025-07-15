@@ -1442,7 +1442,10 @@ Place mod files under mame root directory, start mame with -debug option under p
 loadr damnd.bin,e0000,100,:maincpu
 loadr damndmod.bin,03D3B2,3860,:maincpu
 
-loadr color.bin,e0600,100,:maincpu
-loadr colormod.bin,016904,250,:maincpu
+loadr sodom.bin,e0100,100,:maincpu
+loadr sodommod.bin,040CD8,1E00,:maincpu 
+
+loadr palette.bin,e0600,120,:maincpu
+loadr palettemod.bin,16904,450,:maincpu
 ```
 
