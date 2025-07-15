@@ -976,31 +976,56 @@ Like we did for Damnd, we create some routines at a spare ROM space, this time a
 ```
 000E0100                             7      ORG    $E0100
 000E0100                             8  START:   
-000E0100                             9  CHECK_FINAL_STAGE:              
-000E0100  0C2D 0001 00BE            10      CMPI.B #1,($BE,A5)
-000E0106  6606                      11      BNE.B EXIT
-000E0108  0C2D 0003 00BF            12      CMPI.B #3,($BF,A5)
-000E010E                            13  EXIT:  
-000E010E  4E75                      14      RTS    
-000E0110                            15  CHECK_MUST_SPAWN:    
-000E0110  61EE                      16      BSR.B CHECK_FINAL_STAGE
-000E0112  6706                      17      BEQ.B CHECK_POSITION
-000E0114                            18  FORCECARRY:
-000E0114  0C16 0000                 19      CMPI.B #0,(A6)
-000E0118  4E75                      20      RTS  
-000E011A                            21  CHECK_POSITION:    
-000E011A  0C6D 1300 0412            22      CMPI.W #$1300,($412,A5)    
-000E0120  4E75                      23      RTS
-000E0122                            24  BOSS_CLEAR_FLAG:
-000E0122  61DC                      25      BSR.B CHECK_FINAL_STAGE
-000E0124  66E8                      26      BNE.B EXIT
-000E0126  1B7C 0001 012B            27      MOVE.B  #$1, ($12B,A5)
-000E012C  4E75                      28      RTS
-000E012E                            29  STAGE_CLEAR_FLAG:
-000E012E  61D0                      30      BSR.B CHECK_FINAL_STAGE
-000E0130  66DC                      31      BNE.B EXIT
-000E0132  1B7C 0001 0129            32      MOVE.B  #$1, ($129,A5)
-000E0138  4E75                      33      RTS
+000E0100                             9  L40CFA:            
+000E0100  0C6D 0103 00BE            10      CMPI.W #$0103,($BE,A5)    
+000E0106  6720                      11      BEQ.B .CHECK_POSITION
+000E0108                            12  .LOAD_COLORS:
+000E0108  48E7 80C0                 13      MOVEM.L D0/A0-A1,-(SP)
+000E010C  7008                      14      MOVEQ #8,D0
+000E010E  41F9 000C07E0             15      LEA $0C07E0,A0                  ; $0C0400 (SUBWAY PALETTE) + ($1E*$20)
+000E0114  43F9 009143A0             16      LEA $9143A0,A1                  ; $914000 (PALETTE REGISTER) + ($1D*$20)
+000E011A                            17  .LOOPCOL:
+000E011A  22D8                      18      MOVE.L (A0)+,(A1)+
+000E011C  51C8 FFFC                 19      DBF D0,.LOOPCOL    
+000E0120  4CDF 0301                 20      MOVEM.L (SP)+,D0/A0-A1
+000E0124  4A00                      21      TST.B D0                        ; RESET CARRY FLAG
+000E0126  4E75                      22      RTS      
+000E0128                            23  .CHECK_POSITION:    
+000E0128  0C6D 1300 0412            24      CMPI.W #$1300,($412,A5)    
+000E012E  4E75                      25      RTS
+000E0130                            26  L42ACA:
+000E0130  0C6D 0103 00BE            27      CMPI.W #$0103,($BE,A5)
+000E0136  6614                      28      BNE.B .EXIT
+000E0138  0C43 1200                 29      CMPI.W #$1200,D3
+000E013C  6408                      30      BCC.B .L42AD0
+000E013E                            31  .BRATO42ADC    
+000E013E  588F                      32      ADDQ.L #4,SP
+000E0140  4EF9 00042ADC             33      JMP $42ADC
+000E0146                            34  .L42AD0:
+000E0146  0C43 14E0                 35      CMPI.W #$14E0,D3
+000E014A  64F2                      36      BCC.B .BRATO42ADC
+000E014C                            37  .EXIT    
+000E014C  4E75                      38      RTS
+000E014E                            39  L40CD8:
+000E014E  0C6D 0103 00BE            40      CMPI.W #$0103,($BE,A5)
+000E0154  6608                      41      BNE.B .MOD
+000E0156  197C 0005 0013            42      MOVE.B #$5,($13,A4)
+000E015C  4E75                      43      RTS
+000E015E                            44  .MOD    
+000E015E  197C 0001 0013            45      MOVE.B #$1,($13,A4)
+000E0164  4E75                      46      RTS        
+000E0166                            47  L42600:
+000E0166  0C6D 0103 00BE            48      CMPI.W #$0103,($BE,A5)
+000E016C  6606                      49      BNE.B .EXIT
+000E016E  1B7C 0001 012B            50      MOVE.B  #$1, ($12B,A5)
+000E0174                            51  .EXIT    
+000E0174  4E75                      52      RTS
+000E0176                            53  L42698:
+000E0176  0C6D 0103 00BE            54      CMPI.W #$0103,($BE,A5)
+000E017C  6606                      55      BNE.B .EXIT
+000E017E  1B7C 0001 0129            56      MOVE.B  #$1, ($129,A5)
+000E0184                            57  .EXIT    
+000E0184  4E75                      58      RTS
 ```
 
 Then we can modify the instructions in order to fight Sodom on the subway stage 2 with no bad side effects:
