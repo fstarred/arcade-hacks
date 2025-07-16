@@ -1,0 +1,65 @@
+000E0200 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.16.01
+Created On: 16/07/2025 23:54:36
+
+00000000                             1  *-----------------------------------------------------------
+00000000                             2  * Title      :
+00000000                             3  * Written by :
+00000000                             4  * Date       :
+00000000                             5  * Description:
+00000000                             6  *-----------------------------------------------------------
+000E0200                             7      ORG    $E0200
+000E0200                             8  START:   
+000E0200                             9  L45FCC:
+000E0200  1D7C 005A 001E            10      MOVE.B #$5A,($1E,A6)
+000E0206  0C2D 0002 00BE            11      CMPI.B #$02,($BE,A5)
+000E020C  6726                      12      BEQ.B .EXIT
+000E020E                            13  .LOAD_PALETTE:
+000E020E  48E7 C0C0                 14      MOVEM.L D0-D1/A0-A1,-(SP)
+000E0212  7007                      15      MOVEQ #8-1,D0
+000E0214  122E 0015                 16      MOVE.B ($15,A6),D1
+000E0218  EB59                      17      ROL #5,D1
+000E021A  41F9 000C0BE0             18      LEA $0C0BE0,A0                  ; $0C0800 (SUBWAY PALETTE) + ($1F*$20)
+000E0220  43F9 00914000             19      LEA $914000,A1                  
+000E0226  43F1 1000                 20      LEA (A1,D1.W),A1                ; $914000 (PALETTE REGISTER) + ($XX*$20)    
+000E022A                            21  .LOOPCOL:
+000E022A  22D8                      22      MOVE.L (A0)+,(A1)+
+000E022C  51C8 FFFC                 23      DBF D0,.LOOPCOL    
+000E0230  4CDF 0303                 24      MOVEM.L (SP)+,D0-D1/A0-A1
+000E0234                            25  .EXIT                       
+000E0234  4E75                      26      RTS      
+000E0236                            27  L476CA:
+000E0236  0C6D 00CA 00BE            28      CMPI.W #0202,($BE,A5)
+000E023C  6606                      29      BNE.B .EXIT
+000E023E  1B7C 0001 012B            30      MOVE.B  #$1, ($12B,A5)
+000E0244                            31  .EXIT    
+000E0244  4E75                      32      RTS
+000E0246                            33  L47760:
+000E0246  0C6D 00CA 00BE            34      CMPI.W #0202,($BE,A5)
+000E024C  6606                      35      BNE.B .EXIT
+000E024E  1B7C 0001 0129            36      MOVE.B  #$1, ($129,A5)
+000E0254                            37  .EXIT    
+000E0254  4E75                      38      RTS
+000E0256                            39  
+000E0256                            40          
+000E0256                            41  
+000E0256                            42  * Put variables and constants here
+000E0256                            43  
+000E0256                            44      END    START        ; last line of source
+
+No errors detected
+No warnings generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+L45FCC              E0200
+L45FCC:EXIT         E0234
+L45FCC:LOAD_PALETTE  E020E
+L45FCC:LOOPCOL      E022A
+L476CA              E0236
+L476CA:EXIT         E0244
+L47760              E0246
+L47760:EXIT         E0254
+START               E0200
