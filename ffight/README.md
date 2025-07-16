@@ -1112,16 +1112,6 @@ These are the location related to the activation of stage and boss clear flags
 047760  move.b  #$1, ($129,A5)                              1B7C 0001 0129        ; write stage clear flag
 ```
 
-This is the routine that checks on the West End stage if Edi.E character must be activated
-
-```
- 003234  move.w  ($6,A6), D0                                 302E 0006
- 003238  sub.w   ($412,A5), D0                               906D 0412
- 00323C  addi.w  #$30, D0                                    0640 0030
- 003240  cmpi.w  #$1e0, D0                                   0C40 01E0	(this occurs when $ff8412 = $d10)
- 003244  bhi     $3264                                       621E
-```
-
 but we can ignore this and focus to the flags above so they are enabled only on the last stage.
 
 We write this code on a spare ROM address (in this example 0xE0200)
@@ -1129,30 +1119,46 @@ We write this code on a spare ROM address (in this example 0xE0200)
 ```
 000E0200                             7      ORG    $E0200
 000E0200                             8  START:   
-000E0200                             9  CHECK_FINAL_STAGE:              
-000E0200  0C2D 0002 00BE            10      CMPI.B #2,($BE,A5)
-000E0206  6606                      11      BNE.B EXIT
-000E0208  0C2D 0002 00BF            12      CMPI.B #2,($BF,A5)
-000E020E                            13  EXIT:  
-000E020E  4E75                      14      RTS    
-000E0210                            15  BOSS_CLEAR_FLAG:
-000E0210  61EE                      16      BSR.B CHECK_FINAL_STAGE
-000E0212  66FA                      17      BNE.B EXIT
-000E0214  1B7C 0001 012B            18      MOVE.B  #$1, ($12B,A5)
-000E021A  4E75                      19      RTS
-000E021C                            20  STAGE_CLEAR_FLAG:
-000E021C  61E2                      21      BSR.B CHECK_FINAL_STAGE
-000E021E  66EE                      22      BNE.B EXIT
-000E0220  1B7C 0001 0129            23      MOVE.B  #$1, ($129,A5)
-000E0226  4E75                      24      RTS
+000E0200                             9  L45FCC:
+000E0200  1D7C 005A 001E            10      MOVE.B #$5A,($1E,A6)
+000E0206  0C2D 0002 00BE            11      CMPI.B #$02,($BE,A5)
+000E020C  6726                      12      BEQ.B .EXIT
+000E020E                            13  .LOAD_PALETTE:
+000E020E  48E7 C0C0                 14      MOVEM.L D0-D1/A0-A1,-(SP)
+000E0212  7007                      15      MOVEQ #8-1,D0
+000E0214  122E 0015                 16      MOVE.B ($15,A6),D1
+000E0218  EB59                      17      ROL #5,D1
+000E021A  41F9 000C0BE0             18      LEA $0C0BE0,A0                  ; $0C0800 (SUBWAY PALETTE) + ($1F*$20)
+000E0220  43F9 00914000             19      LEA $914000,A1                  
+000E0226  43F1 1000                 20      LEA (A1,D1.W),A1                ; $914000 (PALETTE REGISTER) + ($XX*$20)    
+000E022A                            21  .LOOPCOL:
+000E022A  22D8                      22      MOVE.L (A0)+,(A1)+
+000E022C  51C8 FFFC                 23      DBF D0,.LOOPCOL    
+000E0230  4CDF 0303                 24      MOVEM.L (SP)+,D0-D1/A0-A1
+000E0234                            25  .EXIT                       
+000E0234  4E75                      26      RTS      
+000E0236                            27  L476CA:
+000E0236  0C6D 00CA 00BE            28      CMPI.W #0202,($BE,A5)
+000E023C  6606                      29      BNE.B .EXIT
+000E023E  1B7C 0001 012B            30      MOVE.B  #$1, ($12B,A5)
+000E0244                            31  .EXIT    
+000E0244  4E75                      32      RTS
+000E0246                            33  L47760:
+000E0246  0C6D 00CA 00BE            34      CMPI.W #0202,($BE,A5)
+000E024C  6606                      35      BNE.B .EXIT
+000E024E  1B7C 0001 0129            36      MOVE.B  #$1, ($129,A5)
+000E0254                            37  .EXIT    
+000E0254  4E75                      38      RTS
 ```
 
 and then we place our routine calls:
 
 ```
-0476CA  jsr     $E0210.l                                    4EB9 000E 0210
+045FCC  jsr     $e0200.l                                    4EB9 000E 0200
 
-047760  jsr     $E021C.l                                    4EB9 000E 021C
+0476CA  jsr     $e0236.l                                    4EB9 000E 0236
+
+047760  jsr     $e0246.l                                    4EB9 000E 0246
 ```
 
 ![Edi.E](https://github.com/user-attachments/assets/6dfd0edb-c7aa-41fc-b9e8-eb5fc4f892c3)
@@ -1485,7 +1491,10 @@ loadr damnd.bin,e0000,100,:maincpu
 loadr damndmod.bin,03D3B2,3860,:maincpu
 
 loadr sodom.bin,e0100,100,:maincpu
-loadr sodommod.bin,040CD8,1E00,:maincpu 
+loadr sodommod.bin,040CD8,1E00,:maincpu
+
+loadr edie.bin,e0200,100,:maincpu
+loadr ediemod.bin,45FCC,17a0,:maincpu
 
 loadr palette.bin,e0600,120,:maincpu
 loadr palettemod.bin,16904,450,:maincpu
