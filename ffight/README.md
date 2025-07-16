@@ -1506,6 +1506,9 @@ loadr sodommod.bin,040CD8,1E00,:maincpu
 loadr edie.bin,e0200,100,:maincpu
 loadr ediemod.bin,45FCC,17a0,:maincpu
 
+loadr rolento.bin,e0300,100,:maincpu
+loadr rolentomod.bin,48aaa,1870,:maincpu
+
 loadr palette.bin,e0600,120,:maincpu
 loadr palettemod.bin,16904,450,:maincpu
 ```
