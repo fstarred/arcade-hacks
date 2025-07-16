@@ -1,0 +1,70 @@
+000E0300 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.16.01
+Created On: 17/07/2025 00:07:54
+
+00000000                             1  *-----------------------------------------------------------
+00000000                             2  * Title      :
+00000000                             3  * Written by :
+00000000                             4  * Date       :
+00000000                             5  * Description:
+00000000                             6  *-----------------------------------------------------------
+000E0300                             7      ORG    $E0300
+000E0300                             8  START:   
+000E0300                             9  L48AAA:              
+000E0300  0C6D 012D 00BE            10      CMPI.W #0301,($BE,A5)
+000E0306  6734                      11      BEQ.B .CHECK_POSITION
+000E0308  0C2D 0003 00BE            12      CMPI.B #03,($BE,A5)
+000E030E  6602                      13      BNE.B .LOAD_PALETTE
+000E0310  4E75                      14      RTS
+000E0312                            15  .LOAD_PALETTE:
+000E0312  48E7 C0C0                 16      MOVEM.L D0-D1/A0-A1,-(SP)
+000E0316  7007                      17      MOVEQ #8-1,D0
+000E0318  122E 0015                 18      MOVE.B ($15,A6),D1
+000E031C  EB59                      19      ROL #5,D1
+000E031E  41F9 000C0FE0             20      LEA $0C0FE0,A0                  ; $0C0C00 (IND. AREA PALETTE) + ($1F*$20)
+000E0324  43F9 00914000             21      LEA $914000,A1                  
+000E032A  43F1 1000                 22      LEA (A1,D1.W),A1                ; $914000 (PALETTE REGISTER) + ($XX*$20)    
+000E032E                            23  .LOOPCOL:
+000E032E  22D8                      24      MOVE.L (A0)+,(A1)+
+000E0330  51C8 FFFC                 25      DBF D0,.LOOPCOL    
+000E0334  4CDF 0303                 26      MOVEM.L (SP)+,D0-D1/A0-A1
+000E0338  4A00                      27      TST.B D0                        ; RESET CARRY FLAG
+000E033A  4E75                      28      RTS  
+000E033C                            29  .CHECK_POSITION:    
+000E033C  0C6D 0AC0 045C            30      CMPI.W  #$AC0, ($45C,A5)    
+000E0342  4E75                      31      RTS    
+000E0344                            32  L4A252:
+000E0344  0C6D 012D 00BE            33      CMPI.W #0301,($BE,A5)
+000E034A  6606                      34      BNE.B .EXIT
+000E034C  1B7C 0001 012B            35      MOVE.B  #$1, ($12B,A5)
+000E0352                            36  .EXIT    
+000E0352  4E75                      37      RTS
+000E0354                            38  L4A314:
+000E0354  0C6D 012D 00BE            39      CMPI.W #0301,($BE,A5)
+000E035A  6606                      40      BNE.B .EXIT
+000E035C  1B7C 0001 0129            41      MOVE.B  #$1, ($129,A5)
+000E0362                            42  .EXIT    
+000E0362  4E75                      43      RTS
+000E0364                            44  
+000E0364                            45          
+000E0364                            46  
+000E0364                            47  * Put variables and constants here
+000E0364                            48  
+000E0364                            49      END    START        ; last line of source
+
+No errors detected
+No warnings generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+L48AAA              E0300
+L48AAA:CHECK_POSITION  E033C
+L48AAA:LOAD_PALETTE  E0312
+L48AAA:LOOPCOL      E032E
+L4A252              E0344
+L4A252:EXIT         E0352
+L4A314              E0354
+L4A314:EXIT         E0362
+START               E0300
