@@ -842,7 +842,7 @@ Ok, let's say we want to fight Damnd also on other stages, we could write some r
 000E000E  4E75                      14      RTS
 000E0010                            15  .LOAD_PALETTE:
 000E0010  48E7 C0C0                 16      MOVEM.L D0-D1/A0-A1,-(SP)
-000E0014  7008                      17      MOVEQ #8,D0
+000E0014  7007                      17      MOVEQ #8-1,D0
 000E0016  122E 0015                 18      MOVE.B ($15,A6),D1
 000E001A  EB59                      19      ROL #5,D1
 000E001C  41F9 000C03E0             20      LEA $0C03E0,A0                  ; $0C0000 (SLUM PALETTE) + ($1E*$20)
@@ -990,7 +990,7 @@ Like we did for Damnd, we create some routines at a spare ROM space, this time a
 000E0110  4E75                      14      RTS    
 000E0112                            15  .LOAD_PALETTE:
 000E0112  48E7 C0C0                 16      MOVEM.L D0-D1/A0-A1,-(SP)
-000E0116  7008                      17      MOVEQ #8,D0
+000E0116  7007                      17      MOVEQ #8-1,D0
 000E0118  122E 0015                 18      MOVE.B ($15,A6),D1
 000E011C  EB59                      19      ROL #5,D1
 000E011E  41F9 000C07E0             20      LEA $0C07E0,A0                  ; $0C0400 (SUBWAY PALETTE) + ($1E*$20)
