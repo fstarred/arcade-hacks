@@ -1513,6 +1513,9 @@ loadr rolentomod.bin,48AAA,1870,:maincpu
 loadr abigail.bin,e0400,100,:maincpu
 loadr abigailmod.bin,4BE30,16c0,:maincpu
 
+loadr belger.bin,e0500,100,:maincpu
+loadr belgermod.bin,4ea0a,1c70,:maincpu
+
 loadr palette.bin,e0600,120,:maincpu
 loadr palettemod.bin,16904,450,:maincpu
 ```
