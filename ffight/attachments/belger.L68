@@ -1,0 +1,107 @@
+000E0500 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.16.01
+Created On: 17/07/2025 22:25:13
+
+00000000                             1  *-----------------------------------------------------------
+00000000                             2  * Title      :
+00000000                             3  * Written by :
+00000000                             4  * Date       :
+00000000                             5  * Description:
+00000000                             6  *-----------------------------------------------------------
+000E0500                             7      ORG    $E0500
+000E0500                             8  START:   
+000E0500                             9  L4EA0A:              
+000E0500  0C6D 01F6 00BE            10      CMPI.W #0502,($BE,A5)
+000E0506  672A                      11      BEQ.B .CHECK_POSITION
+000E0508                            12  .LOAD_PALETTE:
+000E0508  48E7 C0C0                 13      MOVEM.L D0-D1/A0-A1,-(SP)
+000E050C  7007                      14      MOVEQ #8-1,D0
+000E050E  122E 0015                 15      MOVE.B ($15,A6),D1
+000E0512  EB49                      16      LSL.W #5,D1
+000E0514  41F9 000C17E0             17      LEA $0C17E0,A0                  ; $0C1400 (BAY AREA PALETTE) + ($1F*$20)
+000E051A  43F9 00914000             18      LEA $914000,A1                  
+000E0520  43F1 1000                 19      LEA (A1,D1.W),A1                ; $914000 (PALETTE REGISTER) + ($XX*$20)    
+000E0524                            20  .LOOPCOL:
+000E0524  22D8                      21      MOVE.L (A0)+,(A1)+
+000E0526  51C8 FFFC                 22      DBF D0,.LOOPCOL    
+000E052A  4CDF 0303                 23      MOVEM.L (SP)+,D0-D1/A0-A1
+000E052E  4A00                      24      TST.B D0                        ; RESET CARRY FLAG
+000E0530  4E75                      25      RTS      
+000E0532                            26  .CHECK_POSITION:    
+000E0532  0C6D 3240 0412            27      CMPI.W #$3240,($412,A5)    
+000E0538  4E75                      28      RTS
+000E053A                            29  L4EA14:
+000E053A  0C6D 01F6 00BE            30      CMPI.W #0502,($BE,A5)
+000E0540  6712                      31      BEQ.B .MOVE_TOLS_POS        
+000E0542  2F00                      32      MOVE.L D0,-(SP)
+000E0544  302D 0412                 33      MOVE.W ($412,A5),D0
+000E0548  0440 0040                 34      SUB.W #$40,D0
+000E054C  3D40 0006                 35      MOVE.W D0,($6,A6)
+000E0550  201F                      36      MOVE.L (SP)+,D0
+000E0552  4E75                      37      RTS    
+000E0554                            38  .MOVE_TOLS_POS:
+000E0554  3D7C 3200 0006            39      MOVE.W #$3200,($6,A6)
+000E055A  4E75                      40      RTS
+000E055C                            41  L4FF3C:
+000E055C  0C6D 01F6 00BE            42      CMPI.W #0502,($BE,A5)
+000E0562  6706                      43      BEQ.B .CHECK_LSVPOS
+000E0564  0440 0010                 44      SUBI.W #$10, D0
+000E0568  4E75                      45      RTS
+000E056A                            46  .CHECK_LSVPOS:
+000E056A  0440 0810                 47      SUBI.W #$810, D0
+000E056E  4E75                      48      RTS
+000E0570                            49  L4F076_50670:
+000E0570  0C6D 01F6 00BE            50      CMPI.W #0502,($BE,A5)
+000E0576  6708                      51      BEQ.B .IS_ABOUT_DIE
+000E0578  0C6E 0000 0012            52      CMPI.W #$0,($12,A6)
+000E057E  4E75                      53      RTS
+000E0580                            54  .IS_ABOUT_DIE:
+000E0580  0C6E 0032 0018            55      CMPI.W #$32,($18,A6)
+000E0586  4E75                      56      RTS
+000E0588                            57  L4F9B2:
+000E0588  0C6D 01F6 00BE            58      CMPI.W #0502,($BE,A5)
+000E058E  6606                      59      BNE.B .EXIT
+000E0590  1B7C 0001 012B            60      MOVE.B  #$1, ($12B,A5)
+000E0596                            61  .EXIT    
+000E0596  4E75                      62      RTS    
+000E0598                            63  L4FA4E_4FA38:
+000E0598  0C6D 01F6 00BE            64      CMPI.W #0502,($BE,A5)
+000E059E  6606                      65      BNE.B .EXIT
+000E05A0  1B7C 0001 0129            66      MOVE.B  #$1, ($129,A5)
+000E05A6                            67  .EXIT    
+000E05A6  4E75                      68      RTS
+000E05A8                            69  LED1A:
+000E05A8  0C6D 01F6 00BE            70      CMPI.W #0502,($BE,A5)
+000E05AE  6606                      71      BNE.B .EXIT
+000E05B0  1B7C 00FF 0129            72      MOVE.B #$FF, ($129,A5)
+000E05B6                            73  .EXIT    
+000E05B6  4E75                      74      RTS    
+000E05B8                            75        
+000E05B8                            76  * Put variables and constants here
+000E05B8                            77  
+000E05B8                            78      END    START        ; last line of source
+
+No errors detected
+No warnings generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+L4EA0A              E0500
+L4EA0A:CHECK_POSITION  E0532
+L4EA0A:LOAD_PALETTE  E0508
+L4EA0A:LOOPCOL      E0524
+L4EA14              E053A
+L4EA14:MOVE_TOLS_POS  E0554
+L4F076_50670        E0570
+L4F076_50670:IS_ABOUT_DIE  E0580
+L4F9B2              E0588
+L4F9B2:EXIT         E0596
+L4FA4E_4FA38        E0598
+L4FA4E_4FA38:EXIT   E05A6
+L4FF3C              E055C
+L4FF3C:CHECK_LSVPOS  E056A
+LED1A               E05A8
+LED1A:EXIT          E05B6
+START               E0500
