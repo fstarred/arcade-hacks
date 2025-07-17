@@ -178,6 +178,7 @@ Behaviour may vary according to the character kind itself, so for instance a val
 ### Mappable objects
 
 ```
+0x080A = dog
 0x080F = sliding door
 0x0816 = drop
 0x082A = Rolento going down the ladder
@@ -1501,13 +1502,16 @@ loadr damnd.bin,e0000,100,:maincpu
 loadr damndmod.bin,03D3B2,3860,:maincpu
 
 loadr sodom.bin,e0100,100,:maincpu
-loadr sodommod.bin,040CD8,1E00,:maincpu
+loadr sodommod.bin,040CD8,1e00,:maincpu
 
 loadr edie.bin,e0200,100,:maincpu
 loadr ediemod.bin,45FCC,17a0,:maincpu
 
 loadr rolento.bin,e0300,100,:maincpu
-loadr rolentomod.bin,48aaa,1870,:maincpu
+loadr rolentomod.bin,48AAA,1870,:maincpu
+
+loadr abigail.bin,e0400,100,:maincpu
+loadr abigailmod.bin,4BE30,16c0,:maincpu
 
 loadr palette.bin,e0600,120,:maincpu
 loadr palettemod.bin,16904,450,:maincpu
