@@ -969,6 +969,7 @@ The below instructions are related to Sodom character:
 
 ```
 00E164  cmpi.w  #$1300, ($412,A5)                           0C6D 1300 0412		; don't know
+040CD8  move.b  #$5, ($13,A4)                               197C 0005 0013		; crowd sound / animation
 042600  move.b  #$1, ($12b,A5)                              1B7C 0001 012B		; write boss clear flag
 042698  move.b  #$1, ($129,A5)                              1B7C 0001 0129		; write stage clear flag
 040CFA  cmpi.w  #$1300, ($412,A5)                           0C6D 1300 0412		; when 0xFF8412 = x then boss is active
