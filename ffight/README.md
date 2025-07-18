@@ -1493,6 +1493,121 @@ We need to modify these routines as written below:
 
 ![Belger](https://github.com/user-attachments/assets/80641579-2f6a-4fb2-a65a-cceceee29e1d)
 
+<a id="a-palette"></a>
+## Palette
+
+If you've come this far with reading, you may have noticed that bosses were tested on its own area.<br>
+The main reason behind that is simple, the hack scripts we have seen in the chapters above cover some modification on the character behaviour in order to work on many scenarios as possible, but if you place, for instance, Sodom on the slum stage you'll see something like this:
+
+<img width="384" height="224" alt="0619" src="https://github.com/user-attachments/assets/4e8e370a-c52d-42a0-a91f-16efad81d116" />
+
+The reason behind Sodom's wrong colours is pretty simple, the character is actually using Damnd's palette.
+
+In order to understand how this is possible, let's do a bit of explanation about CPS-1 graphics:<br>
+
+GFXRAM range is at address 0x900000-0x92FFFF (192 KiB).<br>
+
+This is the CPS-A register list:<br>
+
+```
+OBJ base 		0x00 OBJ GFXRAM absolute address
+SCROLL1 base 		0x02 SCROLL1 GFXRAM absolute address
+SCROLL2 base 		0x04 SCROLL2 GFXRAM absolute address
+SCROLL3 base 		0x06 SCROLL3 GFXRAM absolute address
+Rowscroll base 		0x08 Rowscroll GFXRAM absolute address
+Palette base 		0x0A Palettes GFXRAM absolute address
+Scroll 1 X 		0x0C SCROLL1 Offset X
+Scroll 1 Y 		0x0E SCROLL1 Offset Y
+Scroll 2 X 		0x10 SCROLL2 Offset X
+Scroll 2 Y 		0x12 SCROLL2 Offset Y
+Scroll 3 X 		0x14 SCROLL3 Offset X
+Scroll 3 Y 		0x16 SCROLL3 Offset Y
+Star1 X 		0x18 STAR1 Offset X
+Star1 Y 		0x1A STAR1 Offset Y
+Star2 X 		0x1C STAR2 Offset X
+Star2 Y 		0x1E STAR2 Offset Y
+Rowscroll Offsets 	0x20 Offsets into Rowscroll base
+Video Control 		0x22 flip screen, rowscroll enable
+```
+
+OBJ are basically the graphics that stands in front of the other layers, such as enemies, main characters or breakable objects; OBJ are composed of tiles.<br>
+
+These objcets can be displayed in Sprite/Shape mode:<br>
+While the first one requires less instructions to draw, it is often inefficient in terms of memory, so the latter mode was mostly used on CPS1.<br>
+
+On Shape mode every tile needs to be specified, so it allows the graphics to be more dynamic in terms of space and palette.
+
+By taking a look at a CPS-A register on Final Fight, we have this:
+
+```
+00   9000  9080  90C0  9100  9100  9140  0000  0000   .....À.....@....
+10   007B  0300  FFD6  0620  0000  0100  0000  0100   .{..ÿÖ. ........
+20   0000  000E  0000  0000  0000  0000  0000  0000   ................
+30   0000  0000  0000  0000  0000  0000  0000  0000   ................
+```
+
+The above register values must be converted to 24 bit address, so for instance if we shift 0x9000 by 8 we get 0x900000<br>
+
+This means that, in order to draw OBJ kind objects to the screen, we want to write values in memory between 0x900000 and 0x908000.<br>
+
+The below data is a snapshot of OBJ base memory taken from Subway 4 (the Sodom stage), with Guy and Sodom displaying on the screen:
+
+```
+900000   008F  00B4  0268  0000  009F  00B4  0269  0000   ...´.h.....´.i..
+900010   00AF  00B4  026A  0000  007F  00C4  0280  0000   .¯.´.j.....Ä....
+900020   008F  00C4  0281  0000  009F  00C4  0282  0000   ...Ä.......Ä....
+900030   00AF  00C4  0283  0000  00BF  00C4  0284  0000   .¯.Ä.....¿.Ä....
+900040   00CF  00C4  0285  0000  00DF  00C4  0286  0000   .Ï.Ä.....ß.Ä....
+900050   00EF  00C4  0287  0000  008F  00D4  0291  0000   .ï.Ä.......Ô....
+900060   009F  00D4  0292  0000  00AF  00D4  0293  0000   ...Ô.....¯.Ô....
+900070   00BF  00D4  0294  0000  0163  0060  1D98  0023   .¿.Ô.....c.`...#
+900080   0153  0060  1D99  0023  0143  0060  1D9A  0023   .S.`...#.C.`...#
+900090   0133  0060  1D9B  0023  0123  0060  1D9C  0023   .3.`...#.#.`...#
+9000A0   0113  0060  1D9D  0023  0133  0090  1DBA  0023   ...`...#.3...º.#
+9000B0   0153  00A0  1DC8  0023  0143  00A0  1DC9  0023   .S. .È.#.C. .É.#
+9000C0   0133  00A0  1DCA  0023  0163  00B0  1DDA  0023   .3. .Ê.#.c.°.Ú.#
+9000D0   0153  00B0  1DD8  0023  0143  00B0  1DD9  0023   .S.°.Ø.#.C.°.Ù.#
+9000E0   0143  0060  1C01  003F  0133  0060  1C02  003F   .C.`...?.3.`...?
+9000F0   0123  0060  1C05  003F  0153  0070  1C10  003F   .#.`...?.S.p...?
+900100   0143  0070  1C11  003F  0133  0070  1C12  003F   .C.p...?.3.p...?
+900110   0123  0070  1C15  003F  0153  0080  1C20  003F   .#.p...?.S... .?
+900120   0143  0080  1C21  003F  0133  0080  1C22  003F   .C...!.?.3...".?
+900130   0123  0080  1C25  003F  0153  0090  1E61  003F   .#...%.?.S...a.?
+900140   0143  0090  1C31  003F  0133  0090  1C32  003F   .C...1.?.3...2.?
+900150   0163  00A0  1C0A  003F  0153  00A0  1C0B  003F   .c. ...?.S. ...?
+900160   0143  00A0  1C0C  003F  0133  00A0  1CD7  003F   .C. ...?.3. .×.?
+900170   0163  00B0  1C1A  003F  0153  00B0  1C1B  003F   .c.°...?.S.°...?
+900180   0143  00B0  1C1C  003F  0133  00B0  1C1D  003F   .C.°...?.3.°...?
+900190   0173  00C0  11D8  003F  0163  00C0  11C8  003F   .s.À.Ø.?.c.À.È.?
+9001A0   0153  00C0  1C2B  003F  0143  00C0  1C2C  003F   .S.À.+.?.C.À.,.?
+9001B0   0133  00C0  1C2D  003F  0173  00D0  11FB  003F   .3.À.-.?.s.Ð.û.?
+9001C0   0163  00D0  11FC  003F  0153  00D0  11FD  003F   .c.Ð.ü.?.S.Ð.ý.?
+9001D0   0143  00D0  11FE  003F  0133  00D0  11FF  003F   .C.Ð.þ.?.3.Ð.ÿ.?
+9001E0   0000  0000  0000  0000  0000  0000  0000  0000   ................
+```
+
+To better understand the above values, let's take a look to the entry schema of OBJ:
+
+```
+OBJ entry layout : xxxx yyyy nnnn aaaa
+xxxx = x position ( origin upper left )
+yyyy = y position ( origin upper left )
+nnnn = tile ID
+aaaa = attribute word
+
+// OBJ attribute WORD layout
+0 b00000000_00011111 Palette ID
+0 b00000000_00100000 X Flip
+0 b00000000_01000000 Y Flip
+0 b00000000_10000000 Unused
+0 b00001111_00000000 X sprite size ( in tiles )
+0 b11110000_00000000 Y sprite size ( in tiles )
+```
+
+From the above layout we notice the palette ID that is included in the attribute WORD, wich takes the last 5 bits.<br>
+
+Therefore, we understand that range value is between 0x00 and 0x1F; indeed each graphics type has a 32 palette limitation.
+
 <a id="a-howtohack"></a>
 ## Load ROM modifications with MAME
 
