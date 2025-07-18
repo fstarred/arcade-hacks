@@ -1,0 +1,88 @@
+000E0700 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.16.01
+Created On: 18/07/2025 16:02:29
+
+00000000                             1  *-----------------------------------------------------------
+00000000                             2  * Title      :
+00000000                             3  * Written by :
+00000000                             4  * Date       :
+00000000                             5  * Description:
+00000000                             6  *-----------------------------------------------------------
+000E0700                             7      ORG    $E0700
+000E0700                             8      
+000E0700                             9  START:    
+000E0700                            10  L2CCB4:
+000E0700  0C6E 0203 0012            11      CMPI.W #$0203,($12,A6)
+000E0706  6644                      12      BNE.B .ORIGINAL
+000E0708  0C2E 0002 0014            13      CMPI.B #$02,($14,A6)
+000E070E  653C                      14      BCS.B .ORIGINAL
+000E0710  0C2E 0001 0062            15      CMPI.B #$01,($62,A6)
+000E0716  6F34                      16      BLE.B .ORIGINAL
+000E0718                            17  *.LOAD_PALETTE:
+000E0718                            18  *    MOVEM.L D0-D2/A0-A1,-(SP)
+000E0718                            19  *    MOVEQ #0,D2
+000E0718                            20  *    MOVE.B ($14,A6),D2
+000E0718                            21  *    SUBQ.B #2,D2
+000E0718                            22  *    LSL #5,D2
+000E0718                            23  *    MOVEQ #8-1,D0
+000E0718                            24  *    MOVE.B ($62,A6),D1
+000E0718                            25  *    LSL #5,D1
+000E0718                            26  *    LEA $E568,A0                    ; $E568(ANDORE PALETTE) + ($1E*$20)    
+000E0718                            27  *    LEA (A0,D2.W),A0
+000E0718                            28  *    LEA $914000,A1                  
+000E0718                            29  *    LEA (A1,D1.W),A1                ; $914000 (PALETTE REGISTER) + ($XX*$20)    
+000E0718                            30  *.LOOPCOL:
+000E0718                            31  *    MOVE.L (A0)+,(A1)+
+000E0718                            32  *    DBF D0,.LOOPCOL    
+000E0718                            33  *    MOVEM.L (SP)+,D0-D2/A0-A1
+000E0718                            34  .LOAD_PALETTE:
+000E0718  48E7 C0C0                 35      MOVEM.L D0-D1/A0-A1,-(SP)
+000E071C  7007                      36      MOVEQ #8-1,D0    
+000E071E  7200                      37      MOVEQ #0,D1
+000E0720  122E 0014                 38      MOVE.B ($14,A6),D1              ; GET ANDORE VARIATION (2-4)
+000E0724  5501                      39      SUBQ.B #2,D1                    ; 0-INDEX STARTS FROM 2
+000E0726  EB49                      40      LSL #5,D1
+000E0728  41F9 0000E568             41      LEA $E568,A0                        
+000E072E  41F0 1000                 42      LEA (A0,D1.W),A0                ; $E568(ANDORE PALETTE) + ($XX*$20)
+000E0732  122E 0062                 43      MOVE.B ($62,A6),D1              ; GET PALETTE ID ($00-$1F)
+000E0736  EB49                      44      LSL #5,D1
+000E0738  43F9 00914000             45      LEA $914000,A1                  
+000E073E  43F1 1000                 46      LEA (A1,D1.W),A1                ; $914000 (PALETTE REGISTER) + ($XX*$20)    
+000E0742                            47  .LOOPCOL:
+000E0742  22D8                      48      MOVE.L (A0)+,(A1)+
+000E0744  51C8 FFFC                 49      DBF D0,.LOOPCOL    
+000E0748  4CDF 0303                 50      MOVEM.L (SP)+,D0-D1/A0-A1
+000E074C                            51  .ORIGINAL    
+000E074C  197C 001F 0013            52      MOVE.B  #$1F, ($13,A4)    
+000E0752  4E75                      53      RTS
+000E0754                            54  L2CCFA:
+000E0754  0C6E 0203 0012            55      CMPI.W #$0203,($12,A6)
+000E075A  6618                      56      BNE.B .ORIGINAL
+000E075C  0C2E 0002 0014            57      CMPI.B #$02,($14,A6)
+000E0762  6510                      58      BCS.B .ORIGINAL
+000E0764  0C2E 0001 0062            59      CMPI.B #$01,($62,A6)
+000E076A  6F08                      60      BLE.B .ORIGINAL
+000E076C  1D6E 0062 002F            61      MOVE.B ($62,A6),($2F,A6)
+000E0772  5C97                      62      ADDQ.L #6,(SP)                  ; FORCE SKIP NEXT 6-BYTE INSTRUCTION
+000E0774                            63  .ORIGINAL
+000E0774  7000                      64      MOVEQ #0,D0
+000E0776  102E 0014                 65      MOVE.B ($14,A6),D0
+000E077A  4E75                      66      RTS
+000E077C                            67  * Put variables and constants here
+000E077C                            68  
+000E077C                            69      END    START        ; last line of source
+
+No errors detected
+No warnings generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+L2CCB4              E0700
+L2CCB4:LOAD_PALETTE  E0718
+L2CCB4:LOOPCOL      E0742
+L2CCB4:ORIGINAL     E074C
+L2CCFA              E0754
+L2CCFA:ORIGINAL     E0774
+START               E0700
