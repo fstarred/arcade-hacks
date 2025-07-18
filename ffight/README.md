@@ -9,12 +9,12 @@
    3. [Characters](#a-charsdata)   
    4. [Mappable objects](#a-mappableobj)
    5. [Breakable objects](#a-breakobj)
-4. [Stage mapping](#a-stagemap)
+4. [Stage data](#a-stagemap)
    1. [Stage routine](#a-stageroutine)
    2. [Enemy routine](#a-enemyroutine)
    3. [Stage map](#a-stagemap)
    4. [Enemy map](#a-enemymap)
-   5. [References](#a-stagemapref)
+   5. [Stage table reference](#a-stagemapref)
 5. [Area/Stage sequence](#a-stageseq)
 6. [Objects in memory](#a-objectsmem)
 7. [Special scenes](#a-specialscenes)
@@ -271,7 +271,7 @@ Unfortunately I still have to understand the logic behind these codes, however y
 ```
 
 <a id="a-stagemap"></a>
-## Stage mapping
+## Stage data
 
 There are two main addresses for each stage dedicated for mapping enemies or objects, each of them are scanned by dedicated routines.
 
@@ -390,7 +390,7 @@ O + 0x04 = character / pose (double)
 While the first offset takes 0x12 bytes to store general information, the other ones takes 0x10 bytes for storing enemy information
 
 <a id="a-stagemapref"></a>
-### references
+### Stage table reference
 
 | STAGE     | STAGE R. | ENEMY R. |
 | --------  | -------- | -------- |
@@ -1518,5 +1518,8 @@ loadr belgermod.bin,4ea0a,1c70,:maincpu
 
 loadr palette.bin,e0600,120,:maincpu
 loadr palettemod.bin,16904,450,:maincpu
+
+loadr andore.bin,e0700,100,:maincpu
+loadr andoremod.bin,2CCB4,4c,:maincpu
 ```
 
