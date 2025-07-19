@@ -30,7 +30,10 @@
    4. [Rolento](#a-rolento)
    5. [Abigail](#a-abigail)
    6. [Belger](#a-belger)
-9. [Load ROM modification with MAME](#a-howtohack)      
+9. [Palette](#a-palette)
+   1. [Palette routine](#a-paletteroutine)
+   2. [Boss Fix](#a-bosspalette)
+10. [Load ROM modification with MAME](#a-howtohack)      
 
 
 ![Andore at start](https://github.com/user-attachments/assets/62648f7e-de08-4460-a915-520712c65192)
@@ -111,6 +114,7 @@ O + 0x15	initial pose
 O + 0x18	energy		
 O + 0x1C	energy bar size
 O + 0x25        frame animation object (double)
+O + 0x2F	alternative palette id
 ...
 ```
 
@@ -1606,7 +1610,267 @@ aaaa = attribute word
 
 From the above layout we notice the palette ID that is included in the attribute WORD, wich takes the last 5 bits.<br>
 
-Therefore, we understand that range value is between 0x00 and 0x1F; indeed each graphics type has a 32 palette limitation.
+Therefore, we understand that range value is between 0x00 and 0x1F; indeed each graphic layer can dispose of 32 palette.<br>
+
+Said so, if we look back at address 0x0A of CPS-A register, we can see the value of 0x9140; by shifting again the value by << 8, 
+we get 0x914000 address, which is where OBJ palette are stored; notice that the values can be programmatically changed <br>
+
+The CPS-1 colour is a 16 bit entry composed by RGB values (each of 4 bit) and 4 bit (the MSB) dedicated to the brightness, therefore a total of 65536 available value.<br> 
+Every palette set is composed by 32 colours.<br>
+
+Now we display the content of the first 3 palette entries at first stage (Slum):
+
+```
+914000   F111  FEDB  FECA  FCA8  FA86  F865  F630  FEA0   ñ.þÛþÊü¨ú.øeö0þ 
+914010   FEEE  FE80  FE60  FC50  FA40  F840  F740  F000   þîþ.þ`üPú@ø@÷@ð.
+914020   F553  FFDA  FFB8  FD97  FB75  F740  FFFF  FAA9   õSÿÚÿ¸ý.ûu÷@ÿÿú©
+914030   FDDC  F9EF  F0AD  F079  F057  F000  F776  F000   ýÜùïð-ðyðWð.÷vð.
+914040   F111  FFDA  FEB8  FC97  FA75  F964  F850  F740   ñ.ÿÚþ¸ü.úuùdøP÷@
+914050   F530  F870  F760  F650  F540  F430  F320  F000   õ0øp÷`öPõ@ô0ó ð.
+```
+
+The above are the palette set dedicated for Guy (914000-914020), Cody (914020-914040) and Haggar (914040-914060).<br>
+
+We can have some fun, for instance, by switching **red** and **blue** values of Guy's palette and achieving this:
+
+```
+914000   F111  FEDB  FECA  FCA8  FA86  F865  F036  F0AE   ñ.þÛþÊü¨ú.øeð6ð®
+914010   FEEE  F08E  F06E  F05C  F04A  F048  F047  F000   þîð.ðnð\ðJðHðGð.
+```
+
+<img width="384" height="224" alt="0004" src="https://github.com/user-attachments/assets/078ad4e4-b514-453f-b271-4147968722b4" />
+
+Now that we better understand how CPS-1 palette works, we can back to OBJ base address 0x910000, and see what happen when any boss is displaying on the screen:<br>
+We'll notice that basically all tiles (or almost all) of them point to palette 0x1F (remember that palette ID is composed by 4 bits so, if you see values like 0x3F, it's because the tile is using the flip-x attribute so you have to AND it by #$1F to actually obtain the palette id value).<br>
+
+Final Fight renew the palette set on every area clear by loading the new content from a specific ROM address.<br>
+
+There is also a routine that is called everytime the scene fade out and in, and it is located at address **0x0027B8**.<br>
+
+By the way, the routine that get the palette for the area is the following:
+
+```
+06451A  moveq   #$0, D0                                     7000
+06451C  move.b  ($be,A5), D0                                102D 00BE		; get area value
+064520  add.w   D0, D0                                      D040
+064522  add.w   D0, D0                                      D040		; multiply area value by 4
+064524  lea     ($64536,PC), A0                             41FA 0010		; palette vector base address
+064528  movea.l (A0,D0.w), A0                               2070 0000
+06452C  lea     $914000.l, A1                               43F9 0091 4000
+064532  bra     $6468c                                      6000 0158
+...
+06468C  move.w  #$1f, D7                                    3E3C 001F
+064690  movem.l (A0)+, D0-D6/A2                             4CD8 047F
+064694  movem.l D0-D6/A2, (A1)                              48D1 047F
+064698  lea     ($20,A1), A1                                43E9 0020
+06469C  dbra    D7, $64690                                  51CF FFF2
+0646A0  rts                                                 4E75
+```
+
+The vector base address for palette contains the following values:
+
+```
+064536   000C  0000  000C  0400  000C  0800  000C  0C00   ................
+064546   000C  1000  000C  1400  000C  1800  000C  1C00   ................
+064556   000C  2000  000C  2400  41F9  000C  2800  43F9   .. ...$.Aù..(.Cù
+```
+
+So we can easily guess that by multiplying the area value (0xFF80BE, see also the table at [Area/Stage sequence chapter](#a-stageseq)) by 4 and adding 0x64536, we obtain the palette source address.
+
+<a id="a-paletteroutine"></a>
+### Palette routine
+
+This is the most often called routine, used to extract the palette id for each engaged OBJ-kind object:
+
+```
+ 016904  move.w  ($a,A1), D6                                 3C29 000A
+ 016908  tst.b   ($2f,A0)                                    4A28 002F
+ 01690C  beq     $1691c                                      670E
+ 01690E  move.b  ($2f,A0), D3                                1628 002F
+ 016912  andi.w  #$1f, D3                                    0243 001F
+ 016916  andi.w  #$ffe0, D6                                  0246 FFE0
+ 01691A  or.w    D3, D6                                      8C43
+ 01691C  cmpi.w  #$100, D6                                   0C46 0100
+ 016920  bcc     $1694e                                      6400 002C
+ 016924  move.b  ($0,A1), D0                                 1029 0000
+ 016928  ext.w   D0                                          4880
+ 01692A  movea.l ($6,PC,D0.w), A4                            287B 0006
+ 01692E  jmp     (A4)                                        4ED4
+```
+
+By placing a breakpoint at 0x01692E we can obtain the OBJ dedicated palette ID by having a look at register A0 - which is pointing at object's memory placement, for example 0xFF8568 for player 1 - and register D6, which contains the palette ID value.<br>
+
+Notice that characters like some Andore variations contains a specific palette ID contained at OBJ memory's placement + 0x2F.<br>
+
+Therefore, for such specific cases like this, program takes the palette ID value at O + 0x2F as good, and combine it (OR.W D3,D6) with the remaining attribues contained originally at register D6.
+
+The scene below show F.Andore, one member of the Andore's family which is expected to see later in the game and have a dedicated palette specifically loaded at West Side 2 area; by applying a specific hack on the game (we'll see later) we can now display colours correctly.
+
+<img width="384" height="224" alt="0044" src="https://github.com/user-attachments/assets/ef6b0a6d-6d3e-4fe9-a524-28d4719cd0fa" />
+
+<a id="a-bosspalette"></a>
+### Boss fix
+
+In the previous palette dedicated chapters we read about the palette ID used for every boss, which is always 0x1F, and the palette routine located at address 0x016904.<br>
+
+So my idea for fixing the palette for the displaying boss is based to these thinking:
+
+1. Check if the boss is on it's dedicated area (i.e. Damnd's area is Slum, Sodom has the Subway)
+2. If not, load the palette from his specific address. For example, Damnd's palette is at 0XC0000 + (0x1F * 0x20) = 0XC03E0
+3. Use the byte value dedicated for the initial pose, which is actually unused for the bosses, as the palette ID to use. The palette loaded at point 2 will be so stored at location 0x914000 + (paletteID * 0x20)
+4. Hack all the palette dedicated routines in order to change the original value 0x1F with our choosed one
+
+Here is the hack snippet code for Sodom:
+
+```
+    CMPI.B #$01,($BE,A5)
+    BNE.B .LOAD_PALETTE
+    RTS    
+.LOAD_PALETTE:
+    MOVEM.L D0-D1/A0-A1,-(SP)
+    MOVEQ #8-1,D0
+    MOVE.B ($15,A6),D1
+    LSL #5,D1
+    LEA $0C07E0,A0                  ; $0C0400 (SUBWAY PALETTE) + ($1E*$20)
+    LEA $914000,A1                  
+    LEA (A1,D1.W),A1                ; $914000 (PALETTE REGISTER) + ($XX*$20)    
+.LOOPCOL:
+    MOVE.L (A0)+,(A1)+
+    DBF D0,.LOOPCOL    
+    MOVEM.L (SP)+,D0-D1/A0-A1
+```
+
+Notice the _MOVE.B ($15,A6),D1_ instruction take the initial pose value O + 15 and use it with the base address 0x914000 to reload the palette.
+
+Here is the complete hack script for the palette routines
+
+```
+000E0600                             7      ORG    $E0600
+000E0600                             8  START:                  ; first instruction of program
+000E0600                             9  
+000E0600                            10  * Put program code here
+000E0600                            11  
+000E0600                            12  L16904:
+000E0600  0C28 0004 0012            13      CMP.B #04,($12,A0)      ; CHECK IF BOSS CHARACTER
+000E0606  662C                      14      BNE.B .ORIGINAL
+000E0608  1C28 0013                 15      MOVE.B ($13,A0),D6      
+000E060C  BC2D 00BE                 16      CMP.B ($BE,A5),D6       ; CHECK IF SAME BOSS AREA
+000E0610  6722                      17      BEQ.B .ORIGINAL
+000E0612  3C29 000A                 18      MOVE.W ($A,A1),D6
+000E0616  BC3C 001F                 19      CMP.B #$1F,D6           
+000E061A  651C                      20      BCS.B .EXIT             ; IF VAL < $1F EXIT
+000E061C  0206 001F                 21      ANDI.B #$1F,D6
+000E0620  0C06 001F                 22      CMPI.B #$1F,D6          
+000E0624  660E                      23      BNE.B .ORIGINAL         ; IF VAL AND $1F != $1F EXEC ORIGINAL AND EXIT
+000E0626  3C29 000A                 24      MOVE.W ($A,A1),D6       
+000E062A                            25  .TRANSTO1D:    
+000E062A  0206 00E0                 26      ANDI.B #$E0,D6          ; KEEP ALL ATTRIBUTES BUT PALETTE
+000E062E  8C28 0015                 27      OR.B ($15,A0),D6
+000E0632  6004                      28      BRA.B .EXIT
+000E0634                            29  .ORIGINAL
+000E0634  3C29 000A                 30      MOVE.W ($A,A1),D6
+000E0638                            31  .EXIT    
+000E0638  4A28 002F                 32      TST.B ($2F,A0)
+000E063C  4E75                      33      RTS    
+000E063E                            34  L16B40:                     ; DAMND
+000E063E  0C28 0004 0012            35      CMP.B #04,($12,A0)      ; CHECK IF BOSS CHARACTER
+000E0644  6616                      36      BNE.B .ORIGINAL
+000E0646  1C28 0013                 37      MOVE.B ($13,A0),D6      
+000E064A  BC2D 00BE                 38      CMP.B ($BE,A5),D6       ; CHECK IF SAME BOSS AREA
+000E064E  670C                      39      BEQ.B .ORIGINAL
+000E0650  3C19                      40      MOVE.W (A1)+,D6
+000E0652  0206 00E0                 41      ANDI.B #$E0,D6          ; KEEP ALL ATTRIBUTES BUT PALETTE
+000E0656  8C28 0015                 42      OR.B ($15,A0),D6
+000E065A  6002                      43      BRA.B .EXIT
+000E065C                            44  .ORIGINAL
+000E065C  3C19                      45      MOVE.W (A1)+,D6       
+000E065E                            46  .EXIT    
+000E065E  0A46 0020                 47      EORI.W #$20,D6        
+000E0662  4E75                      48      RTS
+000E0664                            49  L16AA2:                     ; DAMND
+000E0664  3F00                      50      MOVE.W D0,-(SP)
+000E0666  0C28 0004 0012            51      CMP.B #04,($12,A0)      ; CHECK IF BOSS CHARACTER
+000E066C  6618                      52      BNE.B .ORIGINAL    
+000E066E  1028 0013                 53      MOVE.B ($13,A0),D0
+000E0672  B02D 00BE                 54      CMP.B ($BE,A5),D0       ; CHECK IF SAME BOSS AREA
+000E0676  670E                      55      BEQ.B .ORIGINAL
+000E0678  3019                      56      MOVE.W (A1)+,D0
+000E067A  0200 00E0                 57      ANDI.B #$E0,D0          ; KEEP ALL ATTRIBUTES BUT PALETTE
+000E067E  8028 0015                 58      OR.B ($15,A0),D0
+000E0682  3CC0                      59      MOVE.W D0,(A6)+        
+000E0684  6002                      60      BRA.B .EXIT        
+000E0686                            61  .ORIGINAL
+000E0686  3CD9                      62      MOVE.W  (A1)+,(A6)+    
+000E0688                            63  .EXIT
+000E0688  301F                      64      MOVE.W (SP)+,D0
+000E068A  D65A                      65      ADD.W   (A2)+, D3
+000E068C  D85A                      66      ADD.W   (A2)+, D4
+000E068E  4E75                      67      RTS            
+000E0690                            68  L16D44_16D18:               ; SODOM
+000E0690  0C28 0004 0012            69      CMP.B #04,($12,A0)      ; CHECK IF BOSS CHARACTER
+000E0696  6616                      70      BNE.B .ORIGINAL    
+000E0698  1C28 0013                 71      MOVE.B ($13,A0),D6      
+000E069C  BC2D 00BE                 72      CMP.B ($BE,A5),D6       ; CHECK IF SAME BOSS AREA
+000E06A0  670C                      73      BEQ.B .ORIGINAL
+000E06A2  3C1A                      74      MOVE.W  (A2)+, D6
+000E06A4  0206 00E0                 75      ANDI.B #$E0,D6
+000E06A8  8C28 0015                 76      OR.B ($15,A0),D6
+000E06AC  6002                      77      BRA.B .EXIT
+000E06AE                            78  .ORIGINAL
+000E06AE  3C1A                      79      MOVE.W  (A2)+, D6
+000E06B0                            80  .EXIT    
+000E06B0  0A46 0020                 81      EORI.W  #$20, D6
+000E06B4  4E75                      82      RTS
+000E06B6                            83  L16C96:                     ; SODOM
+000E06B6  610E                      84      BSR.B SHARED_1
+000E06B8  4EF9 00016C86             85      JMP $16C86      
+000E06BE                            86  L16CBE:                     ; SODOM
+000E06BE  6106                      87      BSR.B SHARED_1
+000E06C0  4EF9 00016CAE             88      JMP $16CAE      
+000E06C6                            89  SHARED_1:
+000E06C6  0C28 0004 0012            90      CMP.B #04,($12,A0)      ; CHECK IF BOSS CHARACTER
+000E06CC  6616                      91      BNE.B .ORIGINAL  
+000E06CE  1C28 0013                 92      MOVE.B ($13,A0),D6      
+000E06D2  BC2D 00BE                 93      CMP.B ($BE,A5),D6       ; CHECK IF SAME BOSS AREA
+000E06D6  670C                      94      BEQ.B .ORIGINAL         
+000E06D8  3C1A                      95      MOVE.W  (A2)+, D6
+000E06DA  0206 00E0                 96      ANDI.B #$E0,D6
+000E06DE  8C28 0015                 97      OR.B ($15,A0),D6
+000E06E2  6002                      98      BRA.B .EXIT
+000E06E4                            99  .ORIGINAL
+000E06E4  3C1A                     100      MOVE.W  (A2)+, D6
+000E06E6                           101  .EXIT        
+000E06E6  2452                     102      MOVEA.L  (A2),A2        
+000E06E8  4E75                     103      RTS
+000E06EA                           104  * Put variables and constants here
+000E06EA                           105  
+000E06EA                           106      END    START        ; last line of source
+```
+
+Then we program the jump as follow:
+
+```
+016904  jsr     $e0600.l                                    4EB9 000E 0600
+01690A  nop                                                 4E71
+
+016AA2  jsr     $e0664.l                                    4EB9 000E 0664
+
+016B40  jsr     $e063e.l                                    4EB9 000E 063E
+
+016C96  jmp     $e06b6.l                                    4EF9 000E 06B6
+
+016CBE  jmp     $e06be.l                                    4EF9 000E 06BE
+
+016D18  jsr     $e0690.l                                    4EB9 000E 0690
+
+016D44  jsr     $e0690.l                                    4EB9 000E 0690
+```
+
+In addition to the 0x16904 routine, we had also to change other routines called specifically for Damnd, Sodom, etc.
+
+After loading sodom and palette hack, we can now enjoy Sodom annoying us at Slum with his correct set of colours:
+
+<img width="384" height="224" alt="0049" src="https://github.com/user-attachments/assets/2061af45-b4ff-4c8c-803d-3120dab9f72b" />
 
 <a id="a-howtohack"></a>
 ## Load ROM modifications with MAME
