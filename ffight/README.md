@@ -1622,9 +1622,9 @@ If we look back at address 0x0A of CPS-A register, we can see the value of 0x914
 we get 0x914000 address, which is where all set of OBJ palette are stored; notice that the values can be programmatically changed. <br>
 
 The CPS-1 colour is a 16 bit entry composed by RGB values (each of 4 bit) and 4 bit (the MSB) dedicated to the brightness, therefore a total of 65536 available value.<br> 
-Every palette set is composed by 32 colours.<br>
+Every palette set is composed by 32 (0x20) colour entries.<br>
 
-Now we display the content of the first 3 palette entries at first stage (Slum):
+Let's have a practical example by showing the first 3 palette entries while playing the game:
 
 ```
 914000   F111  FEDB  FECA  FCA8  FA86  F865  F630  FEA0   ñ.þÛþÊü¨ú.øeö0þ 
@@ -1637,7 +1637,9 @@ Now we display the content of the first 3 palette entries at first stage (Slum):
 
 The above are the palette set dedicated for Guy (914000-914020), Cody (914020-914040) and Haggar (914040-914060).<br>
 
-We can have some fun, for instance, by switching **red** and **blue** values of Guy's palette and achieving this:
+Notice that, despite on shape mode it is possible to set a specific palette ID for each tile, and a graphic object is typically formed by more tiles, luckily - at least for Final Fight - basically all characters use only one palette (there are just a few exceptions like Sodom handling swords on his hands)
+
+Now we can have some fun; we could, for instance, switch **red** and **blue** values of Guy's palette so we achieve this result:
 
 ```
 914000   F111  FEDB  FECA  FCA8  FA86  F865  F036  F0AE   ñ.þÛþÊü¨ú.øeð6ð®
@@ -1646,14 +1648,14 @@ We can have some fun, for instance, by switching **red** and **blue** values of 
 
 <img width="384" height="224" alt="0004" src="https://github.com/user-attachments/assets/078ad4e4-b514-453f-b271-4147968722b4" />
 
-Now that we better understand how CPS-1 palette works, we can back to OBJ base address 0x910000, and see what happen when any boss is displaying on the screen:<br>
-We'll notice that basically all tiles (or almost all) of them point to palette 0x1F (remember that palette ID is composed by 4 bits so, if you see values like 0x3F, it's because the tile is using the flip-x attribute so you have to AND it by #$1F to actually obtain the palette id value).<br>
+Now that we better understand how CPS-1 palette works, we can back to OBJ base address 0x910000, and see what happen when a boss character display on the screen:<br>
+We'll notice that basically all tiles (or almost all of them, as early said) point to palette 0x1F.<br> 
 
-Final Fight renew the palette set on every area clear by loading the new content from a specific ROM address.<br>
+Remember that palette ID is composed by 5 bits so, if you see values like 0x3F, it's because the tile is using the flip-x attribute; you have to ANDize it by #$1F to actually obtain the palette id value.<br>
 
-There is also a routine that is called everytime the scene fade out and in, and it is located at address **0x0027B8**.<br>
+Final Fight usually reload the palette set when entering a new area level with loading the new content from a specific ROM address.<br>
 
-By the way, the routine that get the palette for the area is the following:
+The routine that load the palette for the area is the following:
 
 ```
 06451A  moveq   #$0, D0                                     7000
@@ -1673,15 +1675,17 @@ By the way, the routine that get the palette for the area is the following:
 0646A0  rts                                                 4E75
 ```
 
-The vector base address for palette contains the following values:
+So we can easily guess that by multiplying the area value (0xFF80BE, see also the table at [Area/Stage sequence chapter](#a-stageseq)) by 4 and adding 0x64536, we obtain the palette source address.<br>
 
+This is the content of vector base address:
+  
 ```
 064536   000C  0000  000C  0400  000C  0800  000C  0C00   ................
 064546   000C  1000  000C  1400  000C  1800  000C  1C00   ................
 064556   000C  2000  000C  2400  41F9  000C  2800  43F9   .. ...$.Aù..(.Cù
 ```
 
-So we can easily guess that by multiplying the area value (0xFF80BE, see also the table at [Area/Stage sequence chapter](#a-stageseq)) by 4 and adding 0x64536, we obtain the palette source address.
+There is also a routine called everytime the scene fade out and in, located at address **0x0027B8**.<br>
 
 <a id="a-paletteroutine"></a>
 ### Palette routine
@@ -1706,25 +1710,25 @@ This is the most often called routine, used to extract the palette id for each e
 
 By placing a breakpoint at 0x01692E we can obtain the OBJ dedicated palette ID by having a look at register A0 - which is pointing at object's memory placement, for example 0xFF8568 for player 1 - and register D6, which contains the palette ID value.<br>
 
-Notice that characters like some Andore variations contains a specific palette ID contained at OBJ memory's placement + 0x2F.<br>
+Notice that some characters (i.e. Andore variations starting from 2) have set a specific palette ID on OBJ memory's placement at offset + 0x2F.<br>
 
-Therefore, for such specific cases like this, program takes the palette ID value at O + 0x2F as good, and combine it (OR.W D3,D6) with the remaining attribues contained originally at register D6.
+Therefore, for such specific cases, program takes the palette ID value at O + 0x2F as good with combining it (OR.W D3,D6) with the remaining attributes originally set on register D6.
 
-The scene below show F.Andore, one member of the Andore's family which is expected to see later in the game and have a dedicated palette specifically loaded at West Side 2 area; by applying a specific hack on the game (we'll see later) we can now display colours correctly.
+The scene below show F.Andore, a character who has a dedicated palette specifically loaded at West Side 2 area; by applying an  hack I wrote that we'll see later, we can now display his colours correctly at any stage/area.
 
 <img width="384" height="224" alt="0044" src="https://github.com/user-attachments/assets/ef6b0a6d-6d3e-4fe9-a524-28d4719cd0fa" />
 
 <a id="a-bosspalette"></a>
 ### Boss fix
 
-In the previous palette dedicated chapters we read about the palette ID used for every boss, which is always 0x1F, and the palette routine located at address 0x016904.<br>
+On previous chapters we read about the palette ID 0x1F that is used for all bosses, and the palette routine located at address 0x016904.<br>
 
-So my idea for fixing the palette for the displaying boss is based to these thinking:
+My idea for fixing the wrong palette boss issue is based to these actions:
 
 1. Check if the boss is on it's dedicated area (i.e. Damnd's area is Slum, Sodom has the Subway)
-2. If not, load the palette from his specific address. For example, Damnd's palette is at 0XC0000 + (0x1F * 0x20) = 0XC03E0
-3. Use the byte value dedicated for the initial pose, which is actually unused for the bosses, as the palette ID to use. The palette loaded at point 2 will be so stored at location 0x914000 + (paletteID * 0x20)
-4. Hack all the palette dedicated routines in order to change the original value 0x1F with our choosed one
+2. If not, load the palette from his specific address. For example, Damnd's palette is at 0XC0000 + (0x1F * 0x20) = 0XC03E0. Otherwise, do nothing and let us the default palette I'd 0x1F.
+3. Use the byte value dedicated for the initial pose, which is actually unused for  boss character, as the palette ID to use in place of 0x1F. The palette loaded at point 2 will be so stored at location 0x914000 + (paletteID * 0x20)
+4. Hack all the palette dedicated routines in order to change the original value 0x1F with our choose. We have obviously to take care of not choosing a palette used by other OBJs in the stage, otherwise we'll screw up everything :)
 
 Here is the hack snippet code for Sodom:
 
@@ -1746,7 +1750,7 @@ Here is the hack snippet code for Sodom:
     MOVEM.L (SP)+,D0-D1/A0-A1
 ```
 
-Notice the _MOVE.B ($15,A6),D1_ instruction take the initial pose value O + 15 and use it with the base address 0x914000 to reload the palette.
+Notice the _MOVE.B ($15,A6),D1_ instruction take the initial pose value at O + 15 and use it in combination with the base address 0x914000 to reload the palette.
 
 Here is the complete hack script for the palette routines
 
