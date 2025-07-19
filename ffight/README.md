@@ -1500,8 +1500,8 @@ We need to modify these routines as written below:
 <a id="a-palette"></a>
 ## Palette
 
-If you've come this far with reading, you may have noticed that bosses were tested on its own area.<br>
-The main reason behind that is simple, the hack scripts we have seen in the chapters above cover some modification on the character behaviour in order to work on many scenarios as possible, but if you place, for instance, Sodom on the slum stage you'll see something like this:
+If you've come this far with reading, you may have noticed that bosses were tested on their own area.<br>
+The main reason behind that is simple, the hack scripts we have seen in the chapters above cover some modification on the character behaviour in order to work on many scenarios as possible, but if you place, for instance, Sodom on the slum stage you'll see that colors are pretty messed up:
 
 <img width="384" height="224" alt="0619" src="https://github.com/user-attachments/assets/4e8e370a-c52d-42a0-a91f-16efad81d116" />
 
