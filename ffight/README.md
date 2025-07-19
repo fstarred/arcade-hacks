@@ -1509,7 +1509,7 @@ The reason behind Sodom's wrong colours is pretty simple, the character is actua
 
 In order to understand how this is possible, let's do a bit of explanation about CPS-1 graphics:<br>
 
-GFXRAM range is at address 0x900000-0x92FFFF (192 KiB).<br>
+GFXRAM range is between address 0x900000-0x92FFFF (192 KiB).<br>
 
 This is the CPS-A register list:<br>
 
@@ -1550,7 +1550,7 @@ By taking a look at a CPS-A register on Final Fight, we have this:
 30   0000  0000  0000  0000  0000  0000  0000  0000   ................
 ```
 
-The above register values must be converted to 24 bit address, so for instance if we shift 0x9000 by 8 we get 0x900000<br>
+The above register values must be converted to 24 bit address, so for instance if we shift 0x9000 by 8 we get 0x900000.<br>
 
 This means that, in order to draw OBJ kind objects to the screen, we want to write values in memory between 0x900000 and 0x908000.<br>
 
@@ -1608,12 +1608,18 @@ aaaa = attribute word
 0 b11110000_00000000 Y sprite size ( in tiles )
 ```
 
-From the above layout we notice the palette ID that is included in the attribute WORD, wich takes the last 5 bits.<br>
+We now realize that a single OBJ entry is formed by 8 bytes, like this: 
 
-Therefore, we understand that range value is between 0x00 and 0x1F; indeed each graphic layer can dispose of 32 palette.<br>
+```
+900000   008F  00B4  0268  0000
+```
 
-Said so, if we look back at address 0x0A of CPS-A register, we can see the value of 0x9140; by shifting again the value by << 8, 
-we get 0x914000 address, which is where OBJ palette are stored; notice that the values can be programmatically changed <br>
+From the OBJ entry layout we notice the palette ID is included in the last 5 bits of attribute WORD, and in the case above equals ID 0.<br>
+
+Each graphic layer can dispose of 32 palette, so possibile values are within 0x00 and 0x1F.<br>
+
+If we look back at address 0x0A of CPS-A register, we can see the value of 0x9140; by shifting again the value by << 8, 
+we get 0x914000 address, which is where all set of OBJ palette are stored; notice that the values can be programmatically changed. <br>
 
 The CPS-1 colour is a 16 bit entry composed by RGB values (each of 4 bit) and 4 bit (the MSB) dedicated to the brightness, therefore a total of 65536 available value.<br> 
 Every palette set is composed by 32 colours.<br>
