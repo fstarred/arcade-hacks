@@ -31,8 +31,10 @@
    5. [Abigail](#a-abigail)
    6. [Belger](#a-belger)
 9. [Palette](#a-palette)
-   1. [Palette routine](#a-paletteroutine)
-   2. [Boss Fix](#a-bosspalette)
+   1. [Coulours](#a-colours)
+   2. [Palette ID routine](#a-paletteidroutine)
+   3. [Boss Fix](#a-bosspalette)
+   4. [Andore Fix](#a-andorefix)
 10. [Load ROM modification with MAME](#a-howtohack)      
 
 
@@ -1536,7 +1538,7 @@ Video Control 		0x22 flip screen, rowscroll enable
 
 OBJ are basically the graphics that stands in front of the other layers, such as enemies, main characters or breakable objects; OBJ are composed of tiles.<br>
 
-These objcets can be displayed in Sprite/Shape mode:<br>
+These objects can be displayed in Sprite/Shape mode:<br>
 While the first one requires less instructions to draw, it is often inefficient in terms of memory, so the latter mode was mostly used on CPS1.<br>
 
 On Shape mode every tile needs to be specified, so it allows the graphics to be more dynamic in terms of space and palette.
@@ -1621,8 +1623,17 @@ Each graphic layer can dispose of 32 palette, so possibile values are within 0x0
 If we look back at address 0x0A of CPS-A register, we can see the value of 0x9140; by shifting again the value by << 8, 
 we get 0x914000 address, which is where all set of OBJ palette are stored; notice that the values can be programmatically changed. <br>
 
+<a id="a-colours"></a>
+### Colours
+
 The CPS-1 colour is a 16 bit entry composed by RGB values (each of 4 bit) and 4 bit (the MSB) dedicated to the brightness, therefore a total of 65536 available value.<br> 
 Every palette set is composed by 32 (0x20) colour entries.<br>
+
+
+| Brightness | Red  | Green | Blue |
+| ---------- | ---- | ----- | ---- |
+|    1111    | 1111 | 1111  | 1111 |
+|    0x0F    | 0x0F | 0x0F  | 0x0F |
 
 Let's have a practical example by showing the first 3 palette entries while playing the game:
 
@@ -1687,8 +1698,8 @@ This is the content of vector base address:
 
 There is also a routine called everytime the scene fade out and in, located at address **0x0027B8**.<br>
 
-<a id="a-paletteroutine"></a>
-### Palette routine
+<a id="a-paletteidroutine"></a>
+### Palette ID extract routine
 
 This is the most often called routine, used to extract the palette id for each engaged OBJ-kind object:
 
@@ -1727,8 +1738,8 @@ My idea for fixing the wrong palette boss issue is based to these actions:
 
 1. Check if the boss is on it's dedicated area (i.e. Damnd's area is Slum, Sodom has the Subway)
 2. If not, load the palette from his specific address. For example, Damnd's palette is at 0XC0000 + (0x1F * 0x20) = 0XC03E0. Otherwise, do nothing and let us the default palette I'd 0x1F.
-3. Use the byte value dedicated for the initial pose, which is actually unused for  boss character, as the palette ID to use in place of 0x1F. The palette loaded at point 2 will be so stored at location 0x914000 + (paletteID * 0x20)
-4. Hack all the palette dedicated routines in order to change the original value 0x1F with our choose. We have obviously to take care of not choosing a palette used by other OBJs in the stage, otherwise we'll screw up everything :)
+3. We use the byte value dedicated for the initial pose, which is actually unused for  boss character, as the palette ID to use in place of 0x1F. The palette loaded at point 2 will be so stored at location 0x914000 + (paletteID * 0x20); we have obviously to take care of not choosing a palette used by other OBJs in the stage, otherwise we'll screw up everything :)
+4. Hack the OBJ palette ID extraction routines in order to change the original value 0x1F with ours. 
 
 Here is the hack snippet code for Sodom:
 
@@ -1773,7 +1784,7 @@ Here is the complete hack script for the palette routines
 000E0620  0C06 001F                 22      CMPI.B #$1F,D6          
 000E0624  660E                      23      BNE.B .ORIGINAL         ; IF VAL AND $1F != $1F EXEC ORIGINAL AND EXIT
 000E0626  3C29 000A                 24      MOVE.W ($A,A1),D6       
-000E062A                            25  .TRANSTO1D:    
+000E062A                            25  .GET_CUSTOM:    
 000E062A  0206 00E0                 26      ANDI.B #$E0,D6          ; KEEP ALL ATTRIBUTES BUT PALETTE
 000E062E  8C28 0015                 27      OR.B ($15,A0),D6
 000E0632  6004                      28      BRA.B .EXIT
@@ -1878,9 +1889,21 @@ Then we program the jump as follow:
 
 In addition to the 0x16904 routine, we had also to change other routines called specifically for Damnd, Sodom, etc.
 
+Time to modify the Slum 1 stage map in order to place Sodom and use the palette ID 0x1D.
+
+```
+   06D02C   0070  0210  0040  0401  001D  0000  5000   .p...@......P.
+```
+
+we can safely use the palette ID 0x1D/0x1E, as are not used, at least for this stage.
+
 After loading sodom and palette hack, we can now enjoy Sodom annoying us at Slum with his correct set of colours:
 
 <img width="384" height="224" alt="0049" src="https://github.com/user-attachments/assets/2061af45-b4ff-4c8c-803d-3120dab9f72b" />
+
+<a id="a-andorefix"></a>
+### Andore fix
+
 
 <a id="a-howtohack"></a>
 ## Load ROM modifications with MAME
