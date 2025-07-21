@@ -1904,6 +1904,101 @@ After loading sodom and palette hack, we can now enjoy Sodom annoying us at Slum
 <a id="a-andorefix"></a>
 ### Andore fix
 
+Andore's characters consists of such five variations; last 3 of them get their palette ID from the character's memory O + 0x2F.
+
+```
+02 03 02 = g.andore - palette ID 0x12
+02 03 03 = u.andore - palette ID 0x13
+02 03 04 = f.andore - palette ID 0x14
+```
+
+These palette IDs are normally used for G.Oriber and his variations (i.e. Bill Bull, Wong Who).<br>
+
+The only scene when this palette needs to be reloaded for the Andore's is West Side, the twin stage.<br>
+On that situation, as the stage initialize, the 3 palette's content refresh their content getting the required 96 bytes (0x60) from source location 0xE568.<br>
+
+Therefore, in order to display the correct colours for Andore also on the other stages, we need to refresh the palette as well.<br>
+
+Since the initial pose byte is used this time, I chose to use a different approach and take advantage of the O + 0x2F byte, already used for the extraction of the palette ID at routine 0x016904 (we already talk about that on the chapters above) and set it with my choosen palette.<br>
+
+The only issue is that we actually don't have a spare byte available either on stage and enemy data mapping, as all of them are used.<br>
+
+After some investigations I decided to use the byte that is used at character's memory offset + 0x62.<br>
+
+It is not clear to me what's the purpose of this byte, by the way it seems everything works fine, more or less.<br>
+
+So the steps for the Andore's palette hack are basically these:
+
+1. When initializing the character, check if is actually Andore
+2. Check if this Andore's variation have at least code >= 2
+3. Load the palette from location E568 + (0x20 * variation code) to our specified palette ID
+4. Set our palette ID to character's memory O + 0x2F.
+
+The palette ID extraction routine will take care of that value and do the rest automatically.<br>
+
+The hack script is the following:
+
+```
+000E0700                             9  START:    
+000E0700                            10  L2CCB4:
+000E0700  0C6E 0203 0012            11      CMPI.W #$0203,($12,A6)
+000E0706  6644                      12      BNE.B .ORIGINAL
+000E0708  0C2E 0002 0014            13      CMPI.B #$02,($14,A6)
+000E070E  653C                      14      BCS.B .ORIGINAL
+000E0710  0C2E 0001 0062            15      CMPI.B #$01,($62,A6)
+000E0716  6F34                      16      BLE.B .ORIGINAL
+000E0718                            17  .LOAD_PALETTE:
+000E0718  48E7 C0C0                 18      MOVEM.L D0-D1/A0-A1,-(SP)
+000E071C  7007                      19      MOVEQ #8-1,D0    
+000E071E  7200                      20      MOVEQ #0,D1
+000E0720  122E 0014                 21      MOVE.B ($14,A6),D1              ; GET ANDORE VARIATION (2-4)
+000E0724  5501                      22      SUBQ.B #2,D1                    ; 0-INDEX STARTS FROM 2
+000E0726  EB49                      23      LSL #5,D1
+000E0728  41F9 0000E568             24      LEA $E568,A0                        
+000E072E  41F0 1000                 25      LEA (A0,D1.W),A0                ; $E568(ANDORE PALETTE) + ($XX*$20)
+000E0732  122E 0062                 26      MOVE.B ($62,A6),D1              ; GET PALETTE ID ($00-$1F)
+000E0736  EB49                      27      LSL #5,D1
+000E0738  43F9 00914000             28      LEA $914000,A1                  
+000E073E  43F1 1000                 29      LEA (A1,D1.W),A1                ; $914000 (PALETTE REGISTER) + ($XX*$20)    
+000E0742                            30  .LOOPCOL:
+000E0742  22D8                      31      MOVE.L (A0)+,(A1)+
+000E0744  51C8 FFFC                 32      DBF D0,.LOOPCOL    
+000E0748  4CDF 0303                 33      MOVEM.L (SP)+,D0-D1/A0-A1
+000E074C                            34  .ORIGINAL    
+000E074C  197C 001F 0013            35      MOVE.B  #$1F, ($13,A4)    
+000E0752  4E75                      36      RTS
+000E0754                            37  L2CCFA:
+000E0754  0C6E 0203 0012            38      CMPI.W #$0203,($12,A6)
+000E075A  6618                      39      BNE.B .ORIGINAL
+000E075C  0C2E 0002 0014            40      CMPI.B #$02,($14,A6)
+000E0762  6510                      41      BCS.B .ORIGINAL
+000E0764  0C2E 0001 0062            42      CMPI.B #$01,($62,A6)
+000E076A  6F08                      43      BLE.B .ORIGINAL
+000E076C  1D6E 0062 002F            44      MOVE.B ($62,A6),($2F,A6)
+000E0772  5C97                      45      ADDQ.L #6,(SP)                  ; FORCE SKIP NEXT 6-BYTE INSTRUCTION
+000E0774                            46  .ORIGINAL
+000E0774  7000                      47      MOVEQ #0,D0
+000E0776  102E 0014                 48      MOVE.B ($14,A6),D0
+000E077A  4E75                      49      RTS
+000E077C                            50  * Put variables and constants here
+000E077C                            51  
+000E077C                            52      END    START
+```
+
+And the below code is for the routine jumps:
+
+```
+ 02CCB4  jsr     $e0700.l                                    4EB9 000E 0700
+
+ 02CCFA  jsr     $e0754.l                                    4EB9 000E 0754
+```
+
+These are the results before and after:
+
+| Before | After |
+| ------ | ----- |
+| <img width="384" height="224" alt="0053" src="https://github.com/user-attachments/assets/bbd8cf96-abad-447d-9dde-c4f26ecb024e" /> | <img width="384" height="224" alt="0054" src="https://github.com/user-attachments/assets/4cf2996a-7e98-4aca-8bdd-e3fbbc308611" /> |
+
 
 <a id="a-howtohack"></a>
 ## Load ROM modifications with MAME
