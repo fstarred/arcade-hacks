@@ -38,6 +38,7 @@
    5. [Boss Fix](#a-bosspalette)
    6. [Andore Fix](#a-andorefix)
    7. [Palette restore](#a-palrestore)
+   8. [Palette OBJ list](#a-palettelist)
 11. [Load ROM modification with MAME](#a-howtohack)      
 
 
@@ -2053,6 +2054,107 @@ and so the programmed jump:
 ```
  004E86  jsr     $e0800.l                                    4EB9 000E 0800
 ```
+
+<a id="a-palettelist"></a>
+### Palette OBJ list
+
+#### Characters
+
+```
+00 00 00 Guy					0x00
+00 00 01 Cody					0x01
+00 00 02 Haggar					0x02
+
+02 00 00 = bred					0x0E
+02 00 01 = doug					0x10
+02 00 02 = jake					0x1A
+02 00 03 = simons				0x1B
+02 01 00 = j					0x16
+02 01 01 = two.p				0x15
+02 02 00 = axl					0x17
+02 02 01 = slash				0x18
+02 03 00 = andore jr.				0x0C
+02 03 01 = andore				0x0D
+02 03 02 = g.andore				0x12
+02 03 03 = u.andore				0x13
+02 03 04 = f.andore				0x14
+02 04 00 = g. oriber				0x12
+02 04 01 = bill bull				0x14
+02 04 02 = wong who				0x13
+02 05 00 = holly wood				0x09
+02 05 01 = el gado				0x08
+02 06 00 = roxy					0x0A
+02 06 01 = poison				0x0B
+02 08 00 = holly wood (red)			0x09
+```
+
+#### On ground objects
+
+```
+0x120000 = barbecue				0x04
+0x120001 = steak				0x04
+0x120002 = chicken				0x04
+0x120003 = hamburger				0x04
+0x120004 = hot dog				0x04
+0x120005 = pizza				0x04
+0x120006 = curry				0x04
+0x120007 = sushi				0x04
+0x120008 = banana				0x04
+0x120009 = pineapple				0x04
+0x12000A = apple				0x05
+0x12000B = orange				0x04
+0x12000C = grape				0x04
+0x12000D = soft drink				0x05
+0x12000E = soft drink				0x06
+0x12000F = beer					0x04
+0x120010 = beer					0x06
+0x120011 = whisky				0x06
+0x120012 = beer					0x04
+0x120013 = gum					0x04
+0x120014 = diamond				0x05
+0x120015 = gold bar				0x06
+0x120016 = ruby					0x06
+0x120017 = emerdald				0x04
+0x120018 = pearl				0x05
+0x120019 = topaz				0x04
+0x12001A = necklace				0x06
+0x12001B = watch				0x06
+0x12001C = dollar				0x06
+0x12001D = yen					0x06
+0x12001E = yen					0x06
+0x12001F = radio				0x04
+0x120020 = napkin				0x04
+0x120021 = hat					0x06
+0x120022 = hammer				0x06
+```
+
+#### Weapons
+
+```
+0x060000 = knife				0x03
+0x060100 = murasama				0x03
+0x060200 = pipe					0x06
+```
+
+#### Breakable objects
+
+```
+0x0A01 = drumcan				0x1E
+0x0A02 = chandelier				0x03
+0x0A03 = billboard				0x0C
+0x0A04 = freight				0x0C
+0x0A05 = dustbin				0x0C
+0x0A06 = barrel					0x14
+0x0A07 = tire					0x14
+0x0A08 = tel.booth				0x0F
+0x0A09 = glass					0x1E
+0x0A0A = rolling drumcan			0x1E
+0x0A0F = grenade				0x14
+0x0A10 = expanding flame			0x1C
+0x0A11 = flame					0x1C
+0x0A12 = wheelchair				0x1F
+```
+
 
 <a id="a-howtohack"></a>
 ## Load ROM modifications with MAME
