@@ -1549,14 +1549,14 @@ We now realize that a single OBJ entry is formed by 8 bytes, like this:
 008F  00B4  0268  0000
 ```
 
-and that palette id information is included in the last 5 bites of the attribute word, which is on the last 2 bytes of a OBJ tile entry.
+we also know the palette id information is included in the last 5 bites of the attribute word, which are the OBJ's tile entry last 2 bytes.
 
 <a id="a-gfxram"></a>
 ### GFX RAM
 
-GFXRAM range is between address 0x900000-0x92FFFF (192 KiB); in order to draw objects on the screen we have to write data there.
+GFX RAM range is between address 0x900000-0x92FFFF (192 KiB); in order to draw objects on the screen we have to write data here.
 
-This is the CPS-A register list:<br>
+In order to understand where exactly the data is poked for the different layers, let's take a look to the CPS-A register list:<br>
 
 ```
 OBJ base 		0x00 OBJ GFXRAM absolute address
@@ -1580,7 +1580,7 @@ Video Control 		0x22 flip screen, rowscroll enable
 ```
 
 
-By taking a look at a CPS-A register on Final Fight, we have this:
+On Final Fight we have a situation like this (consider some registers may vary during the gameplay):
 
 ```
 00   9000  9080  90C0  9100  9100  9140  0000  0000   .....À.....@....
@@ -1589,7 +1589,7 @@ By taking a look at a CPS-A register on Final Fight, we have this:
 30   0000  0000  0000  0000  0000  0000  0000  0000   ................
 ```
 
-The above register values must be converted to 24 bit address, so for instance if we shift 0x9000 by 8 we get 0x900000.<br>
+The above register values have to be converted as 24 bit address; by shifting the first value 0x9000 by 8 we obtain 0x900000.<br>
 
 This means that, in order to draw OBJ kind objects to the screen, we want to write values in memory between 0x900000 and 0x908000.<br>
 
@@ -1685,7 +1685,7 @@ Remember that palette ID is composed by 5 bits so, if you see values like 0x3F, 
 
 Final Fight usually reload the palette set when entering a new area level with loading the new content from a specific ROM address.<br>
 
-The routine that load the palette for the area is the following:
+The routine that refresh the palette according to the area is the following:
 
 ```
 06451A  moveq   #$0, D0                                     7000
@@ -2011,7 +2011,13 @@ And the below code is for the routine jumps:
  02CCFA  jsr     $e0754.l                                    4EB9 000E 0754
 ```
 
-These are the results before and after:
+Finally, we add G. Andore as first enemy of Slum 1 and we assign palette ID 0x1D:
+
+```
+   06D02C   0070  0210  0040  0203  0202  001D  0000   .p...@........
+```
+
+These are the results before and after the Andore hack:
 
 | Before | After |
 | ------ | ----- |
@@ -2020,9 +2026,9 @@ These are the results before and after:
 <a id="a-palrestore"></a>
 ### Palette restore
 
-By using these tricks, needod for displaying a correct palette of the displayed characters, we probably dirty some palette IDs that could be later used on later stages.<br>
+When using these palette-hack scripts, we eventually dirty some palette IDs that might be later used for later stages.<br>
 
-For example, let's say I add Edi.E on Slum 1 and we assign palette ID 0x1F, because we know that palette ID is used only by Damnd on Slum 3. <br>
+As a practical example, let's say I add Edi.E on Slum 1 and we assign palette ID 0x1F, because we know that palette ID is used only by Damnd on Slum 3. <br>
 
 Since palette is normally realoaded on each new Area, we'd eventually use the Edi.E palette on Damnd, and this is not good.<br>
 
