@@ -1679,6 +1679,18 @@ Now we can have some fun; we could, for instance, switch **red** and **blue** va
 
 <img width="384" height="224" alt="0004" src="https://github.com/user-attachments/assets/078ad4e4-b514-453f-b271-4147968722b4" />
 
+
+At this point, we could improve things by modify the palette also on the character select scene
+
+```
+914800   F111  FFD9  FFB8  FE97  FD86  FC75  FA63  F852   ñ.ÿÙÿ¸þ.ý.üuúcøR
+914810   F447  F036  F025  FDDD  F05F  F03C  F00A  F000   ôGð6ð%ýÝð_ð<ð.ð.
+```
+
+
+<img width="384" height="224" alt="0374" src="https://github.com/user-attachments/assets/dcf3ccf4-fc87-4ad7-88f7-a9a499938fd8" />
+
+
 Now that we better understand how CPS-1 palette works, we can back to OBJ base address 0x910000, and see what happen when a boss character display on the screen:<br>
 We'll notice that basically all tiles (or almost all of them, as early said) point to palette **0x1F**.<br> 
 
