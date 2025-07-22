@@ -2029,5 +2029,8 @@ loadr palettemod.bin,16904,450,:maincpu
 
 loadr andore.bin,e0700,100,:maincpu
 loadr andoremod.bin,2CCB4,4c,:maincpu
+
+loadr palrestore.bin,E0800,10,:maincpu
+loadr palrestoremod.bin,4e86,6,:maincpu
 ```
 
