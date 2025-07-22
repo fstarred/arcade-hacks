@@ -1500,7 +1500,7 @@ We need to modify these routines as written below:
 ![Belger](https://github.com/user-attachments/assets/80641579-2f6a-4fb2-a65a-cceceee29e1d)
 
 <a id="a-palette"></a>
-## Palette
+## Graphics and palette
 
 If you've come this far with reading, you may have noticed that bosses were tested on their own area.<br>
 The main reason behind that is simple, the hack scripts we have seen in the chapters above cover some modification on the character behaviour in order to work on many scenarios as possible, but if you place, for instance, Sodom on the slum stage you'll see that colors are pretty messed up:
@@ -1509,9 +1509,49 @@ The main reason behind that is simple, the hack scripts we have seen in the chap
 
 The reason behind Sodom's wrong colours is pretty simple, the character is actually using Damnd's palette.
 
-In order to understand how this is possible, let's do a bit of explanation about CPS-1 graphics:<br>
+In order to understand how this is possible, let's do a bit of explanation about how CPS-1 OBJ sprites work.
 
-GFXRAM range is between address 0x900000-0x92FFFF (192 KiB).<br>
+<a id="a-tiles"></a>
+### OBJ and Tiles
+
+OBJ are basically the graphics that stands in front of the other layers, such as enemies, main characters or breakable objects.<br>
+All graphics data on CPS-1 is composed by tiles, and their size can vary according to the layer type: OBJ use 16x16 pixels. <br>
+
+OBJ can be displayed in Sprite/Shape mode:<br>
+While the first one requires less instructions to draw, it is often inefficient in terms of memory, so the latter mode was mostly used on CPS1.<br>
+
+On Shape mode every tile needs to be specified, so it allows the graphics to be more dynamic in terms of space and palette.
+
+Now we take a look at OBJ layout:
+
+```
+OBJ entry layout : xxxx yyyy nnnn aaaa
+xxxx = x position ( origin upper left )
+yyyy = y position ( origin upper left )
+nnnn = tile ID
+aaaa = attribute word
+
+// OBJ attribute WORD layout
+0 b00000000_00011111 Palette ID
+0 b00000000_00100000 X Flip
+0 b00000000_01000000 Y Flip
+0 b00000000_10000000 Unused
+0 b00001111_00000000 X sprite size ( in tiles )
+0 b11110000_00000000 Y sprite size ( in tiles )
+```
+
+We now realize that a single OBJ entry is formed by 8 bytes, like this: 
+
+```
+008F  00B4  0268  0000
+```
+
+and that palette id information is included in the last 5 bites of the attribute word, which is on the last 2 bytes of a OBJ tile entry.
+
+<a id="gfx"></a>
+### OBJ and Tiles
+
+GFXRAM range is between address 0x900000-0x92FFFF (192 KiB); in order to draw objects on the screen we have to write data there.
 
 This is the CPS-A register list:<br>
 
@@ -1536,12 +1576,6 @@ Rowscroll Offsets 	0x20 Offsets into Rowscroll base
 Video Control 		0x22 flip screen, rowscroll enable
 ```
 
-OBJ are basically the graphics that stands in front of the other layers, such as enemies, main characters or breakable objects; OBJ are composed of tiles.<br>
-
-These objects can be displayed in Sprite/Shape mode:<br>
-While the first one requires less instructions to draw, it is often inefficient in terms of memory, so the latter mode was mostly used on CPS1.<br>
-
-On Shape mode every tile needs to be specified, so it allows the graphics to be more dynamic in terms of space and palette.
 
 By taking a look at a CPS-A register on Final Fight, we have this:
 
@@ -1592,36 +1626,18 @@ The below data is a snapshot of OBJ base memory taken from Subway 4 (the Sodom s
 9001E0   0000  0000  0000  0000  0000  0000  0000  0000   ................
 ```
 
-To better understand the above values, let's take a look to the entry schema of OBJ:
-
-```
-OBJ entry layout : xxxx yyyy nnnn aaaa
-xxxx = x position ( origin upper left )
-yyyy = y position ( origin upper left )
-nnnn = tile ID
-aaaa = attribute word
-
-// OBJ attribute WORD layout
-0 b00000000_00011111 Palette ID
-0 b00000000_00100000 X Flip
-0 b00000000_01000000 Y Flip
-0 b00000000_10000000 Unused
-0 b00001111_00000000 X sprite size ( in tiles )
-0 b11110000_00000000 Y sprite size ( in tiles )
-```
-
-We now realize that a single OBJ entry is formed by 8 bytes, like this: 
+This is, for instance, a tile drawn on the screen:
 
 ```
 900000   008F  00B4  0268  0000
 ```
 
-From the OBJ entry layout we notice the palette ID is included in the last 5 bits of attribute WORD, and in the case above equals ID 0.<br>
+By comparing the OBJ entry layout with this data we notice the palette ID equals ID 0.<br>
 
-Each graphic layer can dispose of 32 palette, so possibile values are within 0x00 and 0x1F.<br>
+Each graphic layer can dispose of 32 palette, so possibile values are within **0x00** and **0x1F**.<br>
 
-If we look back at address 0x0A of CPS-A register, we can see the value of 0x9140; by shifting again the value by << 8, 
-we get 0x914000 address, which is where all set of OBJ palette are stored; notice that the values can be programmatically changed. <br>
+If we look back at address **0x0A** of **CPS-A register**, we can see the value of **0x9140**; by shifting again the value by << 8, 
+we get **0x914000** address, which is where all set of OBJ palette are stored; notice that the values can be programmatically changed. <br>
 
 <a id="a-colours"></a>
 ### Colours
@@ -1660,7 +1676,7 @@ Now we can have some fun; we could, for instance, switch **red** and **blue** va
 <img width="384" height="224" alt="0004" src="https://github.com/user-attachments/assets/078ad4e4-b514-453f-b271-4147968722b4" />
 
 Now that we better understand how CPS-1 palette works, we can back to OBJ base address 0x910000, and see what happen when a boss character display on the screen:<br>
-We'll notice that basically all tiles (or almost all of them, as early said) point to palette 0x1F.<br> 
+We'll notice that basically all tiles (or almost all of them, as early said) point to palette **0x1F**.<br> 
 
 Remember that palette ID is composed by 5 bits so, if you see values like 0x3F, it's because the tile is using the flip-x attribute; you have to ANDize it by #$1F to actually obtain the palette id value.<br>
 
@@ -1939,50 +1955,49 @@ The palette ID extraction routine will take care of that value and do the rest a
 The hack script is the following:
 
 ```
-000E0700                             9  START:    
-000E0700                            10  L2CCB4:
-000E0700  0C6E 0203 0012            11      CMPI.W #$0203,($12,A6)
-000E0706  6644                      12      BNE.B .ORIGINAL
-000E0708  0C2E 0002 0014            13      CMPI.B #$02,($14,A6)
-000E070E  653C                      14      BCS.B .ORIGINAL
-000E0710  0C2E 0001 0062            15      CMPI.B #$01,($62,A6)
-000E0716  6F34                      16      BLE.B .ORIGINAL
-000E0718                            17  .LOAD_PALETTE:
-000E0718  48E7 C0C0                 18      MOVEM.L D0-D1/A0-A1,-(SP)
-000E071C  7007                      19      MOVEQ #8-1,D0    
-000E071E  7200                      20      MOVEQ #0,D1
-000E0720  122E 0014                 21      MOVE.B ($14,A6),D1              ; GET ANDORE VARIATION (2-4)
-000E0724  5501                      22      SUBQ.B #2,D1                    ; 0-INDEX STARTS FROM 2
-000E0726  EB49                      23      LSL #5,D1
-000E0728  41F9 0000E568             24      LEA $E568,A0                        
-000E072E  41F0 1000                 25      LEA (A0,D1.W),A0                ; $E568(ANDORE PALETTE) + ($XX*$20)
-000E0732  122E 0062                 26      MOVE.B ($62,A6),D1              ; GET PALETTE ID ($00-$1F)
-000E0736  EB49                      27      LSL #5,D1
-000E0738  43F9 00914000             28      LEA $914000,A1                  
-000E073E  43F1 1000                 29      LEA (A1,D1.W),A1                ; $914000 (PALETTE REGISTER) + ($XX*$20)    
-000E0742                            30  .LOOPCOL:
-000E0742  22D8                      31      MOVE.L (A0)+,(A1)+
-000E0744  51C8 FFFC                 32      DBF D0,.LOOPCOL    
-000E0748  4CDF 0303                 33      MOVEM.L (SP)+,D0-D1/A0-A1
-000E074C                            34  .ORIGINAL    
-000E074C  197C 001F 0013            35      MOVE.B  #$1F, ($13,A4)    
-000E0752  4E75                      36      RTS
-000E0754                            37  L2CCFA:
-000E0754  0C6E 0203 0012            38      CMPI.W #$0203,($12,A6)
-000E075A  6618                      39      BNE.B .ORIGINAL
-000E075C  0C2E 0002 0014            40      CMPI.B #$02,($14,A6)
-000E0762  6510                      41      BCS.B .ORIGINAL
-000E0764  0C2E 0001 0062            42      CMPI.B #$01,($62,A6)
-000E076A  6F08                      43      BLE.B .ORIGINAL
-000E076C  1D6E 0062 002F            44      MOVE.B ($62,A6),($2F,A6)
-000E0772  5C97                      45      ADDQ.L #6,(SP)                  ; FORCE SKIP NEXT 6-BYTE INSTRUCTION
-000E0774                            46  .ORIGINAL
-000E0774  7000                      47      MOVEQ #0,D0
-000E0776  102E 0014                 48      MOVE.B ($14,A6),D0
-000E077A  4E75                      49      RTS
-000E077C                            50  * Put variables and constants here
-000E077C                            51  
-000E077C                            52      END    START
+    ORG    $E0700
+    
+START:    
+L2CCB4:
+    CMPI.W #$0203,($12,A6)
+    BNE.B .ORIGINAL
+    CMPI.B #$02,($14,A6)
+    BCS.B .ORIGINAL
+    CMPI.B #$01,($62,A6)
+    BLE.B .ORIGINAL
+.LOAD_PALETTE:
+    MOVEM.L D0-D1/A0-A1,-(SP)
+    MOVEQ #8-1,D0    
+    MOVEQ #0,D1
+    MOVE.B ($14,A6),D1              ; GET ANDORE VARIATION (2-4)
+    SUBQ.B #2,D1                    ; 0-INDEX STARTS FROM 2
+    LSL #5,D1
+    LEA $E568,A0                        
+    LEA (A0,D1.W),A0                ; $E568(ANDORE PALETTE) + ($XX*$20)
+    MOVE.B ($62,A6),D1              ; GET PALETTE ID ($00-$1F)
+    LSL #5,D1
+    LEA $914000,A1                  
+    LEA (A1,D1.W),A1                ; $914000 (PALETTE REGISTER) + ($XX*$20)    
+.LOOPCOL:
+    MOVE.L (A0)+,(A1)+
+    DBF D0,.LOOPCOL    
+    MOVEM.L (SP)+,D0-D1/A0-A1
+.ORIGINAL    
+    MOVE.B  #$1F, ($13,A4)    
+    RTS
+L2CCFA:
+    CMPI.W #$0203,($12,A6)
+    BNE.B .ORIGINAL
+    CMPI.B #$02,($14,A6)
+    BCS.B .ORIGINAL
+    CMPI.B #$01,($62,A6)
+    BLE.B .ORIGINAL
+    MOVE.B ($62,A6),($2F,A6)
+    ADDQ.L #6,(SP)                  ; FORCE SKIP NEXT 6-BYTE INSTRUCTION
+.ORIGINAL
+    MOVEQ #0,D0
+    MOVE.B ($14,A6),D0
+    RTS
 ```
 
 And the below code is for the routine jumps:
@@ -1999,6 +2014,36 @@ These are the results before and after:
 | ------ | ----- |
 | <img width="384" height="224" alt="0053" src="https://github.com/user-attachments/assets/bbd8cf96-abad-447d-9dde-c4f26ecb024e" /> | <img width="384" height="224" alt="0054" src="https://github.com/user-attachments/assets/4cf2996a-7e98-4aca-8bdd-e3fbbc308611" /> |
 
+<a id="a-palrestore"></a>
+### Palette restore
+
+By using these tricks, needod for displaying a correct palette of the displayed characters, we probably dirty some palette IDs that could be later used on later stages.<br>
+
+For example, let's say I add Edi.E on Slum 1 and we assign palette ID 0x1F, because we know that palette ID is used only by Damnd on Slum 3. <br>
+
+Since palette is normally realoaded on each new Area, we'd eventually use the Edi.E palette on Damnd, and this is not good.<br>
+
+In order to avoid this, I wanted to call the palette routine (0x6451A) on every stage clear, so we are safe to not mess up with colours.<br>
+
+The script is pretty short and simple:
+
+```
+000E0800                             7      ORG    $E0800
+000E0800                             8  START:                  ; first instruction of program
+000E0800                             9  
+000E0800                            10  * Put program code here
+000E0800                            11  
+000E0800                            12  L4E86:
+000E0800  3B7C 0004 0000            13      MOVE.W #$4,($0,A5)
+000E0806  4EB9 0006451A             14      JSR $6451A
+000E080C  4E75                      15      RTS
+```
+
+and so the programmed jump:
+
+```
+ 004E86  jsr     $e0800.l                                    4EB9 000E 0800
+```
 
 <a id="a-howtohack"></a>
 ## Load ROM modifications with MAME
