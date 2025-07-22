@@ -30,12 +30,15 @@
    4. [Rolento](#a-rolento)
    5. [Abigail](#a-abigail)
    6. [Belger](#a-belger)
-9. [Palette](#a-palette)
-   1. [Coulours](#a-colours)
-   2. [Palette ID routine](#a-paletteidroutine)
-   3. [Boss Fix](#a-bosspalette)
-   4. [Andore Fix](#a-andorefix)
-10. [Load ROM modification with MAME](#a-howtohack)      
+9. [Graphics and Palette](#a-palette)
+   1. [OBJ and Tiles](#a-tiles)
+   2. [GFX RAM](#a-gfxram)
+   3. [Colour layout](#a-colours)
+   4. [Palette ID extraction routine](#a-paletteidroutine)
+   5. [Boss Fix](#a-bosspalette)
+   6. [Andore Fix](#a-andorefix)
+   7. [Palette restore](#a-palrestore)
+11. [Load ROM modification with MAME](#a-howtohack)      
 
 
 ![Andore at start](https://github.com/user-attachments/assets/62648f7e-de08-4460-a915-520712c65192)
@@ -1548,8 +1551,8 @@ We now realize that a single OBJ entry is formed by 8 bytes, like this:
 
 and that palette id information is included in the last 5 bites of the attribute word, which is on the last 2 bytes of a OBJ tile entry.
 
-<a id="gfx"></a>
-### OBJ and Tiles
+<a id="a-gfxram"></a>
+### GFX RAM
 
 GFXRAM range is between address 0x900000-0x92FFFF (192 KiB); in order to draw objects on the screen we have to write data there.
 
@@ -1640,7 +1643,7 @@ If we look back at address **0x0A** of **CPS-A register**, we can see the value 
 we get **0x914000** address, which is where all set of OBJ palette are stored; notice that the values can be programmatically changed. <br>
 
 <a id="a-colours"></a>
-### Colours
+### Colour layout
 
 The CPS-1 colour is a 16 bit entry composed by RGB values (each of 4 bit) and 4 bit (the MSB) dedicated to the brightness, therefore a total of 65536 available value.<br> 
 Every palette set is composed by 32 (0x20) colour entries.<br>
@@ -1715,7 +1718,7 @@ This is the content of vector base address:
 There is also a routine called everytime the scene fade out and in, located at address **0x0027B8**.<br>
 
 <a id="a-paletteidroutine"></a>
-### Palette ID extract routine
+### Palette ID extraction routine
 
 This is the most often called routine, used to extract the palette id for each engaged OBJ-kind object:
 
