@@ -386,6 +386,7 @@ O + 0x00 = when 0xFF8412 == value then load into memory the enemy data:
 O + 0x00 = position x (word)
 O + 0x02 = position y (word)
 O + 0x04 = character / pose (double)
+O + 0x0E = character delay before spawning
 ...
 
 070596   03F0  1C20  0005  0000  0000  0007  05F4  0001  0001   .ð. .........
