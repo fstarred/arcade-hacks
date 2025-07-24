@@ -529,7 +529,7 @@ we'll switch the bonus area.<br>
 So we modify the area init instruction with:
 
 ```
-05C8BE  move.b  #0, ($be,A5)                           1B7C 0000 00BE
+05C8BE  move.b  #1, ($be,A5)                           1B7C 0001 00BE
 ```
 
 and then the content of the area sequence:
@@ -1544,7 +1544,7 @@ aaaa = attribute word
 0 b11110000_00000000 Y sprite size ( in tiles )
 ```
 
-We now realize that a single OBJ entry is formed by 8 bytes, like this: 
+We now realize that a single OBJ entry is composed by 8 bytes, like this: 
 
 ```
 008F  00B4  0268  0000
@@ -2052,9 +2052,6 @@ The script is pretty short and simple:
 ```
 000E0800                             7      ORG    $E0800
 000E0800                             8  START:                  ; first instruction of program
-000E0800                             9  
-000E0800                            10  * Put program code here
-000E0800                            11  
 000E0800                            12  L4E86:
 000E0800  3B7C 0004 0000            13      MOVE.W #$4,($0,A5)
 000E0806  4EB9 0006451A             14      JSR $6451A
