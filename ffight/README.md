@@ -381,12 +381,24 @@ For the ease of reading or usage, we can split each block by 0x0E bytes so that 
 
 Below's the enemy's map data of the first stage (slum 1)
 
+The first 0x12 bytes of the enemy map is the header part, while each entry take 0x10 bytes
+
 ```
-O + 0x00 = when 0xFF8412 == value then load into memory the enemy data:
+H = header
+E = entry
+
+H + 0x00 = when 0xFF8412 == value then enemies are engaged
+H + 0x02 = timer value. When it reaches 0, player can move forward
+H + 0x04 = number of enemies to beat in order to move forward
+H + 0x0A = pointer to next enemy map
+H + 0x0E = enemy delay before spawning
+
 O + 0x00 = position x (word)
 O + 0x02 = position y (word)
 O + 0x04 = character / pose (double)
-O + 0x0E = character delay before spawning
+O + 0x0C = enemy delay before spawning
+O + 0x0E = ? (can be 0 or !0)
+
 ...
 
 070596   03F0  1C20  0005  0000  0000  0007  05F4  0001  0001   .ð. .........
@@ -407,7 +419,7 @@ While the first offset takes 0x12 bytes to store general information, the other 
 | --------  | -------- | -------- |
 | SLUM 1    | 0x06D02C | 0x070596 |
 | SLUM 2    | 0x06D0CA | 0x0705FA |
-| SLUM 3    | 0x06D122 | 0x07064E |
+| SLUM 3    | 0x06D122 | 0x070650 |
 | SUBWAY 1  | 0x06D182 | 0x07071E |
 | SUBWAY 2  | 0x06D1F6 | 0x070792 |
 | SUBWAY 3  | 0x06D382 | 0x070866 |
