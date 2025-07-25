@@ -352,13 +352,13 @@ Information map enemy address is extracted by the following routine called on st
 Here's an example of the first stage map data (slum 1), located at address 0x06D02C:
 
 ```
-O + 0x00 = when 0xFF8412 == value, then load into memory
-O + 0x02 = position x (word)
-O + 0x04 = position y (word)
-O + 0x06 = character / object	(3 bytes for characters, 2 for objects)
-O + 0x08 = object inside (only for object)
-O + 0x09 = initial pose (only for character)
-O + 0x0D = if value == 1, enabled only with 2 players mode
+O + 0x00 (W) = when 0xFF8412 == value, then load into memory
+O + 0x02 (W) = position x
+O + 0x04 (W) = position y
+O + 0x06 (*) = character / object	(3 bytes for characters, 2 for objects)
+O + 0x08 (W) = object inside (only for object)
+O + 0x09 (B) = initial pose (only for character)
+O + 0x0D (B) = if value == 1, enabled only with 2 players mode
 
 06D02C   0070  0210  0040  0200  0002  0000  0000   .p...@........
 06D03A   0140  0228  00B8  080F  0000  0000  0000   .@.(.¸........
@@ -387,21 +387,22 @@ The first 0x12 bytes of the enemy map is the header part, while each entry take 
 H = header
 E = entry
 
-H + 0x00 = when 0xFF8412 == value then enemies are engaged
-H + 0x02 = timer value. When it reaches 0, player can move forward
-H + 0x04 = number of enemies to beat in order to move forward
-H + 0x0A = pointer to next enemy map
-H + 0x0E = enemy delay before spawning
-
-O + 0x00 = position x (word)
-O + 0x02 = position y (word)
-O + 0x04 = character / pose (double)
-O + 0x0C = enemy delay before spawning
-O + 0x0E = ? (can be 0 or !0)
+H + 0x00 (W) = when 0xFF8412 == value then enemies are engaged
+H + 0x02 (W) = timer value. When it reaches 0, player can move forward
+H + 0x04 (W) = number of enemies to beat in order to move forward
+H + 0x0A (D) = pointer to next enemy map
+H + 0x0E (W) = enemy delay before spawning
+--------------------------------------------------------------------------
+O + 0x00 (W) = position x (word)
+O + 0x02 (W) = position y (word)
+O + 0x04 (W) = character / pose (double)
+O + 0x0C (W) = enemy delay before spawning
+O + 0x0E (W) = ? (can be 0 or !0)
 
 ...
 
 070596   03F0  1C20  0005  0000  0000  0007  05F4  0001  0001   .ð. .........
+--------------------------------------------------------------------------
 0705A8   03D0  0034  0200  0100  0000  0000  001E  0001         .Ð.4............
 0705B8   03D0  0021  0200  0000  0000  0000  003C  0001         .Ð.!.........<..
 0705C8   03D0  0034  0205  0000  0000  0000  001E  0001         .Ð.4............
@@ -409,8 +410,6 @@ O + 0x0E = ? (can be 0 or !0)
 0705E8   03D0  0021  0201  0000  0000  0001  8004  7FFF         .Ð.!...........ÿ
 
 ```
-
-While the first offset takes 0x12 bytes to store general information, the other ones takes 0x10 bytes for storing enemy information
 
 <a id="a-stagemapref"></a>
 ### Stage table reference
