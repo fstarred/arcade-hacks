@@ -289,11 +289,11 @@ For the sake of convenience, we'll call in the following way:
 
 **Stage routine:**
 
-Scan from the vector address and load into memory mapped enemies and objects; enemies contained into this map are not blocking, so player can advance to next stage without killing them.
+Scan from the address table and load into memory mapped enemies and objects; enemies contained into this map are not blocking, so player can advance to next stage without killing them.
 
 **Enemy routine:**
 
-Scan from the vector address and load into memory mapped enemies. 
+Scan from the address table and load into memory mapped enemies. 
 
 In order to advance forward in the level or go for the next stage, you must beat all of these enemies.
 
@@ -1098,7 +1098,7 @@ The idea here is to address the dedicated stage's information to another spare R
 
 First off, if you want to refresh your mind about the below content, take a look at Stage routine chapter.
 
-Now, by placing a breakpoint at 0x614E and taking a look to the register A3, we'll first see the value 0x6308, which is the vector address for the first area; a long-word size after this and then we find the base vector of the 2nd area, which is 0x6D178.
+Now, by placing a breakpoint at 0x614E and taking a look to the register A3, we'll first see the value 0x6308, which is the address table for the first area; a long-word size after this and then we find the base address of the 2nd area, which is 0x6D178.
 By checking the content of 0x6D178, we see:
 
 ```
@@ -1717,7 +1717,7 @@ The routine that refresh the palette according to the area is the following:
 06451C  move.b  ($be,A5), D0                                102D 00BE		; get area value
 064520  add.w   D0, D0                                      D040
 064522  add.w   D0, D0                                      D040		; multiply area value by 4
-064524  lea     ($64536,PC), A0                             41FA 0010		; palette vector base address
+064524  lea     ($64536,PC), A0                             41FA 0010		; palette address table
 064528  movea.l (A0,D0.w), A0                               2070 0000
 06452C  lea     $914000.l, A1                               43F9 0091 4000
 064532  bra     $6468c                                      6000 0158
@@ -1732,13 +1732,27 @@ The routine that refresh the palette according to the area is the following:
 
 So we can easily guess that by multiplying the area value (0xFF80BE, see also the table at [Area/Stage sequence chapter](#a-stageseq)) by 4 and adding 0x64536, we obtain the palette source address.<br>
 
-This is the content of vector base address:
+This is the content of address table:
   
 ```
 064536   000C  0000  000C  0400  000C  0800  000C  0C00   ................
 064546   000C  1000  000C  1400  000C  1800  000C  1C00   ................
 064556   000C  2000  000C  2400  41F9  000C  2800  43F9   .. ...$.Aù..(.Cù
 ```
+
+Summarized with the following table:
+
+|    AREA   | ADDRESS |
+| --------- | ------- |
+|    SLUM   | 0xC0000 |
+|   SUBWAY  | 0xC0400 |
+|  B. CARS  | 0xC1800 |
+|  W. SIDE  | 0xC0800 |
+|  I. AREA  | 0xC0C00 |
+|  B. AREA  | 0xC1000 |
+|  B. GLASS | 0xC1C00 |
+|  UP TOWN  | 0xC1400 |
+
 
 There is also a routine called everytime the scene fade out and in, located at address **0x0027B8**.<br>
 
