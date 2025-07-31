@@ -393,9 +393,9 @@ H + 0x04 (W) = number of enemies to beat in order to move forward
 H + 0x0A (D) = pointer to next enemy map
 H + 0x0E (W) = enemy delay before spawning
 --------------------------------------------------------------------------
-O + 0x00 (W) = position x (word)
-O + 0x02 (W) = position y (word)
-O + 0x04 (W) = character / pose (double)
+O + 0x00 (W) = position x
+O + 0x02 (W) = position y
+O + 0x04 (D) = character and initial pose
 O + 0x0C (W) = enemy delay before spawning
 O + 0x0E (W) = ? (can be 0 or !0)
 
