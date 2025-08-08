@@ -67,6 +67,8 @@ O + 02 = animation
 O + 05 = pos x
 O + 07 = pos y
 O + 1F = energy
+O + 43 = pointer to data
+O + 4A = flag; if 0, then reload data
 ...
 ```
 
