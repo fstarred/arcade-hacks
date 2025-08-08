@@ -66,10 +66,24 @@ O + 01 = character
 O + 02 = animation
 O + 05 = pos x
 O + 07 = pos y
+O + 08 = weapon flag
 O + 1F = energy
-O + 43 = pointer to data
+O + 43 = address data pointer
 O + 4A = flag; if 0, then reload data
 ...
+```
+
+#### Weapon flag
+
+```
+00 = none
+01 = knife
+02 = bat
+03 = barrel
+04 = dynamite
+05 = box
+06 = rock
+07 = whip
 ```
 
 ### Characters
