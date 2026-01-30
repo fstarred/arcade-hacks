@@ -32,13 +32,13 @@ Team statistics are stored in a fixed-length table in **ROM Bank 1**. Each team 
 
 | Team | Offset (Bank 1) | Original Color |
 | :--- | :--- | :--- |
-| **Japan** | `0x140F0` | Blue (`00`) |
-| **W. Germany** | `0x14100` | White (`08`) |
-| **Brazil** | `0x14110` | Yellow (`10`) |
-| **Italy** | `0x14120` | Azure (`18`) |
-| **England** | `0x14130` | Red (`20`) |
-| **USA** | `0x14140` | White/Blue (`28`) |
-| **Argentina** | `0x14150` | Sky Blue (`38`) |
+| **Japan** | `0x140F0` | Red (`00`) |
+| **W. Germany** | `0x14100` | Grey (`08`) |
+| **Brazil** | `0x14110` | Green (`10`) |
+| **Italy** | `0x14120` | Yellow (`18`) |
+| **England** | `0x14130` | Blue (`20`) |
+| **USA** | `0x14140` | Azure (`28`) |
+| **Argentina** | `0x14150` | White (`38`) |
 
 
 
