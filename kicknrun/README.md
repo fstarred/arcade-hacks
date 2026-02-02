@@ -46,22 +46,20 @@ Team statistics are stored in a fixed-length table in **ROM Bank 1**. Each team 
 
 Each 16-byte block follows this schema:
 
-
-
 | Offset | Description | Analysis |
 | :--- | :--- | :--- |
 | `+01` | **Agility** | Lower values (e.g., `64`) yield faster rotation/handling. |
-| `+03` | **Acceleration** | Primary speed/accel constant. England is fastest (`0B`). |
+| `+02` | **Acceleration** | Primary speed/accel constant. England is fastest (`0B`). |
 | `+06` | **Kick Power (Low)** | Initial velocity for short passes. |
 | `+07` | **Shot Velocity** | Maximum ball speed for long shots. Brazil is max (`28`). |
-| `+0C` | **Palette Index** | Multiplied by 8 via `RLCA` x3 to find shirt color. |
+| `+0B` | **Palette Index** | Multiplied by 8 via `RLCA` x3 to find shirt color. |
 | `+0D` | **AI Aggression** | Defines Goalkeeper/Teammate response level. |
-
-
 
 ---
 
+Source bank is at address `0x80F1+0xC000` of `region:maincpu`.<br>
 
+Selected teams attributes values are copied at `0xE820` (1P) and `0xE830` (2P)
 
 ## 💻 Logic Reverse Engineering
 
