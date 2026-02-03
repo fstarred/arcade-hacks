@@ -100,7 +100,39 @@ The game uses the following assembly routine to calculate the palette offset for
 
 ```
 
-## Patch List: Bypassing Protection & Checksums
+### Palette attributes
+
+Palette information is stored on these 3 ROM files:
+
+| ROM | Color component |
+| :--- | :--- |
+|a87-10.g15 | **RED** |
+|a87-12.g12 | **GREEN** |
+|a87-11.g14 | **BLUE** |
+
+Japan palette attributes is stored starting from address `0000`, W. Germany from address `0x0010`, and so on.
+Argentine is stored at index bank `+38`, so starting from address `0x0070`
+
+Offset:
+
+```
++01 -> sock A
++02 -> sock B
++03 -> top-shirt A
++04 -> top-shirt B
++05 -> shoes A 
++06 -> shoes B
++07 -> hair Japan
++08 -> shorts A
++09 -> shorts B
++0A -> shirt A
++0B -> shirt B
++0C -> skin A
++0D -> skin B
++0E -> b.color
+```
+
+## 3. Patch List: Bypassing Protection & Checksums
 
 | Address | Original Hex | Patch Hex | Description |
 |:---|:---|:---|:---|
