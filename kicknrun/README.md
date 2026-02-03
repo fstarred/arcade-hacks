@@ -1,10 +1,9 @@
 # Kick and Run (Taito 1986) - Team Attributes & Palette Hack
 
-<img width="256" height="224" alt="0953" src="https://github.com/user-attachments/assets/6a4f9b1b-44e2-4dd8-8eca-ce05af511099" />
+<img width="1300" height="974" alt="Screenshot 2026-02-03 13-44-47" src="https://github.com/user-attachments/assets/93cb1319-dc24-49f7-8039-4c65529fd179" />
+
 
 Technical documentation for modifying team skills, physics, and color palettes in the arcade classic *Kick and Run* (also known as *Mexico 86*).
-
-
 
 ## 🛠 Hardware Overview
 
