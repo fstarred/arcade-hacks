@@ -136,7 +136,7 @@ Argentine is stored at index bank `+38`, so starting from address `0x0070`
 
 | Address | Original Hex | Patch Hex | Description |
 |:---|:---|:---|:---|
-| **07CC** | `21 00 00` | `21 00 00` | **Force Checksum:** Ensures HL is $0000 before validation. |
+| **07CC** | `22 7D E8` | `21 00 00` | **Force Checksum:** Ensures HL is $0000 before validation. |
 | **07D2** | `16` | `17` | **Break Checksum Loop:** Adjusts JR Z offset to skip the RET at 07E9. |
 | **0804** | `5E` | `C9` | **Global Summation Kill:** Forces an immediate RET from the ROM sum routine. |
 | **0815** | `3A 04 E4` | `C3 B1 08` | **MCU Comm Bypass:** Skips "BAD COM" handshake loop and jumps to $08B1. |
