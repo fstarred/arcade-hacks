@@ -113,24 +113,24 @@ Palette information is stored on these 3 ROM files:
 Japan palette attributes is stored starting from address `0000`, W. Germany from address `0x0010`, and so on.
 Argentine is stored at index bank `+38`, so starting from address `0x0070`
 
-Offset:
 
-```
-+01 -> sock A
-+02 -> sock B
-+03 -> top-shirt A
-+04 -> top-shirt B
-+05 -> shoes A 
-+06 -> shoes B
-+07 -> hair Japan
-+08 -> shorts A
-+09 -> shorts B
-+0A -> shirt A
-+0B -> shirt B
-+0C -> skin A
-+0D -> skin B
-+0E -> b.color
-```
+| Offset | Object |
+| :--- | :--- |
+| +01  | Sock A |
+| +02  | Sock B |
+| +03  | Shirt A |
+| +04  | Shirt B |
+| +05  | Shoes A |
+| +06  | Shoes B |
+| +07  | Hair    |
+| +08  | Shorts A |
+| +09  | Shorts B |
+| +0A  | Shirt A |
+| +0B  | Shirt B |
+| +0C  | Skin A |
+| +0D  | Skin B |
+| +0E  | Bg color |
+
 
 ## 3. Patch List: Bypassing Protection & Checksums
 
