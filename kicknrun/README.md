@@ -78,7 +78,10 @@ Selected teams attributes values are copied at `0xE820` (1P) and `0xE830` (2P)
 
 The current team selected is tracked in RAM at address **`$D975`**. During the boot sequence and team selection, this index is read and processed to load the correct attribute block.
 
-
+| Player | Address |
+| :--- | :--- | 
+| 1P | D975 | 
+| 2P | D976 | 
 
 ### 2. The Color Calculation (Z80)
 
