@@ -87,18 +87,52 @@ The game uses the following assembly routine to calculate the palette offset for
 ```asm
 
 862B: ld a, ($D975)  ; Load Team Index
-
-
-
 8634: rlca           ; Rotate Left (Value * 2)
-
 8635: rlca           ; Rotate Left (Value * 4)
-
 8636: rlca           ; Rotate Left (Value * 8)
-
 8637: ld (ix+$07), a ; Store in Palette Offset
 
 ```
+
+also:
+
+```asm
+ 80BB  jr   nz,$80C2                                       20 05
+ 80BD  ld   a,($D975)                                      3A 75 D9 ; 1P
+ 80C0  jr   $80C5                                          18 03
+ 80C2  ld   a,($D976)                                      3A 76 D9 ; 2P
+ 80C5  cp   $06                                            FE 06 ; Argentine selected?
+ 80C7  jr   c,$80CA                                        38 01
+ 80C9  inc  a                                              3C    ; if Argentine, increment accumulator to 07
+ 80CA  rlca                                                07
+ 80CB  rlca                                                07
+ 80CC  rlca                                                07
+ 80CD  ld   (de),a                                         12    ; write to address (de) the accumulator value
+ 80CE  push hl                                             E5
+ 80CF  push de                                             D5
+ 80D0  pop  hl                                             E1
+```
+
+#### Team Selection
+
+| Player | Address | Delta |
+| :--- | :--- | :--- |
+| 1P | E007 | +0  |
+| 2P | E107 | +40 |
+
+#### Players takes the field
+
+| 1P Address | 2P Address | 
+| :--- | :--- |
+| E037 | E137 |
+| E047 | E147 |
+| E057 | E157 |
+| E067 | E167 |
+| E077 | E177 |
+| E087 | E187 |
+| E097 | E197 |
+| E0A7 | E1A7 |
+| E0B7 | E1B7 |
 
 ### Palette attributes
 
